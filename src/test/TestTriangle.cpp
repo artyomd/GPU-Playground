@@ -4,7 +4,6 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <glm/gtx/string_cast.hpp>
 #include "TestTriangle.h"
 
 namespace test {

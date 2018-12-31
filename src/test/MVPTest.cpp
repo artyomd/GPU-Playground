@@ -5,7 +5,6 @@
 #include <vendor/imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include "glm/gtx/string_cast.hpp"
 #include "MVPTest.h"
 
 test::MVPTest::MVPTest() {
