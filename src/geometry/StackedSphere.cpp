@@ -3,7 +3,6 @@
 //
 
 #include <cmath>
-#include <GL/glew.h>
 #include "StackedSphere.h"
 #include "Renderer.h"
 
@@ -18,32 +17,32 @@ StackedSphere::StackedSphere(const float radius, const unsigned int stacks, cons
             float cosPhi = std::cos(phi);
             Point point = {radius * cosPhi * sinTheta, radius * sinPhi * sinTheta, radius * cosTheta, 1.0f, 1.0f, 0.0f,
                            0.0f};
-            m_geometryData.push_back(point);
+            geometryData.push_back(point);
         }
     }
     for (unsigned int stackNumber = 0; stackNumber < stacks; ++stackNumber) {
         for (unsigned int sliceNumber = 0; sliceNumber <= slices; ++sliceNumber) {
-            m_indexData.push_back(static_cast<unsigned short &&>((stackNumber * slices) + (sliceNumber % slices)));
-            m_indexData.push_back(static_cast<unsigned short &&>(((stackNumber + 1) * slices) + (sliceNumber % slices)));
+            indexData.push_back(static_cast<unsigned short &&>((stackNumber * slices) + (sliceNumber % slices)));
+            indexData.push_back(static_cast<unsigned short &&>(((stackNumber + 1) * slices) + (sliceNumber % slices)));
         }
     }
 
-    VertexBuffer vertexBuffer(&m_geometryData[0], static_cast<unsigned int>(7 * m_geometryData.size() * sizeof(float)));
+    VertexBuffer vertexBuffer(&geometryData[0], static_cast<unsigned int>(7 * geometryData.size() * sizeof(float)));
 
-    m_vertexArray = new VertexArray();
+    vertexArray = new VertexArray();
 
     VertexBufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(4);
-    m_vertexArray->addBuffer(&vertexBuffer, &layout);
+    vertexArray->addBuffer(&vertexBuffer, &layout);
 
-    m_indexBuffer = new IndexBuffer(&m_indexData[0], static_cast<unsigned int>(m_indexData.size()));
+    indexBuffer = new IndexBuffer(&indexData[0], static_cast<unsigned int>(indexData.size()));
 
-    m_vertexArray->unbind();
+    vertexArray->unbind();
     vertexBuffer.unbind();
-    m_indexBuffer->unbind();
+    indexBuffer->unbind();
 }
 
 void StackedSphere::render(Shader &shader) const {
-    Renderer::draw(*m_vertexArray, shader, *m_indexBuffer);
+    Renderer::draw(*vertexArray, shader, *indexBuffer);
 }

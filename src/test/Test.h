@@ -15,5 +15,7 @@ namespace test {
         virtual void onRender() {};
 
         virtual void onImGuiRender() {};
+
+        virtual void onWindowSizeChanged(int width, int height) {};
     };
 }

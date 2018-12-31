@@ -18,25 +18,20 @@ Triangle::Triangle(Point &point0, Point &point1, Point &point2) {
 
     VertexBuffer vertexBuffer(positions, 3 * 7 * sizeof(float));
 
-    m_vertexArray = new VertexArray();
+    vertexArray = new VertexArray();
 
     VertexBufferLayout layout;
     layout.Push<float>(3);
     layout.Push<float>(4);
-    m_vertexArray->addBuffer(&vertexBuffer, &layout);
+    vertexArray->addBuffer(&vertexBuffer, &layout);
 
-    m_indexBuffer = new IndexBuffer(indices, 3);
+    indexBuffer = new IndexBuffer(indices, 3);
 
-    m_vertexArray->unbind();
+    vertexArray->unbind();
     vertexBuffer.unbind();
-    m_indexBuffer->unbind();
+    indexBuffer->unbind();
 }
 
-void Triangle::render(Shader &shader) {
-    Renderer::draw(*m_vertexArray, shader, *m_indexBuffer);
-}
-
-Triangle::~Triangle() {
-    delete m_vertexArray;
-    delete m_indexBuffer;
+void Triangle::render(Shader &shader) const {
+    Renderer::draw(*vertexArray, shader, *indexBuffer);
 }

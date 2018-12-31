@@ -3,16 +3,15 @@
 //
 #pragma once
 
-#include "Test.h"
 #include "../Shader.h"
 #include "../VertexArray.h"
 #include "../IndexBuffer.h"
 #include "../geometry/StackedSphere.h"
 #include "../geometry/SpiralSphere.h"
-
+#include "MVPTest.h"
 
 namespace test {
-    class TestSphere : public Test {
+    class TestSphere : public MVPTest {
     public:
         TestSphere();
 
@@ -21,9 +20,7 @@ namespace test {
         void onRender() override;
 
     private:
-        Shader *m_shader;
-        SpiralSphere *sphere;
-        glm::mat4 projection;
-        float rotation = 0;
+        Shader *shader;
+        GeometryItem *sphere;
     };
 }

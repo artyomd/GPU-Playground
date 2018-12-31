@@ -8,15 +8,11 @@
 #include "VertexArray.h"
 #include "Point.h"
 #include "Shader.h"
+#include "GeometryItem.h"
 
-class Triangle {
+class Triangle : public GeometryItem {
 public:
     explicit Triangle(Point &point0, Point &point1, Point &point2);
 
-    ~ Triangle();
-
-    void render(Shader &shader);
-private:
-    VertexArray *m_vertexArray;
-    IndexBuffer *m_indexBuffer;
+    void render(Shader &shader) const override;
 };

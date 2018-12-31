@@ -14,9 +14,14 @@
 #include "TestSphere.h"
 #include "TestTexture2d.h"
 
-int main() {
-    GLFWwindow *window;
+std::unordered_map<GLFWwindow *, std::function<void(int, int)>> callbacks;
 
+void setWindowSizeCallback(GLFWwindow *window, std::function<void(int, int)> callback) {
+    callbacks[window] = std::move(callback);
+    glfwSetWindowSizeCallback(window, [](GLFWwindow *wnd, int w, int h) { callbacks[wnd](w, h); });
+}
+
+int main() {
     if (!glfwInit())
         return -1;
 
@@ -25,7 +30,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(640, 480, "GPU Playground", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(640, 480, "GPU Playground", nullptr, nullptr);
     if (window == nullptr) {
         getchar();
         glfwTerminate();
@@ -55,6 +60,14 @@ int main() {
     test::Test *currentTest = nullptr;
     auto *testMenu = new test::TestMenu(currentTest);
     currentTest = testMenu;
+
+    setWindowSizeCallback(window, [&currentTest](int width, int height) {
+        currentTest->onWindowSizeChanged(width, height);
+    });
+
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height) {
+        GLCall(glViewport(0, 0, width, height));
+    });
 
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
     testMenu->RegisterTest<test::TestTriangle>("Triangle");

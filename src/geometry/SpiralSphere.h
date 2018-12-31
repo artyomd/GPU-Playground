@@ -9,18 +9,17 @@
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "GeometryItem.h"
 
-class SpiralSphere {
+class SpiralSphere : public GeometryItem {
 
 public:
 
     explicit SpiralSphere(float radius = 1.0f, unsigned int loops = 8, unsigned int segmentsPerLoop = 16);
 
-    void render(Shader &shader) const;
+    void render(Shader &shader) const override;
 
 private:
-    VertexArray *m_vertexArray;
-    IndexBuffer *m_indexBuffer;
-    std::vector<Point> m_geometryData;
-    std::vector<unsigned int> m_indexData;
+    std::vector<Point> geometryData;
+    std::vector<unsigned int> indexData;
 };

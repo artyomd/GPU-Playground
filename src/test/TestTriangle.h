@@ -3,14 +3,14 @@
 //
 #pragma once
 
-#include "Test.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Triangle.h"
+#include "MVPTest.h"
 
 namespace test {
-    class TestTriangle : public Test {
+    class TestTriangle : public MVPTest {
     public:
         TestTriangle();
 
@@ -19,7 +19,7 @@ namespace test {
         void onRender() override;
 
     private:
-        Shader *m_shader;
-        Triangle* m_triangle;
+        Shader *shader;
+        Triangle *triangle;
     };
 }
