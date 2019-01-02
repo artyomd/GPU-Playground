@@ -7,10 +7,10 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Triangle.h"
-#include "MVPTest.h"
+#include "TestMVP.h"
 
 namespace test {
-    class TestTriangle : public MVPTest {
+    class TestTriangle : public TestMVP {
     public:
         TestTriangle();
 

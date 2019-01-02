@@ -8,10 +8,10 @@
 #include "../IndexBuffer.h"
 #include "../geometry/StackedSphere.h"
 #include "../geometry/SpiralSphere.h"
-#include "MVPTest.h"
+#include "TestMVP.h"
 
 namespace test {
-    class TestSphere : public MVPTest {
+    class TestSphere : public TestMVP {
     public:
         TestSphere();
 

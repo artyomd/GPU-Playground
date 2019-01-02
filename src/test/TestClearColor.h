@@ -18,6 +18,5 @@ namespace test {
 
     private:
         float m_Color[4];
-
     };
 }

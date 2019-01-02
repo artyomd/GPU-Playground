@@ -11,9 +11,9 @@
 #include "Test.h"
 
 namespace test {
-    class MVPTest : public Test {
+    class TestMVP : public Test {
     public:
-        MVPTest();
+        TestMVP();
 
         void onImGuiRender() override;
 

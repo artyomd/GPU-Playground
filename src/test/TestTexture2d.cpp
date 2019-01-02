@@ -9,7 +9,7 @@
 #include "imgui/imgui.h"
 
 namespace test {
-    test::TestTexture2d::TestTexture2d() : MVPTest() {
+    test::TestTexture2d::TestTexture2d() : TestMVP() {
         float positions[] = {
                 -0.5f, -0.5f, 0.0f, 0.0f,
                 0.5f, -0.5f, 1.0f, 0.0f,

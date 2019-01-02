@@ -7,9 +7,11 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "Renderer.h"
-
 #include "TestMenu.h"
+#include "TestShapingFunctionShader.h"
 #include "TestClearColor.h"
+#include "TestColorShader.h"
+#include "TestSquaresShader.h"
 #include "TestTriangle.h"
 #include "TestSphere.h"
 #include "TestTexture2d.h"
@@ -26,7 +28,7 @@ int main() {
         return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -54,22 +56,34 @@ int main() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 410");
+    ImGui_ImplOpenGL3_Init("#version 450");
     ImGui::StyleColorsDark();
 
     test::Test *currentTest = nullptr;
     auto *testMenu = new test::TestMenu(currentTest);
     currentTest = testMenu;
 
-    setWindowSizeCallback(window, [&currentTest](int width, int height) {
+    setWindowSizeCallback(window, [&currentTest, &testMenu](int width, int height) {
         currentTest->onWindowSizeChanged(width, height);
+        if (currentTest != testMenu) {
+            testMenu->onWindowSizeChanged(width, height);
+        }
     });
+
+    {
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+        testMenu->onWindowSizeChanged(width, height);
+    }
 
     glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height) {
         GLCall(glViewport(0, 0, width, height));
     });
 
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+    testMenu->RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
+    testMenu->RegisterTest<test::TestColorShader>("Shader Colors");
+    testMenu->RegisterTest<test::TestSquaresShader>("Shader Squares");
     testMenu->RegisterTest<test::TestTriangle>("Triangle");
     testMenu->RegisterTest<test::TestTexture2d>("Texture2D");
     testMenu->RegisterTest<test::TestSphere>("Sphere");

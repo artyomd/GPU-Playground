@@ -16,6 +16,8 @@ namespace test {
 
         void onImGuiRender() override;
 
+        void onWindowSizeChanged(int width, int height) override;
+
         template<typename T>
         void RegisterTest(const std::string &name) {
             std::cout << "Registering test: " << name << std::endl;
@@ -23,6 +25,8 @@ namespace test {
         }
 
     private:
+        int width;
+        int height;
         Test *&m_CurrentTest;
         std::vector<std::pair<std::string, std::function<Test *()>>> m_Tests;
     };

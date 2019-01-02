@@ -6,10 +6,10 @@
 #include "Shader.h"
 #include "VertexArray.h"
 #include "IndexBuffer.h"
-#include "MVPTest.h"
+#include "TestMVP.h"
 
 namespace test {
-    class TestTexture2d : public MVPTest {
+    class TestTexture2d : public TestMVP {
     public:
         TestTexture2d();
 

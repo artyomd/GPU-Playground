@@ -13,7 +13,13 @@ namespace test {
         for (auto &test : m_Tests) {
             if (ImGui::Button(test.first.c_str())) {
                 m_CurrentTest = test.second();
+                m_CurrentTest->onWindowSizeChanged(width, height);
             }
         }
+    }
+
+    void TestMenu::onWindowSizeChanged(int width, int height) {
+        this->width = width;
+        this->height = height;
     }
 }
