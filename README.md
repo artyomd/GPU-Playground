@@ -6,7 +6,6 @@ GPU Playground a simple project for testing out different thing with OpenGl, Vul
 For building and running playground you need to have 
 * [GLEW](http://glew.sourceforge.net/)
 * [GLFW](https://www.glfw.org/)
-* [GLM](https://glm.g-truc.net)
 
 ## Lisence
 GPU Playground is licensed under the MIT License, see LICENSE for more information.
