@@ -2,6 +2,7 @@
 // Created by artyomd on 1/2/19.
 //
 #include <chrono>
+#include <vendor/glm/gtc/matrix_transform.hpp>
 #include "TestShader.h"
 
 test::TestShader::TestShader(std::string vertexShaderName, std::string fragmentShaderName) {
@@ -18,10 +19,8 @@ test::TestShader::TestShader(std::string vertexShaderName, std::string fragmentS
 
 void test::TestShader::onRender() {
     shader->bind();
-    std::chrono::seconds ms = std::chrono::duration_cast<std::chrono::seconds>(
-            std::chrono::system_clock::now().time_since_epoch()
-    );
-    shader->setUniform1f("u_time", ms.count() % 100);
+    shader->setUniform1f("u_time", time);
+    time += deltaTime;
     quad->render(*shader);
 }
 
@@ -31,6 +30,9 @@ test::TestShader::~TestShader() {
 }
 
 void test::TestShader::onWindowSizeChanged(int width, int height) {
+    if (width == 0 || height == 0) {
+        return;
+    }
     shader->bind();
     shader->setUniform2f("u_screenSize", width, height);
     shader->unbind();

@@ -23,5 +23,7 @@ namespace test {
     private:
         Quad *quad;
         Shader *shader;
+        float time = 0;
+        const float deltaTime = 0.03333333333f;
     };
 };

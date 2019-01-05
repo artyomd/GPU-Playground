@@ -12,7 +12,7 @@ float plot(float y, float pct){
 void main() {
     vec2 st = gl_FragCoord.xy/u_screenSize.xy;
 
-    float y = st.x;
+    float y = 0.5+sin(u_time+st.x)/2;
 
     vec3 color = vec3(y);
 
