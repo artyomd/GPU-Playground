@@ -7,24 +7,27 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <unordered_map>
+#include <memory>
+#include "ShaderProperty.h"
 
 class Shader {
 
 private:
-
-
     std::string m_vertexShaderPath;
+
     std::string m_fragmentShaderPath;
+
+    std::unordered_map<std::string, std::unique_ptr<ShaderProperty>> uniforms;
 
     std::unordered_map<std::string, int> m_locationUniformCache;
 
     GLint getUniformLocation(const std::string &name);
 
-    GLuint compileShader(GLuint type, std::string &source);
+    static GLuint compileShader(GLuint type, const std::string &source);
 
-    std::string parseFile(const std::string &path);
+    static std::string parseFile(const std::string &path);
 
-    GLuint createShader(std::string &vertexShader, std::string &fragmentShader);
+    static GLuint createShader(const std::string &vertexShader, const std::string &fragmentShader);
 
 public:
     unsigned int m_RendererId;
@@ -37,16 +40,8 @@ public:
 
     void unbind() const;
 
-    void setUniform4f(const std::string &name, float v0, float v1, float v2, float v3);
+    void recompile();
 
-    void setUniform2f(const std::string &name, float v0, float v1);
-
-    void setUniform2i(const std::string &name, int v0, int v1);
-
-    void setUniformMatrix4f(const std::string &name, glm::mat4 &matrix);
-
-    void setUniform1i(const std::string &name, int value);
-
-    void setUniform1f(const std::string &name, float value);
+    void setUniform(const std::string &name, ShaderProperty *shaderProperty);
 
 };

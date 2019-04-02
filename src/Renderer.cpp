@@ -26,6 +26,10 @@ void Renderer::draw(const VertexArray &va, const Shader &shader, const IndexBuff
     ib.bind();
 
     GLCall(glDrawElements(GL_TRIANGLE_STRIP, ib.getCount(), GL_UNSIGNED_INT, nullptr));
+
+    ib.unbind();
+    va.unbind();
+    shader.unbind();
 }
 
 void Renderer::clear() {

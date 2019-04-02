@@ -25,8 +25,8 @@ namespace test {
         }
 
     private:
-        int width;
-        int height;
+        int m_width;
+        int m_height;
         Test *&m_CurrentTest;
         std::vector<std::pair<std::string, std::function<Test *()>>> m_Tests;
     };

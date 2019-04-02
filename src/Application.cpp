@@ -1,6 +1,8 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <test/TestStarNestShader.hpp>
+#include <test/TestSeascapeShader.hpp>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -8,15 +10,16 @@
 
 #include "Renderer.h"
 #include "TestMenu.h"
-#include "TestShapingFunctionShader.h"
+#include "TestShapingFunctionShader.hpp"
 #include "TestClearColor.h"
-#include "TestColorShader.h"
+#include "TestColorShader.hpp"
 #include "TestSquaresShader.h"
 #include "TestTriangle.h"
 #include "TestSphere.h"
 #include "TestTexture2d.h"
 
 std::unordered_map<GLFWwindow *, std::function<void(int, int)>> callbacks;
+const float deltaTime = 0.03333333333f;
 
 void setWindowSizeCallback(GLFWwindow *window, std::function<void(int, int)> callback) {
     callbacks[window] = std::move(callback);
@@ -81,6 +84,8 @@ int main() {
     });
 
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+    testMenu->RegisterTest<test::TestSeascapeShader>("Seascape");
+    testMenu->RegisterTest<test::TestStarNestShader>("Star Nest");
     testMenu->RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
     testMenu->RegisterTest<test::TestColorShader>("Shader Colors");
     testMenu->RegisterTest<test::TestSquaresShader>("Shader Squares");
@@ -96,7 +101,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        currentTest->onUpdate(0.0f);
+        currentTest->onUpdate(deltaTime);
         currentTest->onRender();
         ImGui::Begin("Test");
         currentTest->onImGuiRender();

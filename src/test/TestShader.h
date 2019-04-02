@@ -6,12 +6,13 @@
 
 #include <geometry/Quad.h>
 #include <Shader.h>
+#include <ShaderPropertyFloat1.h>
 #include "Test.h"
 
 namespace test {
     class TestShader : public Test {
     protected:
-        TestShader(std::string vertexShaderName, std::string fragmentShaderName);
+        TestShader(const std::string &vertexShaderName, const std::string &fragmentShaderName);
 
     public:
         ~TestShader() override;
@@ -20,10 +21,13 @@ namespace test {
 
         void onWindowSizeChanged(int width, int height) override;
 
+        void onImGuiRender() override;
+
+        void onUpdate(float deltaTime) override;
+
     private:
         Quad *quad;
         Shader *shader;
-        float time = 0;
-        const float deltaTime = 0.03333333333f;
+        ShaderPropertyFloat1* timeUniform;
     };
-};
+}

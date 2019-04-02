@@ -11,10 +11,7 @@
 
 Shader::Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
         : m_vertexShaderPath(vertexShaderPath), m_fragmentShaderPath(fragmentShaderPath), m_RendererId(0) {
-    std::string vertexShader = parseFile(vertexShaderPath);
-    std::string fragmentShader = parseFile(fragmentShaderPath);
-
-    m_RendererId = createShader(vertexShader, fragmentShader);
+    m_RendererId = createShader(parseFile(vertexShaderPath), parseFile(fragmentShaderPath));
 }
 
 Shader::~Shader() {
@@ -30,28 +27,9 @@ void Shader::unbind() const {
     GLCall(glUseProgram(0));
 }
 
-void Shader::setUniform1i(const std::string &name, int value) {
-    GLCall(glUniform1i(getUniformLocation(name), value));
-}
-
-void Shader::setUniform1f(const std::string &name, float value) {
-    GLCall(glUniform1f(getUniformLocation(name), value));
-}
-
-void Shader::setUniform2f(const std::string &name, float v0, float v1) {
-    GLCall(glUniform2f(getUniformLocation(name), v0, v1));
-}
-
-void Shader::setUniform2i(const std::string &name, int v0, int v1) {
-    GLCall(glUniform2i(getUniformLocation(name), v0, v1));
-}
-
-void Shader::setUniform4f(const std::string &name, float v0, float v1, float v2, float v3) {
-    GLCall(glUniform4f(getUniformLocation(name), v0, v1, v2, v3));
-}
-
-void Shader::setUniformMatrix4f(const std::string &name, glm::mat4 &matrix) {
-    GLCall(glUniformMatrix4fv(getUniformLocation(name), 1, false, &matrix[0][0]));
+void Shader::setUniform(const std::string &name, ShaderProperty *shaderProperty) {
+    shaderProperty->apply(getUniformLocation(name));
+    uniforms[name] = shaderProperty->clone();
 }
 
 GLint Shader::getUniformLocation(const std::string &name) {
@@ -66,7 +44,7 @@ GLint Shader::getUniformLocation(const std::string &name) {
     return uniformLocation;
 }
 
-GLuint Shader::compileShader(GLuint type, std::string &source) {
+GLuint Shader::compileShader(GLuint type, const std::string &source) {
     GLCall(GLuint id = glCreateShader(type));
     const char *src = source.c_str();
     GLCall(glShaderSource(id, 1, &src, nullptr));
@@ -101,20 +79,52 @@ std::string Shader::parseFile(const std::string &path) {
     return stringStream.str();
 }
 
+void Shader::recompile() {
+    unbind();
+    GLCall(glDeleteProgram(m_RendererId));
+    m_RendererId = createShader(parseFile(m_vertexShaderPath), parseFile(m_fragmentShaderPath));
+    bind();
+    for (auto &uniform : uniforms) {
+        uniform.second->apply(getUniformLocation(uniform.first));
+    }
+    unbind();
+}
 
-GLuint Shader::createShader(std::string &vertexShader, std::string &fragmentShader) {
+
+void getProgramInfoLog(int id) {
+    int length;
+    GLCall(glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length));
+    if (length != 0) {
+        char *message = (char *) alloca(length * sizeof(char));
+        GLCall(glGetProgramInfoLog(id, length, &length, message));
+        std::cout << "Program creation info message:" << message;
+    }
+}
+
+GLuint Shader::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
     GLCall(GLuint program = glCreateProgram());
+
+    getProgramInfoLog(program);
 
     GLCall(GLuint vs = compileShader(GL_VERTEX_SHADER, vertexShader));
     GLCall(GLuint fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader));
 
     GLCall(glAttachShader(program, vs));
+
+    getProgramInfoLog(program);
+
     GLCall(glAttachShader(program, fs));
+
+    getProgramInfoLog(program);
     GLCall(glLinkProgram(program));
+
+    getProgramInfoLog(program);
     GLCall(glValidateProgram(program));
 
+    getProgramInfoLog(program);
     GLCall(glDeleteShader(vs));
     GLCall(glDeleteShader(fs));
 
     return program;
 }
+

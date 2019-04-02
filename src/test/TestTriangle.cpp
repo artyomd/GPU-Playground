@@ -4,6 +4,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <ShaderPropertyMatrix4f.h>
 #include "TestTriangle.h"
 
 namespace test {
@@ -22,8 +23,11 @@ namespace test {
     void TestTriangle::onRender() {
         shader->bind();
         glm::mat4 mvp = computeMVP();
-        shader->setUniformMatrix4f("u_MVP", mvp);
+        auto property = new ShaderPropertyMatrix4f(mvp);
+        shader->setUniform("u_MVP", property);
+        delete property;
         triangle->render(*shader);
+        shader->unbind();
     }
 
     TestTriangle::~TestTriangle() {

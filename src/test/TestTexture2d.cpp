@@ -6,6 +6,8 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <ShaderPropertyMatrix4f.h>
+#include <ShaderPropertyInt1.h>
 #include "imgui/imgui.h"
 
 namespace test {
@@ -42,7 +44,7 @@ namespace test {
         unsigned int slot = 0;
         texture->bind(slot);
 
-        shader->setUniform1i("u_Texture", slot);
+        shader->setUniform("u_Texture", new ShaderPropertyInt1(slot));
 
         vertexArray->unbind();
         vertexBuffer.unbind();
@@ -53,8 +55,11 @@ namespace test {
     void TestTexture2d::onRender() {
         shader->bind();
         glm::mat4 mvp = computeMVP();
-        shader->setUniformMatrix4f("u_MVP", mvp);
+        auto property = new ShaderPropertyMatrix4f(mvp);
+        shader->setUniform("u_MVP", property);
+        delete property;
         Renderer::draw(*vertexArray, *shader, *indexBuffer);
+        shader->unbind();
     }
 
     TestTexture2d::~TestTexture2d() {

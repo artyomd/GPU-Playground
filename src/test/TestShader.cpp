@@ -3,9 +3,11 @@
 //
 #include <chrono>
 #include <vendor/glm/gtc/matrix_transform.hpp>
+#include <vendor/imgui/imgui.h>
+#include <ShaderPropertyFloat2.h>
 #include "TestShader.h"
 
-test::TestShader::TestShader(std::string vertexShaderName, std::string fragmentShaderName) {
+test::TestShader::TestShader(const std::string &vertexShaderName, const std::string &fragmentShaderName) {
     Point point0 = {-1.0f, -1.0f, 0.0f};
     Point point1 = {1.0f, -1.0f, 0.0f};
     Point point2 = {-1.0f, 1.0f, 0.0f};
@@ -15,13 +17,18 @@ test::TestShader::TestShader(std::string vertexShaderName, std::string fragmentS
 
     shader = new Shader("../res/shader/" + vertexShaderName + ".glsl",
                         "../res/shader/" + fragmentShaderName + ".glsl");
+    timeUniform = new ShaderPropertyFloat1(0);
 }
 
 void test::TestShader::onRender() {
     shader->bind();
-    shader->setUniform1f("u_time", time);
-    time += deltaTime;
+    shader->setUniform("u_time", timeUniform);
     quad->render(*shader);
+    shader->unbind();
+}
+
+void test::TestShader::onUpdate(float deltaTime) {
+    timeUniform->setValue(timeUniform->getValue() + deltaTime);
 }
 
 test::TestShader::~TestShader() {
@@ -29,11 +36,18 @@ test::TestShader::~TestShader() {
     delete shader;
 }
 
+void test::TestShader::onImGuiRender() {
+    if (ImGui::Button("Reload")) {
+        shader->recompile();
+    }
+}
+
 void test::TestShader::onWindowSizeChanged(int width, int height) {
     if (width == 0 || height == 0) {
         return;
     }
+    ShaderProperty *property = new ShaderPropertyFloat2(width, height);
     shader->bind();
-    shader->setUniform2f("u_screenSize", width, height);
+    shader->setUniform("u_screenSize", property);
     shader->unbind();
 }
