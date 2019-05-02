@@ -9,20 +9,19 @@
 
 class ShaderPropertyFloat2 : public ShaderProperty {
 private:
-    float m_value1;
-    float m_value2;
+    float m_values[2] = {0.0f, 0.0f};
 
 public:
 
     explicit ShaderPropertyFloat2(float value1, float value2);
 
+    float getValue0() const;
+
+    void setValue0(float value);
+
     float getValue1() const;
 
     void setValue1(float value);
-
-    float getValue2() const;
-
-    void setValue2(float value);
 
     void apply(int uniformLocation) override;
 

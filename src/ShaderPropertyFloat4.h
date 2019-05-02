@@ -9,13 +9,14 @@
 
 class ShaderPropertyFloat4 : public ShaderProperty {
 private:
-    float m_value1;
-    float m_value2;
-    float m_value3;
-    float m_value4;
+    float m_values[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 public:
     explicit ShaderPropertyFloat4(float value1, float value2, float value3, float value4);
+
+    float getValue0() const;
+
+    void setValue0(float value);
 
     float getValue1() const;
 
@@ -28,10 +29,6 @@ public:
     float getValue3() const;
 
     void setValue3(float value);
-
-    float getValue4() const;
-
-    void setValue4(float value);
 
     void apply(int uniformLocation) override;
 
