@@ -3,12 +3,12 @@
 //
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <ShaderPropertyMatrix4f.h>
+#include <api/ShaderPropertyMatrix4f.h>
 #include "TestSphere.h"
 
 namespace test {
     TestSphere::TestSphere() : TestMVP() {
-        sphere = new StackedSphere(2.0f);
+        sphere = new geometry::StackedSphere(2.0f);
         shader = new Shader("../res/shader/default_mvp_color_vertex_shader.glsl",
                             "../res/shader/default_color_fragment_shader.glsl");
     }

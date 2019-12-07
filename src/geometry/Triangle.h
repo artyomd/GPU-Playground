@@ -3,16 +3,17 @@
 //
 #pragma once
 
-
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "Point.h"
-#include "Shader.h"
+#include "api/IndexBuffer.h"
+#include "api/VertexArray.h"
+#include "Point.hpp"
+#include "api/Shader.h"
 #include "GeometryItem.h"
 
-class Triangle : public GeometryItem {
-public:
-    explicit Triangle(Point &point0, Point &point1, Point &point2);
+namespace geometry {
+    class Triangle : public GeometryItem {
+    public:
+        explicit Triangle(Point &point0, Point &point1, Point &point2);
 
-    void render(Shader &shader) const override;
-};
+        void render(Shader &shader) const override;
+    };
+}

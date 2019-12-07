@@ -17,6 +17,8 @@ file(GLOB_RECURSE SOURCE_FILES_C src/*.cpp src/*.hpp src/*.h)
 add_executable(playground ${SOURCE_FILES_C})
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/src/api")
+include_directories("${PROJECT_SOURCE_DIR}/src/application")
 include_directories("${PROJECT_SOURCE_DIR}/src/geometry")
 include_directories("${PROJECT_SOURCE_DIR}/src/vendor")
 include_directories("${PROJECT_SOURCE_DIR}/src/test")

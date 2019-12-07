@@ -5,8 +5,8 @@
 #pragma once
 
 #include <geometry/Quad.h>
-#include <Shader.h>
-#include <ShaderPropertyFloat1.h>
+#include <api/Shader.h>
+#include <api/ShaderPropertyFloat1.h>
 #include "Test.h"
 
 namespace test {
@@ -26,7 +26,7 @@ namespace test {
         void onUpdate(float deltaTime) override;
 
     private:
-        Quad *quad;
+        geometry::Quad *quad;
         Shader *shader;
         ShaderPropertyFloat1* timeUniform;
     };

@@ -3,11 +3,11 @@
 //
 
 #include "TestTexture2d.h"
-#include "Texture.h"
-#include "Renderer.h"
+#include "api/Texture.h"
+#include "api/Renderer.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <ShaderPropertyMatrix4f.h>
-#include <ShaderPropertyInt1.h>
+#include <api/ShaderPropertyMatrix4f.h>
+#include <api/ShaderPropertyInt1.h>
 #include "imgui/imgui.h"
 
 namespace test {

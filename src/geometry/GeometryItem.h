@@ -4,20 +4,22 @@
 
 #pragma once
 
-#include <Shader.h>
-#include <IndexBuffer.h>
-#include <VertexArray.h>
+#include <api/Shader.h>
+#include <api/IndexBuffer.h>
+#include <api/VertexArray.h>
 
-class GeometryItem {
-public:
-    virtual void render(Shader &shader) const = 0;
+namespace geometry {
+    class GeometryItem {
+    public:
+        virtual void render(Shader &shader) const = 0;
 
-    virtual ~GeometryItem() {
-        delete vertexArray;
-        delete indexBuffer;
-    }
+        virtual ~GeometryItem() {
+            delete vertexArray;
+            delete indexBuffer;
+        }
 
-protected:
-    VertexArray *vertexArray;
-    IndexBuffer *indexBuffer;
-};
+    protected:
+        VertexArray *vertexArray = nullptr;
+        IndexBuffer *indexBuffer = nullptr;
+    };
+}

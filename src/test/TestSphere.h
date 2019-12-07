@@ -3,9 +3,9 @@
 //
 #pragma once
 
-#include "../Shader.h"
-#include "../VertexArray.h"
-#include "../IndexBuffer.h"
+#include "api/Shader.h"
+#include "api/VertexArray.h"
+#include "api/IndexBuffer.h"
 #include "../geometry/StackedSphere.h"
 #include "../geometry/SpiralSphere.h"
 #include "TestMVP.h"
@@ -21,6 +21,6 @@ namespace test {
 
     private:
         Shader *shader;
-        GeometryItem *sphere;
+        geometry::GeometryItem *sphere;
     };
 }

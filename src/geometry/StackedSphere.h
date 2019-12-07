@@ -4,20 +4,22 @@
 #pragma once
 
 #include <vector>
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
-#include "Point.h"
+#include "api/VertexArray.h"
+#include "api/IndexBuffer.h"
+#include "api/Shader.h"
+#include "Point.hpp"
 #include "GeometryItem.h"
 
-class StackedSphere : public GeometryItem {
+namespace geometry {
+    class StackedSphere : public GeometryItem {
 
-public:
-    explicit StackedSphere(float radius = 1.0f, unsigned int stacks = 8, unsigned int slices = 16);
+    public:
+        explicit StackedSphere(float radius = 1.0f, unsigned int stacks = 8, unsigned int slices = 16);
 
-    void render(Shader &shader) const override;
+        void render(Shader &shader) const override;
 
-private:
-    std::vector<Point> geometryData;
-    std::vector<unsigned int> indexData;
-};
+    private:
+        std::vector<Point> geometryData;
+        std::vector<unsigned int> indexData;
+    };
+}

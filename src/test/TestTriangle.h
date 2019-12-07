@@ -3,9 +3,9 @@
 //
 #pragma once
 
-#include "VertexArray.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
+#include "api/VertexArray.h"
+#include "api/IndexBuffer.h"
+#include "api/Shader.h"
 #include "Triangle.h"
 #include "TestMVP.h"
 
@@ -20,6 +20,6 @@ namespace test {
 
     private:
         Shader *shader;
-        Triangle *triangle;
+        geometry::Triangle *triangle;
     };
 }

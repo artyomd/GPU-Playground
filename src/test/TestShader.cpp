@@ -4,16 +4,16 @@
 #include <chrono>
 #include <vendor/glm/gtc/matrix_transform.hpp>
 #include <vendor/imgui/imgui.h>
-#include <ShaderPropertyFloat2.h>
+#include <api/ShaderPropertyFloat2.h>
 #include "TestShader.h"
 
 test::TestShader::TestShader(const std::string &vertexShaderName, const std::string &fragmentShaderName) {
-    Point point0 = {-1.0f, -1.0f, 0.0f};
-    Point point1 = {1.0f, -1.0f, 0.0f};
-    Point point2 = {-1.0f, 1.0f, 0.0f};
-    Point point3 = {1.0f, 1.0f, 0.0f};
+    geometry::Point point0 = {-1.0f, -1.0f, 0.0f};
+    geometry::Point point1 = {1.0f, -1.0f, 0.0f};
+    geometry::Point point2 = {-1.0f, 1.0f, 0.0f};
+    geometry::Point point3 = {1.0f, 1.0f, 0.0f};
 
-    quad = new Quad(point0, point1, point2, point3);
+    quad = new geometry::Quad(point0, point1, point2, point3);
 
     shader = new Shader("../res/shader/" + vertexShaderName + ".glsl",
                         "../res/shader/" + fragmentShaderName + ".glsl");

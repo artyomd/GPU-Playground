@@ -1,0 +1,3 @@
+stb_image - v2.23
+glm - v0.9.9.6
+imgui - v1.74

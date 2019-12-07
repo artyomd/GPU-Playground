@@ -5,11 +5,13 @@
 #pragma once
 
 #include "GeometryItem.h"
-#include "Point.h"
+#include "Point.hpp"
 
-class Quad : public GeometryItem {
-public:
-    explicit Quad(Point &point0, Point &point1, Point &point2, Point &point3);
+namespace geometry {
+    class Quad : public GeometryItem {
+    public:
+        explicit Quad(Point &point0, Point &point1, Point &point2, Point &point3);
 
-    void render(Shader &shader) const override;
-};
+        void render(Shader &shader) const override;
+    };
+}

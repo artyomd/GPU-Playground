@@ -5,9 +5,9 @@
 #pragma once
 
 
-#include <Shader.h>
-#include <VertexArray.h>
-#include <IndexBuffer.h>
+#include <api/Shader.h>
+#include <api/VertexArray.h>
+#include <api/IndexBuffer.h>
 #include "Test.h"
 
 namespace test {
