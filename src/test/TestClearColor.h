@@ -10,9 +10,7 @@ namespace test {
     public:
         TestClearColor();
 
-        ~TestClearColor() override = default;
-
-        void onRender() override;
+        void onClear(RenderingContext* context) override;
 
         void onImGuiRender() override;
 

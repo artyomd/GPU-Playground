@@ -13,24 +13,22 @@ namespace application {
 
         void onWindowSizeChanged() final;
 
-        void initImGui() final;
-
-        void attachContext() final;
-
-        void clear() final;
+        bool prepareFrame() final;
 
         void createImGuiFrame() final;
 
         void renderImGui() final;
 
-        void swapBuffers() final;
+        void drawFrame() final;
 
-        void deAttachContext() final;
-
-        void destroyImGui() final;
+        void prepareForShutdown() final;
 
     public:
         void initContext() final;
+
+        void initImGui() final;
+
+        void destroyImGui() final;
 
         void destroyContext() override;
     };

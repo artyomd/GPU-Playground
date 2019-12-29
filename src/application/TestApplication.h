@@ -24,7 +24,6 @@ namespace application {
 
         template<typename T>
         void registerTest(const std::string &name) {
-            std::cout << "Registering test: " << name << std::endl;
             testMenu->RegisterTest<T>(name);
         }
     };

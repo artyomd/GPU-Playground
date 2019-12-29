@@ -8,6 +8,10 @@
 
 namespace application {
     void GLFWApplication::initWindow() {
+        glfwSetErrorCallback([](int error, const char *description) {
+            throw std::runtime_error("Glfw Error " + std::to_string(error) + ": " + description);
+        });
+
         if (!glfwInit()) {
             throw std::runtime_error("can not init glfw");
         }
@@ -27,21 +31,22 @@ namespace application {
             app->windowHeight = height;
             app->windowWidth = width;
             app->onWindowSizeChanged();
-            app->attachContext();
             app->currentTest->onWindowSizeChanged(width, height);
-            app->deAttachContext();
         });
     }
 
     void GLFWApplication::run() {
         while (!glfwWindowShouldClose(window)) {
-            attachContext();
-            clear();
+            glfwPollEvents();
+            currentTest->onClear(renderingContext);
+            if (!prepareFrame()) {
+                continue;
+            }
+            currentTest->onUpdate(deltaTime);
+            currentTest->onRender();
             createImGuiFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            currentTest->onUpdate(deltaTime);
-            currentTest->onRender();
             ImGui::Begin("Test");
             currentTest->onImGuiRender();
             renderMenu();
@@ -50,10 +55,9 @@ namespace application {
             ImGui::End();
             ImGui::Render();
             renderImGui();
-            swapBuffers();
-            deAttachContext();
-            glfwPollEvents();
+            drawFrame();
         }
+        prepareForShutdown();
     }
 
 

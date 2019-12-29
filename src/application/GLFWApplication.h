@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <test/Test.h>
 #include "TestApplication.h"
+#include "RenderingContext.hpp"
 
 namespace application {
     class GLFWApplication : public TestApplication {
@@ -17,22 +18,21 @@ namespace application {
         GLFWwindow *window = nullptr;
         int windowWidth = 640;
         int windowHeight = 480;
+        RenderingContext *renderingContext = new RenderingContext();
 
         virtual void setupWindowHints() = 0;
 
         virtual void onWindowSizeChanged() = 0;
 
-        virtual void attachContext() = 0;
-
-        virtual void clear() = 0;
+        virtual bool prepareFrame() = 0;
 
         virtual void createImGuiFrame() = 0;
 
         virtual void renderImGui() = 0;
 
-        virtual void swapBuffers() = 0;
+        virtual void drawFrame() = 0;
 
-        virtual void deAttachContext() = 0;
+        virtual void prepareForShutdown() = 0;
 
     public:
 

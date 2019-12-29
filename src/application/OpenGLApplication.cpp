@@ -18,42 +18,33 @@ namespace application {
     }
 
     void OpenGLApplication::onWindowSizeChanged() {
-        attachContext();
         GLCall(glViewport(0, 0, this->windowWidth, this->windowHeight));
-        deAttachContext();
     }
 
     void OpenGLApplication::initContext() {
-        attachContext();
-        glfwSwapInterval(1);
+        glfwMakeContextCurrent(window);
+        glfwSwapInterval(0);
         if (glewInit() != GLEW_OK) {
             getchar();
             glfwTerminate();
             throw std::runtime_error("can not init glew");
         }
         GLCall(glEnable(GL_CULL_FACE));
-        deAttachContext();
     }
 
     void OpenGLApplication::initImGui() {
-        attachContext();
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 450");
         ImGui::StyleColorsDark();
-        deAttachContext();
     }
 
-
-    void OpenGLApplication::attachContext() {
-        glfwMakeContextCurrent(window);
-    }
-
-//////////------ context is already attached
-    void OpenGLApplication::clear() {
+    bool OpenGLApplication::prepareFrame() {
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
-        GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+        float *color = renderingContext->getColor();
+        GLCall(glClearColor(color[0], color[1], color[2], color[3]));
+        return true;
     }
 
     void OpenGLApplication::createImGuiFrame() {
@@ -64,25 +55,21 @@ namespace application {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
-    void OpenGLApplication::swapBuffers() {
+    void OpenGLApplication::drawFrame() {
         glfwSwapBuffers(window);
     }
 
-//////////------ context is already attached
-
-    void OpenGLApplication::deAttachContext() {
-        glfwMakeContextCurrent(nullptr);
+    void OpenGLApplication::prepareForShutdown() {
+        glFinish();
     }
 
     void OpenGLApplication::destroyImGui() {
-        attachContext();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
-        deAttachContext();
     }
 
     void OpenGLApplication::destroyContext() {
-        //do nothing context is being held by glfw
+        glfwMakeContextCurrent(nullptr);
     }
 }

@@ -10,9 +10,8 @@ test::TestClearColor::TestClearColor() : m_Color{0.2f, 0.3f, 0.8f, 1.0f} {
 
 }
 
-void test::TestClearColor::onRender() {
-    Renderer::clearColor(m_Color[0], m_Color[1], m_Color[2], m_Color[3]);
-    Renderer::clear();
+void test::TestClearColor::onClear(RenderingContext *context) {
+    context->setClearColor(m_Color[0], m_Color[1], m_Color[2], m_Color[3]);
 }
 
 void test::TestClearColor::onImGuiRender() {

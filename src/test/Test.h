@@ -3,12 +3,16 @@
 //
 #pragma once
 
+#include "RenderingContext.hpp"
+
 namespace test {
     class Test {
     public:
         Test() = default;
 
         virtual ~Test() = default;
+
+        virtual void onClear(RenderingContext* context) {}
 
         virtual void onUpdate(float deltaTime) {};
 
