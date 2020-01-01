@@ -7,6 +7,9 @@
 #include "GLFWApplication.h"
 
 namespace application {
+    GLFWApplication::GLFWApplication() {
+    }
+
     void GLFWApplication::initWindow() {
         glfwSetErrorCallback([](int error, const char *description) {
             throw std::runtime_error("Glfw Error " + std::to_string(error) + ": " + description);
@@ -38,7 +41,7 @@ namespace application {
     void GLFWApplication::run() {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
-            currentTest->onClear(renderingContext);
+            currentTest->onClear(renderer);
             if (!prepareFrame()) {
                 continue;
             }
@@ -64,5 +67,8 @@ namespace application {
     void GLFWApplication::destroyWindow() {
         glfwDestroyWindow(window);
         glfwTerminate();
+    }
+
+    GLFWApplication::~GLFWApplication() {
     }
 }

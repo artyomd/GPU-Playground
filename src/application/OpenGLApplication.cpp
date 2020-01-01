@@ -23,7 +23,7 @@ namespace application {
 
     void OpenGLApplication::initContext() {
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
         if (glewInit() != GLEW_OK) {
             getchar();
             glfwTerminate();
@@ -42,7 +42,7 @@ namespace application {
 
     bool OpenGLApplication::prepareFrame() {
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
-        float *color = renderingContext->getColor();
+        float *color = renderer->getColor();
         GLCall(glClearColor(color[0], color[1], color[2], color[3]));
         return true;
     }

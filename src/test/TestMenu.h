@@ -12,7 +12,7 @@
 namespace test {
     class TestMenu : public Test {
     public:
-        explicit TestMenu(Test *&currentTest);
+        explicit TestMenu(api::Renderer *renderer, Test *&currentTest);
 
         void onImGuiRender() override;
 

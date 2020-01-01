@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "api/VertexArray.h"
+#include "api/gl/GlVertexBinding.h"
 #include "api/IndexBuffer.h"
 #include "api/Shader.h"
 #include "Triangle.h"
@@ -12,7 +12,7 @@
 namespace test {
     class TestTriangle : public TestMVP {
     public:
-        TestTriangle();
+        TestTriangle(api::Renderer *renderer);
 
         ~TestTriangle() override;
 

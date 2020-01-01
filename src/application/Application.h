@@ -8,6 +8,8 @@
 
 namespace application {
     class Application {
+    protected:
+        api::Renderer *renderer = nullptr;
     public:
         virtual void initWindow() = 0;
 

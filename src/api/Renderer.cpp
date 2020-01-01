@@ -20,7 +20,7 @@ bool GLLogCall(const char *function, const char *file, int line) {
     return true;
 }
 
-void Renderer::draw(const VertexArray &va, const Shader &shader, const IndexBuffer &ib) {
+void Renderer::draw(const GlVertexBinding &va, const Shader &shader, const IndexBuffer &ib) {
     shader.bind();
     va.bind();
     ib.bind();
@@ -35,8 +35,4 @@ void Renderer::draw(const VertexArray &va, const Shader &shader, const IndexBuff
 void Renderer::clear() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-}
-
-void Renderer::clearColor(float r, float g, float b, float a) {
-    GLCall(glClearColor(r, g, b, a));
 }

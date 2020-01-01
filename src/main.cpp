@@ -22,13 +22,13 @@ public:
         testApplication->initContext();
         testApplication->initImGui();
         testApplication->registerTest<test::TestClearColor>("Clear Color");
+        testApplication->registerTest<test::TestTriangle>("Triangle");
 //        testApplication->registerTest<test::TestSeascapeShader>("Seascape");
 //        testApplication->registerTest<test::TestRaymarching>("Raymarching");
 //        testApplication->registerTest<test::TestStarNestShader>("Star Nest");
 //        testApplication->registerTest<test::TestShapingFunctionShader>("Shader Shaping Function");
 //        testApplication->registerTest<test::TestColorShader>("Shader Colors");
 //        testApplication->registerTest<test::TestSquaresShader>("Shader Squares");
-//        testApplication->registerTest<test::TestTriangle>("Triangle");
 //        testApplication->registerTest<test::TestTexture2d>("Texture2D");
 //        testApplication->registerTest<test::TestSphere>("Sphere");
         testApplication->run();

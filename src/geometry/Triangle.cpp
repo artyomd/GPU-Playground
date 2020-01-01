@@ -16,12 +16,19 @@ namespace geometry {
         unsigned int indices[] = {
                 0, 1, 2
         };
+        VertexBuffer vertexBuffer(positions);
+        VertexAttributeDescription description();
+        description.push(3);
+        description.push(4);
+        VertextBinding binding = new VertextBinding();
+        binding.add(buffer, desctiontion);
+
 
         VertexBuffer vertexBuffer(positions, 3 * 7 * sizeof(float));
 
-        vertexArray = new VertexArray();
+        vertexArray = new GlVertexBinding();
 
-        VertexBufferLayout layout;
+        VertexAttributeDescription layout;
         layout.Push<float>(3);
         layout.Push<float>(4);
         vertexArray->addBuffer(&vertexBuffer, &layout);

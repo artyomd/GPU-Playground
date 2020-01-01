@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include <cassert>
 
-struct VertexBufferElement {
+struct VertexAttribute {
     unsigned int type;
     unsigned int count;
     unsigned char normalized;
@@ -26,24 +26,24 @@ struct VertexBufferElement {
     }
 };
 
-class VertexBufferLayout {
+class VertexAttributeDescription {
 
 private:
-    std::vector<VertexBufferElement> elements;
+    std::vector<VertexAttribute> elements;
     unsigned int stride;
 public:
-    VertexBufferLayout() : stride(0) {}
+    VertexAttributeDescription() : stride(0) {}
 
     template<typename T>
     void Push(unsigned int count) {
         assert(false); //Not implemented
     }
 
-    inline const std::vector<VertexBufferElement> getElements() const {
+    inline const std::vector<VertexAttribute> getElements() const {
         return elements;
     }
 
-    inline unsigned int getStride() const {
+    inline const unsigned int getStride() const {
         return stride;
     }
 };

@@ -7,7 +7,7 @@
 #include <iostream>
 #include "TestMVP.h"
 
-test::TestMVP::TestMVP() {
+test::TestMVP::TestMVP(api::Renderer *renderer) : Test(renderer) {
     projection = glm::ortho(-4.0f, 4.0f, -3.0f, 3.0f, -4.0f, 4.0f);
     maxSide = 4.0f;
     translation = glm::vec3(0.0f, 0.0f, 0.0f);

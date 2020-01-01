@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <test/Test.h>
 #include "TestApplication.h"
-#include "RenderingContext.hpp"
+#include "Renderer.hpp"
 
 namespace application {
     class GLFWApplication : public TestApplication {
@@ -18,7 +18,6 @@ namespace application {
         GLFWwindow *window = nullptr;
         int windowWidth = 640;
         int windowHeight = 480;
-        RenderingContext *renderingContext = new RenderingContext();
 
         virtual void setupWindowHints() = 0;
 
@@ -35,6 +34,10 @@ namespace application {
         virtual void prepareForShutdown() = 0;
 
     public:
+
+        GLFWApplication();
+
+        ~GLFWApplication() override;
 
         void initWindow() final;
 

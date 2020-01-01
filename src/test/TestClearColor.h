@@ -8,13 +8,11 @@
 namespace test {
     class TestClearColor : public Test {
     public:
-        TestClearColor();
-
-        void onClear(RenderingContext* context) override;
+        void onClear() override;
 
         void onImGuiRender() override;
 
     private:
-        float m_Color[4];
+        float m_Color[4] = {0.2f, 0.3f, 0.8f, 1.0f};
     };
 }

@@ -9,7 +9,7 @@
 
 namespace test {
 
-    TestTriangle::TestTriangle() : TestMVP() {
+    TestTriangle::TestTriangle(api::Renderer *renderer) : TestMVP(renderer) {
 
         geometry::Point point0 = {-0.5f, -0.5f, 0.0f, 1, 1, 0, 0};
         geometry::Point point1 = {0.5f, -0.5f, 0.0f, 1, 0, 1, 0};
@@ -17,7 +17,8 @@ namespace test {
 
         triangle = new geometry::Triangle(point0, point1, point2);
 
-        shader = new Shader("../res/shader/default_mvp_color_vertex_shader.glsl", "../res/shader/default_color_fragment_shader.glsl");
+        shader = new Shader("../res/shader/default_mvp_color_vertex_shader.glsl",
+                            "../res/shader/default_color_fragment_shader.glsl");
     }
 
     void TestTriangle::onRender() {

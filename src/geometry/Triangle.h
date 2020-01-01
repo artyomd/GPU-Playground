@@ -4,7 +4,7 @@
 #pragma once
 
 #include "api/IndexBuffer.h"
-#include "api/VertexArray.h"
+#include "api/gl/GlVertexBinding.h"
 #include "Point.hpp"
 #include "api/Shader.h"
 #include "GeometryItem.h"

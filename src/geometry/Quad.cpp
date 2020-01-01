@@ -20,9 +20,9 @@ namespace geometry {
 
         VertexBuffer vertexBuffer(positions, 4 * 7 * sizeof(float));
 
-        vertexArray = new VertexArray();
+        vertexArray = new GlVertexBinding();
 
-        VertexBufferLayout layout;
+        VertexAttributeDescription layout;
         layout.Push<float>(3);
         layout.Push<float>(4);
         vertexArray->addBuffer(&vertexBuffer, &layout);

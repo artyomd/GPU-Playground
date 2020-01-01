@@ -6,7 +6,7 @@
 
 #include <api/Shader.h>
 #include <api/IndexBuffer.h>
-#include <api/VertexArray.h>
+#include <api/gl/GlVertexBinding.h>
 
 namespace geometry {
     class GeometryItem {
@@ -19,7 +19,7 @@ namespace geometry {
         }
 
     protected:
-        VertexArray *vertexArray = nullptr;
+        GlVertexBinding *vertexArray = nullptr;
         IndexBuffer *indexBuffer = nullptr;
     };
 }

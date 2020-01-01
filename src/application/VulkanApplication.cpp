@@ -8,6 +8,7 @@
 #include <vendor/imgui/imgui.h>
 #include <vendor/imgui/imgui_impl_glfw.h>
 #include <vendor/imgui/imgui_impl_vulkan.h>
+#include <api/vulkan/VkRenderingContext.h>
 #include "VulkanApplication.h"
 
 namespace application {
@@ -54,6 +55,8 @@ namespace application {
     }
 
     void VulkanApplication::initContext() {
+        context = new api::VkRenderingContext();
+        renderer = new api::Renderer(context);
         createInstance();
         setupDebugMessenger();
         createSurface();
@@ -329,7 +332,7 @@ namespace application {
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &graphicsCommandPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create command pool!");
         }
     }
@@ -447,7 +450,7 @@ namespace application {
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = graphicsCommandPool;
         allocInfo.commandBufferCount = 1;
         VkCommandBuffer commandBuffer;
         vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
@@ -466,7 +469,7 @@ namespace application {
         submitInfo.pCommandBuffers = &commandBuffer;
         vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
         vkQueueWaitIdle(graphicsQueue);
-        vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        vkFreeCommandBuffers(device, graphicsCommandPool, 1, &commandBuffer);
     }
     ////end maybe api methods
 
@@ -531,13 +534,13 @@ namespace application {
     }
 
     void VulkanApplication::createCommandBuffers() {
-        commandBuffers.resize(swapChainFrameBuffers.size());
+        graphicsCommandBuffers.resize(swapChainFrameBuffers.size());
         VkCommandBufferAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = commandPool;
+        allocInfo.commandPool = graphicsCommandPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        allocInfo.commandBufferCount = (uint32_t) graphicsCommandBuffers.size();
+        if (vkAllocateCommandBuffers(device, &allocInfo, graphicsCommandBuffers.data()) != VK_SUCCESS) {
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
@@ -612,7 +615,7 @@ namespace application {
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo);
+        vkBeginCommandBuffer(graphicsCommandBuffers[currentFrame], &beginInfo);
 
         VkRenderPassBeginInfo renderPassInfo = {};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -622,10 +625,10 @@ namespace application {
         renderPassInfo.renderArea.extent = swapChainExtent;
 
         renderPassInfo.clearValueCount = 1;
-        float *color = renderingContext->getColor();
+        float *color = renderer->getColor();
         VkClearValue clearColor = {color[0], color[1], color[2], color[3]};
         renderPassInfo.pClearValues = &clearColor;
-        vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(graphicsCommandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         return true;
     }
 
@@ -634,12 +637,12 @@ namespace application {
     }
 
     void VulkanApplication::renderImGui() {
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffers[currentFrame]);
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), graphicsCommandBuffers[currentFrame]);
     }
 
     void VulkanApplication::drawFrame() {
-        vkCmdEndRenderPass(commandBuffers[currentFrame]);
-        vkEndCommandBuffer(commandBuffers[currentFrame]);
+        vkCmdEndRenderPass(graphicsCommandBuffers[currentFrame]);
+        vkEndCommandBuffer(graphicsCommandBuffers[currentFrame]);
 
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         VkSubmitInfo submitInfo = {};
@@ -648,7 +651,7 @@ namespace application {
         submitInfo.pWaitSemaphores = &imageAvailableSemaphores[currentFrame];
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+        submitInfo.pCommandBuffers = &graphicsCommandBuffers[currentFrame];
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = &renderFinishedSemaphores[currentFrame];
 
@@ -691,7 +694,7 @@ namespace application {
         for (auto framebuffer : swapChainFrameBuffers) {
             vkDestroyFramebuffer(device, framebuffer, nullptr);
         }
-        vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+        vkFreeCommandBuffers(device, graphicsCommandPool, static_cast<uint32_t>(graphicsCommandBuffers.size()), graphicsCommandBuffers.data());
         vkDestroyRenderPass(device, renderPass, nullptr);
         for (auto imageView : swapChainImageViews) {
             vkDestroyImageView(device, imageView, nullptr);
@@ -700,13 +703,15 @@ namespace application {
     }
 
     void VulkanApplication::destroyContext() {
+        delete context;
+        delete renderer;
         cleanupSwapChain();
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(device, inFlightFences[i], nullptr);
         }
-        vkDestroyCommandPool(device, commandPool, nullptr);
+        vkDestroyCommandPool(device, graphicsCommandPool, nullptr);
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(vulkanInstance, surface, nullptr);

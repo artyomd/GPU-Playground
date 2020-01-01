@@ -6,14 +6,14 @@
 
 
 #include <api/Shader.h>
-#include <api/VertexArray.h>
+#include <api/gl/GlVertexBinding.h>
 #include <api/IndexBuffer.h>
 #include "Test.h"
 
 namespace test {
     class TestMVP : public Test {
     public:
-        TestMVP();
+        TestMVP(api::Renderer *renderer);
 
         void onImGuiRender() override;
 

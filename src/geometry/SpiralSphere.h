@@ -6,7 +6,7 @@
 
 #include <vector>
 #include "Point.hpp"
-#include "api/VertexArray.h"
+#include "api/gl/GlVertexBinding.h"
 #include "api/IndexBuffer.h"
 #include "api/Shader.h"
 #include "GeometryItem.h"

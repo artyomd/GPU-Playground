@@ -4,7 +4,7 @@
 #pragma once
 
 #include "api/Shader.h"
-#include "api/VertexArray.h"
+#include "api/gl/GlVertexBinding.h"
 #include "api/IndexBuffer.h"
 #include "TestMVP.h"
 
@@ -19,7 +19,7 @@ namespace test {
 
     private:
         Shader *shader;
-        VertexArray *vertexArray;
+        GlVertexBinding *vertexArray;
         IndexBuffer *indexBuffer;
     };
 }

@@ -54,9 +54,9 @@ namespace geometry {
 
         VertexBuffer vertexBuffer(&geometryData[0], static_cast<unsigned int>(7 * geometryData.size() * sizeof(float)));
 
-        vertexArray = new VertexArray();
+        vertexArray = new GlVertexBinding();
 
-        VertexBufferLayout layout;
+        VertexAttributeDescription layout;
         layout.Push<float>(3);
         layout.Push<float>(4);
         vertexArray->addBuffer(&vertexBuffer, &layout);

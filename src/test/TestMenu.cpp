@@ -6,7 +6,9 @@
 #include "imgui/imgui.h"
 
 namespace test {
-    test::TestMenu::TestMenu(Test *&currentTest) : m_CurrentTest(currentTest), m_width(0), m_height(0) {
+    test::TestMenu::TestMenu(api::Renderer *renderer, Test *&currentTest) : Test(renderer),
+                                                                            m_CurrentTest(currentTest),
+                                                                            m_width(0), m_height(0) {
     }
 
     void test::TestMenu::onImGuiRender() {

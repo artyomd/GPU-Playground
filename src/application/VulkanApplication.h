@@ -12,6 +12,7 @@
 namespace application {
     class VulkanApplication : public GLFWApplication {
     private:
+        api::VkRenderingContext *context = nullptr;
 #ifdef NDEBUG
         const bool enableValidationLayers = false;
 #else
@@ -35,7 +36,11 @@ namespace application {
         VkDevice device;
 
         VkRenderPass renderPass;
+
         VkQueue graphicsQueue;
+        VkCommandPool graphicsCommandPool;
+        std::vector<VkCommandBuffer> graphicsCommandBuffers;
+
         VkQueue presentQueue;
 
         VkSwapchainKHR swapChain;
@@ -46,8 +51,6 @@ namespace application {
         std::vector<VkFramebuffer> swapChainFrameBuffers;
 
         VkDescriptorPool descriptorPool;
-        VkCommandPool commandPool;
-        std::vector<VkCommandBuffer> commandBuffers;
 
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;

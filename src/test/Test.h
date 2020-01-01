@@ -3,16 +3,18 @@
 //
 #pragma once
 
-#include "RenderingContext.hpp"
+#include "Renderer.hpp"
 
 namespace test {
     class Test {
+    protected:
+        api::Renderer *renderer;
     public:
-        Test() = default;
+        Test(api::Renderer *renderer) : renderer(renderer) {};
 
         virtual ~Test() = default;
 
-        virtual void onClear(RenderingContext* context) {}
+        virtual void onClear() {}
 
         virtual void onUpdate(float deltaTime) {};
 

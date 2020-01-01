@@ -28,9 +28,9 @@ namespace test {
 
         VertexBuffer vertexBuffer(positions, 4 * 4 * sizeof(float));
 
-        vertexArray = new VertexArray();
+        vertexArray = new GlVertexBinding();
 
-        VertexBufferLayout layout;
+        VertexAttributeDescription layout;
         layout.Push<float>(2);
         layout.Push<float>(2);
         vertexArray->addBuffer(&vertexBuffer, &layout);

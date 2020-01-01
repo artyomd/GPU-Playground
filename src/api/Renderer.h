@@ -4,7 +4,7 @@
 #pragma once
 
 #include <GL/glew.h>
-#include "VertexArray.h"
+#include "api/gl/GlVertexBinding.h"
 #include "Shader.h"
 #include "IndexBuffer.h"
 
@@ -18,9 +18,8 @@ bool GLLogCall(const char *function, const char *file, int line);
 
 class Renderer {
 public:
-    static void draw(const VertexArray &va, const Shader &shader, const IndexBuffer &ib);
+    static void draw(const GlVertexBinding &va, const Shader &shader, const IndexBuffer &ib);
 
     static void clear();
-
-    static void clearColor(float r, float g, float b, float a);
+    
 };
