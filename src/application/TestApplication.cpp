@@ -4,25 +4,28 @@
 
 #include <vendor/imgui/imgui.h>
 #include "TestApplication.h"
-#include "test/TestMenu.h"
 
 namespace application {
-    TestApplication::TestApplication() {
-        testMenu = new test::TestMenu(currentTest);
-        currentTest = testMenu;
-    }
+void TestApplication::PrepareTestMenu(int width, int height) {
+  if (test_menu_!=nullptr) {
+    throw std::runtime_error("prepare test menu should be could only once");
+  }
+  test_menu_ = new test::TestMenu(renderer_, current_test_);
+  current_test_ = test_menu_;
+  current_test_->OnWindowSizeChanged(width, height);
+}
 
-    void TestApplication::renderMenu() {
-        if (currentTest != testMenu && ImGui::Button("<--")) {
-            delete currentTest;
-            currentTest = testMenu;
-        }
-    }
+void TestApplication::RenderMenu() {
+  if (current_test_!=test_menu_ && ImGui::Button("<--")) {
+    delete current_test_;
+    current_test_ = test_menu_;
+  }
+}
 
-    TestApplication::~TestApplication() {
-        delete currentTest;
-        if (currentTest != testMenu) {
-            delete testMenu;
-        }
-    }
+void TestApplication::DeleteTestMenu() {
+  delete current_test_;
+  if (current_test_!=test_menu_) {
+    delete test_menu_;
+  }
+}
 }

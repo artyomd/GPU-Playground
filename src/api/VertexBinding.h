@@ -1,13 +1,21 @@
-*//
-// Created by artyomd on 12/31/19.
-//
 #pragma once
 
-#include "VertexAttributeDescription.cpp"
+#include "VertexBufferLayout.cpp"
+#include "VertexBuffer.h"
 
 namespace api {
-    class VertexBinding {
-    public:
-        virtual void addBuffer(const VertexBuffer *buffer, const VertexAttributeDescription *description) = 0;
-    };
+class VertexBinding {
+ protected:
+  const VertexBuffer *buffer_;
+  const VertexBufferLayout *buffer_description_;
+ public:
+  VertexBinding(const VertexBuffer *buffer, const VertexBufferLayout *description) :
+      buffer_(buffer), buffer_description_(description) {};
+
+  virtual void Bind() const = 0;
+
+  virtual void Unbind() const = 0;
+
+  virtual ~VertexBinding() = default;
+};
 }

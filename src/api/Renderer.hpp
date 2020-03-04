@@ -5,41 +5,40 @@
 #pragma once
 
 #include "RenderingContext.h"
-#include "Shader.h"
-#include "RenderingPipline.h"
+#include "RenderingPipeline.h"
 
 namespace api {
-    class Renderer {
-    private:
-        float *clearColor;
-        RenderingContext *context = nullptr;
+class Renderer {
+ private:
+  float *clear_color_;
+  RenderingContext *context_ = nullptr;
 
-    public:
-        explicit Renderer(RenderingContext *context) : context(context) {
-            clearColor = new float[4]{0.0f, 0.0f, 0.0f, 0.0f};
-        }
+ public:
+  explicit Renderer(RenderingContext *context) : context_(context) {
+    clear_color_ = new float[4]{0.0f, 0.0f, 0.0f, 0.0f};
+  }
 
-        ~Renderer() {
-            delete clearColor;
-        }
+  ~Renderer() {
+    delete clear_color_;
+  }
 
-        void setClearColor(float red, float green, float blue, float alpha) {
-            this->clearColor[0] = red;
-            this->clearColor[1] = green;
-            this->clearColor[2] = blue;
-            this->clearColor[3] = alpha;
-        }
+  void SetClearColor(float red, float green, float blue, float alpha) {
+    this->clear_color_[0] = red;
+    this->clear_color_[1] = green;
+    this->clear_color_[2] = blue;
+    this->clear_color_[3] = alpha;
+  }
 
-        float *getColor() {
-            return this->clearColor;
-        }
+  float *GetColor() {
+    return clear_color_;
+  }
 
-        RenderingContext *getRenderingContext() {
-            return context;
-        }
+  RenderingContext *GetRenderingContext() {
+    return context_;
+  }
 
-        void render(RenderingPipeline *pipeline) {
-
-        }
-    };
+  void Render(RenderingPipeline *pipeline) {
+    pipeline->Render();
+  }
+};
 }

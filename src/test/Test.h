@@ -6,22 +6,22 @@
 #include "Renderer.hpp"
 
 namespace test {
-    class Test {
-    protected:
-        api::Renderer *renderer;
-    public:
-        Test(api::Renderer *renderer) : renderer(renderer) {};
+class Test {
+ protected:
+  api::Renderer *renderer_;
+ public:
+  explicit Test(api::Renderer *renderer) : renderer_(renderer) {};
 
-        virtual ~Test() = default;
+  virtual ~Test() = default;
 
-        virtual void onClear() {}
+  virtual void OnClear() {}
 
-        virtual void onUpdate(float deltaTime) {};
+  virtual void OnUpdate(float delta_time) {};
 
-        virtual void onRender() {};
+  virtual void OnRender() {};
 
-        virtual void onImGuiRender() {};
+  virtual void OnImGuiRender() {};
 
-        virtual void onWindowSizeChanged(int width, int height) {};
-    };
+  virtual void OnWindowSizeChanged(int width, int height) {};
+};
 }

@@ -4,32 +4,35 @@
 
 #pragma once
 
-#include "GLFWApplication.h"
+#include "GlfwApplication.h"
+#include "api/gl/GlRenderingContext.h"
 
 namespace application {
-    class OpenGLApplication : public GLFWApplication {
-    protected:
-        void setupWindowHints() final;
+class OpenGLApplication : public GlfwApplication {
+ private:
+  api::GlRenderingContext *context_;
+ protected:
+  void SetupWindowHints() final;
 
-        void onWindowSizeChanged() final;
+  void OnWindowSizeChanged() final;
 
-        bool prepareFrame() final;
+  bool PrepareFrame() final;
 
-        void createImGuiFrame() final;
+  void CreateImGuiFrame() final;
 
-        void renderImGui() final;
+  void RenderImGui() final;
 
-        void drawFrame() final;
+  void DrawFrame() final;
 
-        void prepareForShutdown() final;
+  void PrepareForShutdown() final;
 
-    public:
-        void initContext() final;
+ public:
+  void InitContext() final;
 
-        void initImGui() final;
+  void InitImGui() final;
 
-        void destroyImGui() final;
+  void DestroyImGui() final;
 
-        void destroyContext() override;
-    };
+  void DestroyContext() override;
+};
 }

@@ -1,40 +1,35 @@
 //
-// Created by artyomd on 1/2/19.
+// Created by artyomd on 1/6/20.
 //
 
 #include "Quad.h"
-#include "api/Renderer.h"
 
-namespace geometry {
-    Quad::Quad(Point &point0, Point &point1, Point &point2, Point &point3) {
-        float positions[] = {
-                point0.x, point0.y, point0.z, point0.r, point0.g, point0.b, point0.a,
-                point1.x, point1.y, point1.z, point1.r, point1.g, point1.b, point1.a,
-                point2.x, point2.y, point2.z, point2.r, point2.g, point2.b, point2.a,
-                point3.x, point3.y, point3.z, point3.r, point3.g, point3.b, point3.a
-        };
+geometry::Quad::Quad(api::RenderingContext *context, geometry::Point &top_left, geometry::Point &top_right,
+                     geometry::Point &bottom_right, geometry::Point &bottom_left) : GeometryItem(context) {
+  float positions[] = {
+      top_left.x, top_left.y, top_left.z, top_left.r, top_left.g, top_left.b, top_left.a,
+      top_right.x, top_right.y, top_right.z, top_right.r, top_right.g, top_right.b, top_right.a,
+      bottom_right.x, bottom_right.y, bottom_right.z, bottom_right.r, bottom_right.g, bottom_right.b, bottom_right.a,
+      bottom_left.x, bottom_left.y, bottom_left.z, bottom_left.r, bottom_left.g, bottom_left.b, bottom_left.a
+  };
 
-        unsigned int indices[] = {
-                0, 1, 2, 3
-        };
+  unsigned char indices[] = {
+      0, 1, 2,
+      2, 3, 0
+  };
 
-        VertexBuffer vertexBuffer(positions, 4 * 7 * sizeof(float));
+  vertex_buffer_ = context->CreateVertexBuffer(positions, 4*7*sizeof(float));
+  layout_ = new api::VertexBufferLayout();
+  layout_->Push<float>(3);
+  layout_->Push<float>(4);
 
-        vertexArray = new GlVertexBinding();
+  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
+  index_buffer_ = context->CreateIndexBuffer(indices, 6, api::DATA_TYPE_BYTE);
+}
 
-        VertexAttributeDescription layout;
-        layout.Push<float>(3);
-        layout.Push<float>(4);
-        vertexArray->addBuffer(&vertexBuffer, &layout);
-
-        indexBuffer = new IndexBuffer(indices, 4);
-
-        vertexArray->unbind();
-        vertexBuffer.unbind();
-        indexBuffer->unbind();
-    }
-
-    void Quad::render(Shader &shader) const {
-        Renderer::draw(*vertexArray, shader, *indexBuffer);
-    }
+geometry::Quad::~Quad() {
+  context_->FreeIndexBuffer(index_buffer_);
+  context_->FreeVertexBiding(vertex_binding_);
+  delete (layout_);
+  context_->FreeVertexBuffer(vertex_buffer_);
 }

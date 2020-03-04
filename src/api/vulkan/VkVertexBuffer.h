@@ -5,18 +5,23 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include <VertexBuffer.h>
+#include "VertexBuffer.h"
 #include "VkRenderingContext.h"
 
 namespace api {
-    class VkVertexBuffer : public VertexBuffer {
-    private:
-        VkDevice *device;
-        VkBuffer buffer{};
-        VkDeviceMemory memory{};
-    public:
-        VkVertexBuffer(VkRenderingContext *context, const void *data, VkDeviceSize bufferSize);
+class VkVertexBuffer : public VertexBuffer {
+ private:
+  VkRenderingContext *context_;
+  VkDevice *device_;
+  VkBuffer buffer_{};
+  VkDeviceMemory memory_{};
+ public:
+  VkVertexBuffer(VkRenderingContext *context, const void *vertices_data, VkDeviceSize buffer_size);
 
-        ~VkVertexBuffer();
-    };
+  void Bind() const override;
+
+  void Unbind() const override;
+
+  ~VkVertexBuffer() override;
+};
 }

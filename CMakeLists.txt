@@ -5,6 +5,56 @@ project(playground)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ThreadSanitizer
+#set(CMAKE_C_FLAGS
+#        "-fsanitize=thread -g -O1"
+#        CACHE STRING "Flags used by the C compiler during ThreadSanitizer builds."
+#        FORCE)
+#set(CMAKE_CXX_FLAGS
+#        "-fsanitize=thread -g -O1"
+#        CACHE STRING "Flags used by the C++ compiler during ThreadSanitizer builds."
+#        FORCE)
+#
+# AddressSanitize
+set(CMAKE_C_FLAGS
+        "-fsanitize=address"
+        CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
+        FORCE)
+set(CMAKE_CXX_FLAGS
+        "-fsanitize=address"
+        CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
+        FORCE)
+
+# LeakSanitizer
+#set(CMAKE_C_FLAGS
+#        "-fsanitize=leak -fno-omit-frame-pointer -g -O1"
+#        CACHE STRING "Flags used by the C compiler during LeakSanitizer builds."
+#        FORCE)
+#set(CMAKE_CXX_FLAGS
+#        "-fsanitize=leak -fno-omit-frame-pointer -g -O1"
+#        CACHE STRING "Flags used by the C++ compiler during LeakSanitizer builds."
+#        FORCE)
+#
+# MemorySanitizer
+#set(CMAKE_C_FLAGS
+#        "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2"
+#        CACHE STRING "Flags used by the C compiler during MemorySanitizer builds."
+#        FORCE)
+#set(CMAKE_CXX_FLAGS
+#        "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2"
+#        CACHE STRING "Flags used by the C++ compiler during MemorySanitizer builds."
+#        FORCE)
+#
+# UndefinedBehaviour
+#set(CMAKE_C_FLAGS
+#        "-fsanitize=undefined"
+#        CACHE STRING "Flags used by the C compiler during UndefinedBehaviourSanitizer builds."
+#        FORCE)
+#set(CMAKE_CXX_FLAGS
+#        "-fsanitize=undefined"
+#        CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
+#        FORCE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" OFF)
@@ -18,22 +68,17 @@ add_compile_definitions(GLEW_STATIC)
 IF (APPLE)
     FIND_LIBRARY(OpenGL_LIBRARY OpenGL)
     SET(OPEN_GL ${OpenGL_LIBRARY})
+    OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" ON)
+    OPTION(USE_WAYLAND_WSI "Build the project using Wayland swapchain" OFF)
 ELSE ()
     SET(OPEN_GL GL)
 ENDIF (APPLE)
 
 find_package(Vulkan)
 IF (NOT Vulkan_FOUND)
-    find_library(Vulkan_LIBRARY NAMES vulkan HINTS "$ENV{VULKAN_SDK}/lib" "${CMAKE_SOURCE_DIR}/libs/vulkan" REQUIRED)
-    IF (Vulkan_LIBRARY)
-        set(Vulkan_FOUND ON)
-        MESSAGE("Using bundled Vulkan library version")
-    ENDIF ()
-ENDIF ()
-IF (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Could not find Vulkan library!")
 ELSE ()
-    message(STATUS ${Vulkan_LIBRARY})
+    include_directories(${Vulkan_INCLUDE_DIRS})
 ENDIF ()
 
 IF (USE_D2D_WSI)

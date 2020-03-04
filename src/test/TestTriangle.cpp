@@ -2,37 +2,47 @@
 // Created by Artyom Dangizyan on 2018-11-29.
 //
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <api/ShaderPropertyMatrix4f.h>
+#include "geometry/Point.hpp"
+#include "geometry/Triangle.h"
 #include "TestTriangle.h"
 
 namespace test {
 
-    TestTriangle::TestTriangle(api::Renderer *renderer) : TestMVP(renderer) {
+TestTriangle::TestTriangle(api::Renderer *renderer) : Test(renderer) {
 
-        geometry::Point point0 = {-0.5f, -0.5f, 0.0f, 1, 1, 0, 0};
-        geometry::Point point1 = {0.5f, -0.5f, 0.0f, 1, 0, 1, 0};
-        geometry::Point point2 = {0.0f, 0.5f, 0.0f, 1, 0, 0, 1};
+  geometry::Point point_0 = {-0.5f, -0.5f, 0.0f, 1, 1, 0, 0};
+  geometry::Point point_1 = {0.5f, -0.5f, 0.0f, 1, 0, 1, 0};
+  geometry::Point point_2 = {0.0f, 0.5f, 0.0f, 1, 0, 0, 1};
 
-        triangle = new geometry::Triangle(point0, point1, point2);
+  auto *context = renderer->GetRenderingContext();
 
-        shader = new Shader("../res/shader/default_mvp_color_vertex_shader.glsl",
-                            "../res/shader/default_color_fragment_shader.glsl");
-    }
+  triangle_ = new geometry::Triangle(context, point_0, point_1, point_2);
+  vertex_shader_ = context->CreateShader("../res/shader/compiled/testTriangleV.spv",
+                                         "../res/shader/testTriangleV.glsl",
+                                         "main",
+                                         api::SHADER_TYPE_VERTEX);
+  fragment_shader_ = context->CreateShader("../res/shader/compiled/testTriangleF.spv",
+                                           "../res/shader/testTriangleF.glsl",
+                                           "main",
+                                           api::SHADER_TYPE_FRAGMENT);
+  pipeline_ = context->CreateGraphicsPipeline(triangle_->GetVertexBinding(), triangle_->GetIndexBuffer(),
+                                              vertex_shader_, fragment_shader_);
+}
 
-    void TestTriangle::onRender() {
-        shader->bind();
-        glm::mat4 mvp = computeMVP();
-        auto property = new ShaderPropertyMatrix4f(mvp);
-        shader->setUniform("u_MVP", property);
-        delete property;
-        triangle->render(*shader);
-        shader->unbind();
-    }
+void TestTriangle::OnClear() {
+  renderer_->SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
 
-    TestTriangle::~TestTriangle() {
-        delete shader;
-        delete triangle;
-    }
+void TestTriangle::OnRender() {
+  pipeline_->Render();
+}
+
+TestTriangle::~TestTriangle() {
+  auto context = renderer_->GetRenderingContext();
+  context->FreeGraphicsPipeline(pipeline_);
+  context->DeleteShader(fragment_shader_);
+  context->DeleteShader(vertex_shader_);
+  delete triangle_;
+}
 }

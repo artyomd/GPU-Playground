@@ -1,19 +1,24 @@
 //
-// Created by Artyom Dangizyan on 2018-12-03.
+// Created by artyomd on 1/6/20.
 //
+
 #pragma once
 
-#include "api/IndexBuffer.h"
-#include "api/gl/GlVertexBinding.h"
-#include "Point.hpp"
-#include "api/Shader.h"
 #include "GeometryItem.h"
+#include "Point.hpp"
+#include "RenderingContext.h"
 
 namespace geometry {
-    class Triangle : public GeometryItem {
-    public:
-        explicit Triangle(Point &point0, Point &point1, Point &point2);
+class Triangle : public GeometryItem {
+ private:
+  api::VertexBuffer *vertex_buffer_ = nullptr;
+  api::VertexBufferLayout *layout_ = nullptr;
+ public:
+  explicit Triangle(api::RenderingContext *context,
+                    Point &point_0,
+                    Point &point_1,
+                    Point &point_2);
 
-        void render(Shader &shader) const override;
-    };
+  ~Triangle() override;
+};
 }

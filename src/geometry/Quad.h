@@ -1,17 +1,23 @@
 //
-// Created by artyomd on 1/2/19.
+// Created by artyomd on 1/6/20.
 //
-
 #pragma once
 
 #include "GeometryItem.h"
 #include "Point.hpp"
 
 namespace geometry {
-    class Quad : public GeometryItem {
-    public:
-        explicit Quad(Point &point0, Point &point1, Point &point2, Point &point3);
+class Quad : public GeometryItem {
+ private:
+  api::VertexBuffer *vertex_buffer_ = nullptr;
+  api::VertexBufferLayout *layout_ = nullptr;
+ public:
+  explicit Quad(api::RenderingContext *context,
+                Point &top_left,
+                Point &top_right,
+                Point &bottom_right,
+                Point &bottom_left);
 
-        void render(Shader &shader) const override;
-    };
+  ~Quad() override;
+};
 }

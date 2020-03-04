@@ -5,17 +5,20 @@
 
 #include "VertexBuffer.h"
 #include "VertexBinding.h"
-#include "VertexAttributeDescription.h"
+#include "VertexBufferLayout.h"
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 namespace api {
-    class GlVertexBinding : public VertexBinding {
-    private:
-        unsigned int m_RendererId = -1;
-    public:
-        GlVertexBinding();
+class GlVertexBinding : public VertexBinding {
+ private:
+  GLuint renderer_id_ = -1;
+ public:
+  GlVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout);
 
-        ~GlVertexBinding();
+  void Bind() const override;
+  void Unbind() const override;
 
-        void addBuffer(const VertexBuffer *vb, const VertexAttributeDescription *layout);
-    };
+  ~GlVertexBinding() override;
+};
 }

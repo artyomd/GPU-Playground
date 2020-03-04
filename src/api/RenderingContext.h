@@ -1,14 +1,42 @@
-//
-// Created by artyomd on 12/31/19.
-//
+#pragma once
 
 #include "VertexBuffer.h"
 #include "VertexBinding.h"
+#include "Shader.h"
+#include "IndexBuffer.h"
+#include "RenderingPipeline.h"
 
 namespace api {
-    class RenderingContext {
-        virtual VertexBuffer *createVertexBuffer(const void *data, unsigned int size) = 0;
+class RenderingContext {
+ public:
+  RenderingContext() = default;
+  virtual IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) = 0;
 
-        virtual VertexBinding *createVertexBinding() = 0;
-    };
+  virtual void FreeIndexBuffer(IndexBuffer *buffer) = 0;
+
+  virtual VertexBuffer *CreateVertexBuffer(const void *data, unsigned int size) = 0;
+
+  virtual void FreeVertexBuffer(VertexBuffer *buffer) = 0;
+
+  virtual VertexBinding *CreateVertexBinding(const VertexBuffer *buffer,
+                                             const VertexBufferLayout *vertex_buffer_layout) = 0;
+
+  virtual void FreeVertexBiding(VertexBinding *vertex_binding) = 0;
+
+  virtual Shader *CreateShader(std::string sipr_v_shader_location,
+                               std::string glsl_location,
+                               std::string entry_point_name,
+                               api::ShaderType type) = 0;
+
+  virtual void DeleteShader(Shader *vertex_binding) = 0;
+
+  virtual RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
+                                                    const IndexBuffer *index_buffer,
+                                                    const Shader *vertex_shader,
+                                                    const Shader *fragment_shader) = 0;
+
+  virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
+
+  virtual ~RenderingContext() = default;
+};
 }

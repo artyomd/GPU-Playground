@@ -3,38 +3,38 @@
 //
 
 #include "GlVertexBinding.h"
-#include "Renderer.h"
 #include "GlVertexBuffer.h"
+#include "DataType.h"
+#include "GlUtils.h"
 
 namespace api {
-    GlVertexBinding::GlVertexBinding() {
-        GLCall(glGenVertexArrays(1, &m_RendererId));
+GlVertexBinding::GlVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout) :
+    VertexBinding(vb, layout) {
+  GL_CALL(glGenVertexArrays(1, &renderer_id_));
+  GL_CALL(glBindVertexArray(renderer_id_));
+  vb->Bind();
+  const auto &elements = layout->GetElements();
+  unsigned int offset = 0;
+  for (unsigned int i = 0; i < elements.size(); i++) {
+    const auto &element = elements[i];
+    GL_CALL(glEnableVertexAttribArray(i));
+    GL_CALL(glVertexAttribPointer(i, element.count_, GetGlType(element.type_), GL_FALSE, layout->GetStride(),
+                                  reinterpret_cast<void *> (offset)));
+    offset += element.count_*GetDataTypeSizeInBytes(element.type_);
+  }
+  vb->Unbind();
+  GL_CALL(glBindVertexArray(0));
+}
 
-    }
+void GlVertexBinding::Bind() const {
+  GL_CALL(glBindVertexArray(renderer_id_));
+}
 
-    GlVertexBinding::~GlVertexBinding() {
-        GLCall(glDeleteVertexArrays(1, &m_RendererId));
-    }
+void GlVertexBinding::Unbind() const {
+  GL_CALL(glBindVertexArray(0));
+}
 
-    void GlVertexBinding::addBuffer(const VertexBuffer *vb, const VertexAttributeDescription *layout) {
-        GLCall(glBindVertexArray(m_RendererId));
-        dynamic_cast<const GlVertexBuffer *>(vb)->bind();
-        const auto &elements = layout->getElements();
-        unsigned int offset = 0;
-        for (unsigned int i = 0; i < elements.size(); i++) {
-            const auto &element = elements[i];
-            GLCall(glEnableVertexAttribArray(i));
-            GLCall(glVertexAttribPointer(i, element.count, element.type, element.normalized, layout->getStride(),
-                                         reinterpret_cast<void *> (offset)));
-            offset += element.count * VertexAttribute::getSizeOfType(element.type);
-        }
-    }
-
-    void GlVertexBinding::bind() const {
-        GLCall(glBindVertexArray(m_RendererId));
-    }
-
-    void GlVertexBinding::unbind() const {
-        GLCall(glBindVertexArray(0));
-    }
+GlVertexBinding::~GlVertexBinding() {
+  GL_CALL(glDeleteVertexArrays(1, &renderer_id_));
+}
 }

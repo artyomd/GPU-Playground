@@ -2,29 +2,28 @@
 // Created by artyomd on 12/30/19.
 //
 
-#include <GL/glew.h>
-#include <api/Renderer.h>
+#include <assert.h>
 #include "GlVertexBuffer.h"
+#include "GlUtils.h"
 
 namespace api {
-    GlVertexBuffer::GlVertexBuffer(const void *data, unsigned int size) {
-        GLCall(glGenBuffers(1, &m_RendererId));
-        assert(m_RendererId != 0);
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererId));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    }
+GlVertexBuffer::GlVertexBuffer(const void *data, unsigned int size) {
+  GL_CALL(glGenBuffers(1, &renderer_id_));
+  assert(renderer_id_!=0);
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, renderer_id_));
+  GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
 
-    GlVertexBuffer::~GlVertexBuffer() {
-        GLCall(glDeleteBuffers(1, &m_RendererId));
-    }
+void GlVertexBuffer::Bind() const {
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, renderer_id_));
+}
 
-    void GlVertexBuffer::bind() const {
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererId));
-    }
+void GlVertexBuffer::Unbind() const {
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+}
 
-    void GlVertexBuffer::unbind() const {
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    }
-
+GlVertexBuffer::~GlVertexBuffer() {
+  GL_CALL(glDeleteBuffers(1, &renderer_id_));
+}
 }

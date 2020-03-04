@@ -3,13 +3,16 @@
 //
 
 #include "TestClearColor.h"
-#include "api/Renderer.h"
 #include "imgui/imgui.h"
 
-void test::TestClearColor::onClear() {
-    renderer->setClearColor(m_Color[0], m_Color[1], m_Color[2], m_Color[3]);
+test::TestClearColor::TestClearColor(api::Renderer *renderer) : Test(renderer) {
+
 }
 
-void test::TestClearColor::onImGuiRender() {
-    ImGui::ColorEdit4("Clear color", m_Color);
+void test::TestClearColor::OnClear() {
+  renderer_->SetClearColor(color_[0], color_[1], color_[2], color_[3]);
+}
+
+void test::TestClearColor::OnImGuiRender() {
+  ImGui::ColorEdit4("Clear color", color_);
 }

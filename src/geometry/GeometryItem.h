@@ -4,22 +4,27 @@
 
 #pragma once
 
-#include <api/Shader.h>
+#include <api/VertexBinding.h>
 #include <api/IndexBuffer.h>
-#include <api/gl/GlVertexBinding.h>
+#include <api/RenderingContext.h>
 
 namespace geometry {
-    class GeometryItem {
-    public:
-        virtual void render(Shader &shader) const = 0;
+class GeometryItem {
+ protected:
+  api::VertexBinding *vertex_binding_ = nullptr;
+  api::IndexBuffer *index_buffer_ = nullptr;
+  api::RenderingContext *context_;
+ public:
+  explicit GeometryItem(api::RenderingContext *context) : context_(context) {}
 
-        virtual ~GeometryItem() {
-            delete vertexArray;
-            delete indexBuffer;
-        }
+  inline const api::VertexBinding *GetVertexBinding() const {
+    return vertex_binding_;
+  }
 
-    protected:
-        GlVertexBinding *vertexArray = nullptr;
-        IndexBuffer *indexBuffer = nullptr;
-    };
+  inline const api::IndexBuffer *GetIndexBuffer() const {
+    return index_buffer_;
+  }
+
+  virtual ~GeometryItem() = default;
+};
 }

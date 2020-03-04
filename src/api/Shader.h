@@ -1,47 +1,37 @@
-//
-// Created by Artyom Dangizyan on 11/13/18.
-//
 #pragma once
 
+#include <utility>
 #include <string>
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <unordered_map>
-#include <memory>
-#include "ShaderProperty.h"
+#include <utility>
+#include <vulkan/vulkan.h>
+
+namespace api {
+enum ShaderType {
+  SHADER_TYPE_VERTEX,
+  SHADER_TYPE_FRAGMENT
+};
+
+int GetShaderGlType(ShaderType shader_type);
+
+VkShaderStageFlagBits GetShaderVkType(ShaderType shader_type);
 
 class Shader {
 
-private:
-    std::string m_vertexShaderPath;
+ protected:
+  const std::string sipr_v_shader_location_;
+  const std::string glsl_shader_location_;
+  const std::string entry_point_name_;
+  ShaderType type_;
+ public:
+  Shader(std::string sipr_v_shader_location,
+         std::string glsl_shader_location,
+         std::string entry_point_name,
+         ShaderType type)
+      : sipr_v_shader_location_(std::move(sipr_v_shader_location)),
+        glsl_shader_location_(std::move(glsl_shader_location)),
+        entry_point_name_(std::move(entry_point_name)),
+        type_(type) {}
 
-    std::string m_fragmentShaderPath;
-
-    std::unordered_map<std::string, std::unique_ptr<ShaderProperty>> uniforms;
-
-    std::unordered_map<std::string, int> m_locationUniformCache;
-
-    GLint getUniformLocation(const std::string &name);
-
-    static GLuint compileShader(GLuint type, const std::string &source);
-
-    static std::string parseFile(const std::string &path);
-
-    static GLuint createShader(const std::string &vertexShader, const std::string &fragmentShader);
-
-public:
-    unsigned int m_RendererId;
-
-    Shader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
-
-    ~Shader();
-
-    void bind() const;
-
-    void unbind() const;
-
-    void recompile();
-
-    void setUniform(const std::string &name, ShaderProperty *shaderProperty);
-
+  virtual ~Shader() = default;
 };
+}

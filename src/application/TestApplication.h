@@ -4,27 +4,26 @@
 #pragma once
 
 #include "test/Test.h"
-#include <iostream>
-#include <test/TestMenu.h>
+#include "test/TestMenu.h"
 #include "Application.h"
 
 namespace application {
-    class TestApplication : public Application {
-    private:
-        test::TestMenu *testMenu = nullptr;
-    protected:
-        test::Test *currentTest = nullptr;
+class TestApplication : public Application {
+ private:
+  test::TestMenu *test_menu_ = nullptr;
+ protected:
+  test::Test *current_test_ = nullptr;
 
-        virtual void renderMenu() final;
+  void PrepareTestMenu(int width, int height);
 
-    public:
-        TestApplication();
+  virtual void RenderMenu() final;
 
-        virtual ~TestApplication();
+  void DeleteTestMenu();
+ public:
 
-        template<typename T>
-        void registerTest(const std::string &name) {
-            testMenu->RegisterTest<T>(name);
-        }
-    };
+  template<typename T>
+  void RegisterTest(const std::string &name) {
+    test_menu_->RegisterTest<T>(name);
+  }
+};
 }
