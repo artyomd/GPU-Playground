@@ -6,7 +6,7 @@
 
 int main() {
   try {
-    application::TestApplication *test_application = new application::OpenGLApplication();
+    application::TestApplication *test_application = new application::VulkanApplication();
     test_application->InitWindow();
     test_application->InitContext();
     test_application->InitImGui();

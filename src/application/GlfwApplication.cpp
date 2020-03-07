@@ -42,17 +42,21 @@ void GlfwApplication::Run() {
     }
     current_test_->OnUpdate(delta_time_);
     current_test_->OnRender();
+
     CreateImGuiFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
     ImGui::Begin("Test");
     current_test_->OnImGuiRender();
     RenderMenu();
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     ImGui::End();
+
     ImGui::Render();
     RenderImGui();
+
     DrawFrame();
   }
   PrepareForShutdown();

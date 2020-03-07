@@ -12,94 +12,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2080cfc1-1596-4e31-a9e8-deb7022bea84" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/api/VertexBufferLayout.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/api/VertexBufferLayout.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/api/gl/GlIndexBuffer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/IndexBuffer.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/IndexBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlIndexBuffer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Renderer.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Renderer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Renderer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/Renderer.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/shader/compiled/testTriangleF.spv" beforeDir="false" afterPath="$PROJECT_DIR$/res/shader/compiled/testTriangleF.spv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/res/shader/compiled/testTriangleV.spv" beforeDir="false" afterPath="$PROJECT_DIR$/res/shader/compiled/testTriangleV.spv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/DataType.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/DataType.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/DataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/DataType.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/RenderingContext.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/RenderingContext.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/RenderingPipeline.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/RenderingPipline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/RenderingPipeline.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Shader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/Shader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Shader.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/Shader.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderProperty.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat1.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat1.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat2.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat2.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat4.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyFloat4.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyInt1.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyInt1.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyInt2.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyInt2.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyMatrix4f.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ShaderPropertyMatrix4f.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Texture.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/Texture.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/VertexAttributeDescription.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/VertexAttributeDescription.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/VertexBinding.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/VertexBinding.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/VertexBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/VertexBuffer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/gl/GlRenderingContext.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlRenderingContext.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/gl/GlRenderingContext.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlRenderingContext.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/gl/GlVertexBinding.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlVertexBinding.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/gl/GlVertexBinding.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlVertexBinding.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkShader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkShader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkShader.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkShader.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/Application.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/Application.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/GLFWApplication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/GlfwApplication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/GLFWApplication.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/GlfwApplication.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/application/GlfwApplication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/GlfwApplication.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/application/OpenGLApplication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/OpenGLApplication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/OpenGLApplication.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/OpenGLApplication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/TestApplication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/TestApplication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/TestApplication.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/TestApplication.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/application/VulkanApplication.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/VulkanApplication.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/application/VulkanApplication.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/application/VulkanApplication.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/GeometryItem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/geometry/GeometryItem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/Point.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/geometry/Point.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/Quad.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/Quad.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/SpiralSphere.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/SpiralSphere.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/StackedSphere.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/StackedSphere.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/Triangle.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/geometry/Triangle.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/geometry/Triangle.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/geometry/Triangle.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/Test.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/Test.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestClearColor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestClearColor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestClearColor.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestClearColor.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestColorShader.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestMVP.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestMVP.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestMenu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestMenu.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestMenu.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestMenu.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestRaymarching.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestSeascapeShader.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestShader.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestShader.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestShapingFunctionShader.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestSphere.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestSphere.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestSquaresShader.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestStarNestShader.hpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestTexture2d.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestTexture2d.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestTriangle.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestTriangle.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/TestTriangle.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/TestTriangle.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -115,33 +49,60 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/api/gl/GlShader.cpp">
+        <entry file="file://$PROJECT_DIR$/src/application/VulkanApplication.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="344">
-              <caret line="20" column="16" lean-forward="true" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/api/Utils.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="654">
-              <caret line="34" column="25" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
+            <state relative-caret-position="59">
+              <caret line="59" column="41" selection-start-line="59" selection-start-column="41" selection-end-line="59" selection-end-column="41" />
               <folding>
-                <element signature="e#54#71#0" expanded="true" />
+                <element signature="e#41#72#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp">
+        <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="61" selection-start-line="61" selection-end-line="61" />
+            <state relative-caret-position="189">
+              <caret line="22" column="21" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/application/OpenGLApplication.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="55" column="41" selection-start-line="55" selection-start-column="41" selection-end-line="55" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingContext.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="10" column="2" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="2" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/application/TestApplication.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="182">
+              <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/api/RenderingContext.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="15" column="2" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="2" />
               <folding>
-                <element signature="e#40#59#0" expanded="true" />
+                <element signature="e#14#43#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -150,62 +111,41 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/TestTriangle.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="154">
-              <caret line="19" column="33" lean-forward="true" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/api/DataType.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="12" column="45" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/geometry/Triangle.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-130">
-              <caret line="7" column="20" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/api/IndexBuffer.h">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="18" column="22" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/include/c++/9/sstream">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="830" column="6" selection-start-line="830" selection-start-column="6" selection-end-line="830" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/shader/testTriangleF.glsl">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="189">
+              <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/res/shader/testTriangleV.glsl">
+        <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="11" column="23" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="23" />
+            <state relative-caret-position="104">
+              <caret line="8" column="87" selection-start-line="8" selection-start-column="87" selection-end-line="8" selection-end-column="87" />
+              <folding>
+                <element signature="e#0#40#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingContext.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="13" column="55" selection-start-line="13" selection-start-column="55" selection-end-line="13" selection-end-column="55" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="26">
+              <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+              <folding>
+                <element signature="e#42#68#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -214,23 +154,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>CreateLogicalDevice</find>
-      <find>r</find>
-      <find>renderer</find>
-      <find>createImage</find>
-      <find>CMAKE_BUILD_TYPE</find>
-      <find>FLAGS</find>
-      <find>CMAKE_CXX_FLAGS</find>
-      <find>swap</find>
-      <find>device_</find>
-      <find>clear</find>
-      <find>swap_chain_extent_</find>
-      <find>CreateSwapChain</find>
-      <find>renderpass</find>
-      <find>renderPass</find>
-      <find>render_pass_</find>
-      <find>CreateRenderPass</find>
-      <find>swap_chain_image_format</find>
       <find>swap_chain_image_format_</find>
       <find>swapChai</find>
       <find>extent</find>
@@ -242,9 +165,29 @@
       <find>Verte</find>
       <find>size</find>
       <find>VK_INDEX_TYPE_UINT32</find>
+      <find>glfwMakeContextCurrent</find>
       <find>indices_data</find>
+      <find>get</find>
+      <find>type</find>
+      <find>shader_stages</find>
+      <find>render_pa</find>
+      <find>render_pass_</find>
+      <find>VkRenderingCon</find>
+      <find>render_pass</find>
+      <find>vkDestroyRender</find>
+      <find>CleanupSwapChain</find>
+      <find>swap_chain_ex</find>
       <find>glsl_shader_location</find>
+      <find>cull</find>
+      <find>index_buffer</find>
+      <find>vertex_binding</find>
+      <find>For</find>
+      <find>height</find>
+      <find>OnWindowSizeChanged</find>
     </findStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/src/application</dir>
+    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -252,57 +195,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/application/GlfwApplication.h" />
-        <option value="$PROJECT_DIR$/src/test/Test.h" />
-        <option value="$PROJECT_DIR$/src/test/TestTriangle.h" />
-        <option value="$PROJECT_DIR$/src/test/TestTriangle.cpp" />
-        <option value="$PROJECT_DIR$/src/application/TestApplication.h" />
         <option value="$PROJECT_DIR$/src/test/TestClearColor.cpp" />
         <option value="$PROJECT_DIR$/src/test/TestMenu.h" />
         <option value="$PROJECT_DIR$/src/api/Renderer.hpp" />
         <option value="$PROJECT_DIR$/src/api/RenderingPipeline.h" />
         <option value="$PROJECT_DIR$/src/api/VertexBufferLayout.h" />
         <option value="$PROJECT_DIR$/src/test/TestClearColor.h" />
-        <option value="$PROJECT_DIR$/src/api/gl/GlRenderingContext.h" />
         <option value="$PROJECT_DIR$/src/api/gl/GlIndexBuffer.cpp" />
         <option value="$PROJECT_DIR$/src/api/gl/GlIndexBuffer.h" />
         <option value="$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.h" />
-        <option value="$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp" />
         <option value="$PROJECT_DIR$/src/api/gl/GlShader.h" />
         <option value="$PROJECT_DIR$/src/api/gl/GlUtils.cpp" />
         <option value="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.h" />
-        <option value="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.cpp" />
         <option value="$PROJECT_DIR$/src/api/gl/GlUtils.h" />
         <option value="$PROJECT_DIR$/src/application/VulkanApplication.h" />
-        <option value="$PROJECT_DIR$/src/api/RenderingContext.h" />
-        <option value="$PROJECT_DIR$/src/application/OpenGLApplication.cpp" />
         <option value="$PROJECT_DIR$/src/api/Shader.cpp" />
         <option value="$PROJECT_DIR$/src/api/Shader.h" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkShader.h" />
-        <option value="$PROJECT_DIR$/src/application/GlfwApplication.cpp" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp" />
         <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.h" />
         <option value="$PROJECT_DIR$/src/api/VertexBinding.h" />
         <option value="$PROJECT_DIR$/src/api/gl/GlVertexBinding.h" />
         <option value="$PROJECT_DIR$/src/api/gl/GlVertexBinding.cpp" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp" />
         <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.h" />
         <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.cpp" />
-        <option value="$PROJECT_DIR$/src/application/VulkanApplication.cpp" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkShader.cpp" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp" />
-        <option value="$PROJECT_DIR$/src/api/DataType.cpp" />
         <option value="$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.h" />
-        <option value="$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp" />
-        <option value="$PROJECT_DIR$/src/geometry/Triangle.cpp" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/src/api/Utils.h" />
+        <option value="$PROJECT_DIR$/src/api/gl/GlShader.cpp" />
+        <option value="$PROJECT_DIR$/src/api/gl/GlVertexBuffer.cpp" />
+        <option value="$PROJECT_DIR$/src/geometry/Triangle.h" />
+        <option value="$PROJECT_DIR$/src/application/GlfwApplication.cpp" />
+        <option value="$PROJECT_DIR$/src/geometry/Triangle.cpp" />
+        <option value="$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkShader.cpp" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkShader.h" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/res/shader/testTriangleV.glsl" />
         <option value="$PROJECT_DIR$/res/shader/testTriangleF.glsl" />
-        <option value="$PROJECT_DIR$/src/api/gl/GlShader.cpp" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp" />
+        <option value="$PROJECT_DIR$/src/api/DataType.h" />
+        <option value="$PROJECT_DIR$/src/api/DataType.cpp" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp" />
+        <option value="$PROJECT_DIR$/src/api/CoordinateSpace.h" />
+        <option value="$PROJECT_DIR$/src/api/RenderingContext.h" />
+        <option value="$PROJECT_DIR$/src/api/gl/GlRenderingContext.h" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h" />
+        <option value="$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp" />
+        <option value="$PROJECT_DIR$/src/api/gl/GlRenderingContext.cpp" />
+        <option value="$PROJECT_DIR$/src/application/OpenGLApplication.cpp" />
+        <option value="$PROJECT_DIR$/src/application/VulkanApplication.cpp" />
+        <option value="$PROJECT_DIR$/src/test/TestTriangle.cpp" />
+        <option value="$PROJECT_DIR$/src/main.cpp" />
       </list>
     </option>
   </component>
@@ -317,6 +260,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -400,7 +344,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -416,7 +359,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="dynamic.analysis.tools.valgrind" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -460,24 +403,29 @@
       <workItem from="1583166891137" duration="9547000" />
       <workItem from="1583257772467" duration="8222000" />
       <workItem from="1583341642361" duration="10189000" />
-      <workItem from="1583353194964" duration="811000" />
+      <workItem from="1583353194964" duration="994000" />
+      <workItem from="1583508923582" duration="599000" />
+      <workItem from="1583512343445" duration="10383000" />
+      <workItem from="1583575202251" duration="598000" />
+      <workItem from="1583585915104" duration="1073000" />
+      <workItem from="1583588081763" duration="4848000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="52640000" />
+    <option name="totallyTimeSpent" value="70324000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.27267876" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2886873" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32921347" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.7696629" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.37078652" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.50449437" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.37078652" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -504,6 +452,36 @@
           <line>7</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/api/Renderer.hpp</url>
+          <line>40</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/api/gl/GlShader.cpp</url>
+          <line>25</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/api/gl/GlShader.cpp</url>
+          <line>41</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp</url>
+          <line>13</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp</url>
+          <line>19</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/geometry/Triangle.cpp</url>
+          <line>18</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -525,7 +503,32 @@ obj == GL_FRAGMENT_SHADER</expression-string>
     </expressions>
     <expressions id="evaluateExpression">
       <expression>
-        <expression-string>GetGlType(index_buffer_-&gt;GetType())</expression-string>
+        <expression-string>((int *) indices_data)[2]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>((short*) indices_data)[2]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>((short*) indices_data)[1]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>((short*) indices_data)[0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>(short* indices_data)[0]</expression-string>
+        <language-id>ObjectiveC</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>GetDataTypeSizeInBytes(type)</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -535,279 +538,268 @@ obj == GL_FRAGMENT_SHADER</expression-string>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>index_buffer_-&gt;GetCount(</expression-string>
+        <expression-string>((float*)data)[1]</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>std::move(__x)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>move(__x)</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>this-&gt;_M_impl._M_end_of_storage</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>this-&gt;_M_impl._M_finish</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>this-&gt;_M_impl._M_finish != this-&gt;_M_impl._M_end_of_storage</expression-string>
-        <language-id>ObjectiveC</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>(&amp;m_RendererId)[0]</expression-string>
+        <expression-string>((float2)data)[1]</expression-string>
         <language-id>ObjectiveC</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/application/TestApplication.cpp">
+    <entry file="file://$PROJECT_DIR$/src/application/VulkanApplication.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="8" column="26" selection-start-line="8" selection-start-column="26" selection-end-line="8" selection-end-column="26" />
+        <state relative-caret-position="177">
+          <caret line="141" column="12" lean-forward="true" selection-start-line="141" selection-start-column="12" selection-end-line="141" selection-end-column="12" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/OpenGLApplication.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1014">
-          <caret line="39" column="2" selection-start-line="39" selection-start-column="2" selection-end-line="39" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/GlfwApplication.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="572">
-          <caret line="22" column="15" selection-start-line="22" selection-start-column="15" selection-end-line="22" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/TestApplication.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="16" column="10" selection-start-line="16" selection-start-column="7" selection-end-line="16" selection-end-column="22" />
-          <folding>
-            <element signature="e#54#76#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/GlfwApplication.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="39" column="9" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="12" column="31" selection-start-line="12" selection-start-column="31" selection-end-line="12" selection-end-column="31" />
-          <folding>
-            <element signature="e#54#88#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/Renderer.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="806">
-          <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
-          <folding>
-            <element signature="e#56#85#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/VertexBufferLayout.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-204" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/VertexBufferLayout.cpp">
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlUtils.cpp">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/Shader.cpp">
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBuffer.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="338">
-          <caret line="13" column="31" selection-start-line="13" selection-start-column="31" selection-end-line="13" selection-end-column="31" />
+          <caret line="15" column="12" lean-forward="true" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/geometry/Triangle.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="11" column="9" lean-forward="true" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="14" />
           <folding>
-            <element signature="e#40#59#0" expanded="true" />
+            <element signature="e#54#79#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/Shader.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="21" column="42" lean-forward="true" selection-start-line="21" selection-start-column="42" selection-end-line="21" selection-end-column="42" />
-          <folding>
-            <element signature="e#14#32#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="189">
+          <caret line="17" column="6" selection-start-line="17" selection-start-column="6" selection-end-line="17" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/TestTriangle.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="12" column="20" selection-start-line="12" selection-start-column="20" selection-end-line="12" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/application/GlfwApplication.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="15" selection-start-line="28" selection-start-column="15" selection-end-line="28" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/application/GlfwApplication.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="307">
+          <caret line="43" column="21" lean-forward="true" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/Test.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/RenderingPipeline.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-10" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBinding.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="18" column="10" selection-start-line="18" selection-start-column="10" selection-end-line="18" selection-end-column="10" />
-          <folding>
-            <element signature="e#64#89#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="536">
+          <caret line="23" column="15" selection-start-line="23" selection-start-column="15" selection-end-line="23" selection-end-column="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBinding.cpp">
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlShader.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="38" column="1" selection-start-line="38" selection-start-column="1" selection-end-line="38" selection-end-column="1" />
-          <folding>
-            <element signature="e#51#79#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/VertexBinding.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="130">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="546">
-          <caret line="21" column="2" selection-start-line="21" selection-start-column="2" selection-end-line="21" selection-end-column="2" />
-          <folding>
-            <element signature="e#54#80#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="35" column="14" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
-          <folding>
-            <element signature="e#40#56#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/VertexBuffer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="6" column="6" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBuffer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="15" column="2" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="18" column="2" selection-start-line="18" selection-start-column="2" selection-end-line="18" selection-end-column="2" />
-          <folding>
-            <element signature="e#56#82#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
-          <folding>
-            <element signature="e#42#60#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/VulkanApplication.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="46" column="17" selection-start-line="46" selection-start-column="17" selection-end-line="46" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/application/VulkanApplication.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="483">
-          <caret line="64" column="60" selection-start-line="64" selection-start-column="60" selection-end-line="64" selection-end-column="60" />
-          <folding>
-            <element signature="e#41#72#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkShader.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="29" column="52" selection-start-line="29" selection-start-column="52" selection-end-line="29" selection-end-column="52" />
-          <folding>
-            <element signature="e#40#71#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="168">
+          <caret line="41" selection-start-line="41" selection-end-line="41" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="11" column="54" selection-start-line="11" selection-start-column="26" selection-end-line="11" selection-end-column="54" />
+        <state relative-caret-position="168">
+          <caret line="13" column="9" selection-start-line="13" selection-start-column="9" selection-end-line="13" selection-end-column="9" />
           <folding>
             <element signature="e#54#84#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/geometry/GeometryItem.h">
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBinding.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="19" column="35" selection-start-line="19" selection-start-column="35" selection-end-line="19" selection-end-column="35" />
+        <state relative-caret-position="189">
+          <caret line="22" column="29" selection-start-line="22" selection-start-column="29" selection-end-line="22" selection-end-column="29" />
+          <folding>
+            <element signature="e#51#79#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlIndexBuffer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="311">
+          <caret line="16" column="58" lean-forward="true" selection-start-line="16" selection-start-column="58" selection-end-line="16" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/geometry/Quad.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="20" column="28" selection-start-line="20" selection-start-column="28" selection-end-line="20" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="61" column="106" selection-start-line="61" selection-start-column="106" selection-end-line="61" selection-end-column="106" />
+          <folding>
+            <element signature="e#40#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/VertexBufferLayout.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/TestMenu.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="15" column="14" selection-start-line="15" selection-start-column="14" selection-end-line="15" selection-end-column="14" />
+          <folding>
+            <element signature="e#41#67#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/gl/GlVertexBuffer.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="9" column="66" selection-start-line="9" selection-start-column="62" selection-end-line="9" selection-end-column="66" />
+        <state relative-caret-position="416">
+          <caret line="18" column="55" selection-start-line="18" selection-start-column="55" selection-end-line="18" selection-end-column="55" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h">
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="468">
+          <caret line="18" column="11" selection-start-line="18" selection-start-column="11" selection-end-line="18" selection-end-column="11" />
+          <folding>
+            <element signature="e#56#82#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="520">
+          <caret line="21" column="34" selection-start-line="21" selection-start-column="34" selection-end-line="21" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/geometry/GeometryItem.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkShader.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="25" column="41" selection-start-line="25" selection-start-column="41" selection-end-line="25" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="17" column="45" lean-forward="true" selection-start-line="17" selection-start-column="45" selection-end-line="17" selection-end-column="45" />
+          <folding>
+            <element signature="e#54#80#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/vulkan/vulkan_core.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="278">
-          <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
+          <caret line="2562" column="48" selection-start-line="2562" selection-start-column="48" selection-end-line="2562" selection-end-column="48" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp">
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="30" column="20" lean-forward="true" selection-start-line="30" selection-start-column="20" selection-end-line="30" selection-end-column="20" />
+        <state relative-caret-position="335">
+          <caret line="26" lean-forward="true" selection-start-line="26" selection-end-line="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/geometry/Triangle.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="624">
+          <caret line="24" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBuffer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1014">
+          <caret line="39" column="37" selection-start-line="39" selection-start-column="37" selection-end-line="39" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/shader/testTriangleF.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkShader.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="13" column="85" selection-start-line="13" selection-start-column="65" selection-end-line="13" selection-end-column="85" />
           <folding>
-            <element signature="e#42#68#0" expanded="true" />
+            <element signature="e#40#71#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/shader/testTriangleV.glsl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="398">
+          <caret line="28" column="12" selection-start-line="28" selection-start-column="12" selection-end-line="28" selection-end-column="12" />
+          <folding>
+            <element signature="e#40#72#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -815,171 +807,144 @@ obj == GL_FRAGMENT_SHADER</expression-string>
     <entry file="file://$PROJECT_DIR$/src/api/DataType.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="416">
-          <caret line="16" column="4" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
+          <caret line="16" column="45" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="45" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/RenderingContext.h">
+    <entry file="file://$PROJECT_DIR$/src/api/DataType.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="12" column="23" selection-start-line="12" selection-start-column="23" selection-end-line="12" selection-end-column="23" />
+        <state relative-caret-position="368">
+          <caret line="60" column="55" selection-start-line="60" selection-start-column="55" selection-end-line="60" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkVertexBinding.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="24" column="66" selection-start-line="24" selection-start-column="66" selection-end-line="24" selection-end-column="66" />
           <folding>
-            <element signature="e#14#39#0" expanded="true" />
+            <element signature="e#40#56#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingContext.h">
+    <entry file="file://$PROJECT_DIR$/src/application/OpenGLApplication.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
+        <state relative-caret-position="598">
+          <caret line="24" column="11" selection-start-line="24" selection-start-column="11" selection-end-line="24" selection-end-column="11" />
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/include/vulkan/vulkan_core.h">
+    <entry file="file://$PROJECT_DIR$/src/api/CoordinateSpace.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36686">
-          <caret line="1411" column="4" selection-start-line="1411" selection-start-column="4" selection-end-line="1411" selection-end-column="4" />
+        <state relative-caret-position="546">
+          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="910">
-          <caret line="35" column="12" selection-start-line="35" selection-start-column="12" selection-end-line="35" selection-end-column="12" />
+        <state relative-caret-position="546">
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
           <folding>
             <element signature="e#41#59#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingPipeline.cpp">
+    <entry file="file://$PROJECT_DIR$/src/vendor/glm/ext/matrix_float2x4.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4862">
-          <caret line="187" selection-start-line="187" selection-end-line="187" />
+        <state relative-caret-position="364">
+          <caret line="14" column="44" selection-start-line="14" selection-start-column="44" selection-end-line="14" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/vendor/glm/ext/matrix_float4x4.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="14" column="48" selection-start-line="14" selection-start-column="48" selection-end-line="14" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/application/TestApplication.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="182">
+          <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="22" column="21" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkRenderingContext.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="26">
+          <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
           <folding>
-            <element signature="e#40#72#0" expanded="true" />
+            <element signature="e#42#68#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+    <entry file="file://$PROJECT_DIR$/src/api/RenderingContext.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="25" column="14" selection-start-line="25" selection-start-column="14" selection-end-line="25" selection-end-column="14" />
+        <state relative-caret-position="181">
+          <caret line="15" column="2" selection-start-line="15" selection-start-column="2" selection-end-line="15" selection-end-column="2" />
+          <folding>
+            <element signature="e#14#43#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingContext.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="14" column="26" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+        <state relative-caret-position="181">
+          <caret line="13" column="55" selection-start-line="13" selection-start-column="55" selection-end-line="13" selection-end-column="55" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/vulkan/VkIndexBuffer.h">
+    <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingContext.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="17" column="2" selection-start-line="17" selection-start-column="2" selection-end-line="17" selection-end-column="2" />
+        <state relative-caret-position="181">
+          <caret line="10" column="2" selection-start-line="10" selection-start-column="2" selection-end-line="10" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/application/OpenGLApplication.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="55" column="41" selection-start-line="55" selection-start-column="41" selection-end-line="55" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/application/VulkanApplication.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="59">
+          <caret line="59" column="41" selection-start-line="59" selection-start-column="41" selection-end-line="59" selection-end-column="41" />
           <folding>
-            <element signature="e#41#67#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlIndexBuffer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="11" column="15" selection-start-line="11" selection-start-column="15" selection-end-line="11" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="23" column="37" selection-start-line="23" selection-start-column="36" selection-end-line="23" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlShader.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="344">
-          <caret line="20" column="16" lean-forward="true" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/c++/9/sstream">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="830" column="6" selection-start-line="830" selection-start-column="6" selection-end-line="830" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/Utils.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="654">
-          <caret line="34" column="25" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
-          <folding>
-            <element signature="e#54#71#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/IndexBuffer.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="18" column="22" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/DataType.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="12" column="45" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/api/gl/GlRenderingPipeline.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="61" selection-start-line="61" selection-end-line="61" />
-          <folding>
-            <element signature="e#40#59#0" expanded="true" />
+            <element signature="e#41#72#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/TestTriangle.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="154">
-          <caret line="19" column="33" lean-forward="true" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
+        <state relative-caret-position="189">
+          <caret line="13" column="1" selection-start-line="13" selection-start-column="1" selection-end-line="13" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/geometry/Triangle.cpp">
+    <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-130">
-          <caret line="7" column="20" selection-start-line="7" selection-start-column="20" selection-end-line="7" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/shader/testTriangleF.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/shader/testTriangleV.glsl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="11" column="23" selection-start-line="11" selection-start-column="16" selection-end-line="11" selection-end-column="23" />
+        <state relative-caret-position="104">
+          <caret line="8" column="87" selection-start-line="8" selection-start-column="87" selection-end-line="8" selection-end-column="87" />
+          <folding>
+            <element signature="e#0#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

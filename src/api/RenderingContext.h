@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vendor/glm/glm.hpp>
 #include "VertexBuffer.h"
 #include "VertexBinding.h"
 #include "Shader.h"
@@ -7,9 +8,13 @@
 #include "RenderingPipeline.h"
 
 namespace api {
+
 class RenderingContext {
+ protected:
+  glm::mat4x4 ortho_projection_;
  public:
   RenderingContext() = default;
+
   virtual IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) = 0;
 
   virtual void FreeIndexBuffer(IndexBuffer *buffer) = 0;
@@ -36,6 +41,11 @@ class RenderingContext {
                                                     const Shader *fragment_shader) = 0;
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
+
+  const glm::mat4x4 &GetOrthoProjection() const {
+    return ortho_projection_;
+  }
+
 
   virtual ~RenderingContext() = default;
 };

@@ -24,14 +24,16 @@ api::VkShader::VkShader(VkRenderingContext *context,
     throw std::runtime_error("failed to create shader module!");
   }
 
-  shader_stage_info_.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  shader_stage_info_.stage = GetShaderVkType(type);
-  shader_stage_info_.module = shader_module_;
-  shader_stage_info_.pName = this->entry_point_name_.data();
+  shader_stage_info_ = new VkPipelineShaderStageCreateInfo();
+  shader_stage_info_->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+  shader_stage_info_->stage = GetShaderVkType(type);
+  shader_stage_info_->module = shader_module_;
+  shader_stage_info_->pName = this->entry_point_name_.data();
 }
 api::VkShader::~VkShader() {
   vkDestroyShaderModule(*device_, shader_module_, nullptr);
+  delete shader_stage_info_;
 }
-const VkPipelineShaderStageCreateInfo &api::VkShader::GetShaderStageInfo() const {
+const VkPipelineShaderStageCreateInfo* api::VkShader::GetShaderStageInfo() const {
   return shader_stage_info_;
 }

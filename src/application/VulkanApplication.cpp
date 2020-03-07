@@ -57,12 +57,11 @@ void VulkanApplication::InitContext() {
   CreateSurface();
   PickPhysicalDevice();
   CreateLogicalDevice();
-  context_ = new api::VkRenderingContext(&physical_device_,
-                                         &device_,
-                                         &graphics_command_pool_,
-                                         &graphics_queue_,
-                                         &render_pass_,
-                                         &swap_chain_extent_);
+  context_ = new api::VkRenderingContext(
+      &physical_device_,
+      &device_,
+      &graphics_command_pool_,
+      &graphics_queue_);
   renderer_ = new api::Renderer(context_);
   CreateDescriptorPool();
   CreateCommandPool();
@@ -345,6 +344,7 @@ void VulkanApplication::CreateSwapChain() {
   VkSurfaceFormatKHR surface_format = ChooseSwapSurfaceFormat(swap_chain_support.formats_);
   VkPresentModeKHR present_mode = ChooseSwapPresentMode(swap_chain_support.present_modes_);
   swap_chain_extent_ = ChooseSwapExtent(swap_chain_support.capabilities_);
+  context_->SetSwapChainExtent(&swap_chain_extent_);
   swap_chain_image_format_ = surface_format.format;
   uint32_t image_count = swap_chain_support.capabilities_.minImageCount + 1;
   if (swap_chain_support.capabilities_.maxImageCount > 0 &&
@@ -470,6 +470,7 @@ void VulkanApplication::CreateRenderPass() {
   if (vkCreateRenderPass(device_, &render_pass_info, nullptr, &render_pass_)!=VK_SUCCESS) {
     throw std::runtime_error("failed to create render pass!");
   }
+  context_->SetVkRenderPass(&render_pass_);
 }
 
 void VulkanApplication::CreateFramebuffers() {
@@ -656,6 +657,7 @@ void VulkanApplication::CleanupSwapChain() {
                        static_cast<uint32_t>(graphics_command_buffers_.size()),
                        graphics_command_buffers_.data());
   vkDestroyRenderPass(device_, render_pass_, nullptr);
+  context_->SetVkRenderPass(nullptr);
   for (auto image_view : swap_chain_image_views_) {
     vkDestroyImageView(device_, image_view, nullptr);
   }

@@ -12,7 +12,9 @@ enum DataType {
 
 int GetGlType(DataType type);
 
-VkFormat GetVkType(DataType type);
+VkIndexType GetVkType(DataType type);
+
+VkFormat GetVkFormat(DataType type, int count);
 
 int GetDataTypeSizeInBytes(DataType type);
 }

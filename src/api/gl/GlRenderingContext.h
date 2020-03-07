@@ -8,6 +8,7 @@
 namespace api {
 class GlRenderingContext : public RenderingContext {
  public:
+  GlRenderingContext();
   IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
 
   void FreeIndexBuffer(IndexBuffer *buffer) override;
@@ -34,5 +35,7 @@ class GlRenderingContext : public RenderingContext {
                        api::ShaderType type) override;
 
   void DeleteShader(Shader *vertex_binding) override;
+
+  void SetOrthoProjection(const glm::mat4x4 &ortho_projection);
 };
 }

@@ -12,7 +12,7 @@ geometry::Triangle::Triangle(api::RenderingContext *context, geometry::Point &po
       point_2.x, point_2.y, point_2.z, point_2.r, point_2.g, point_2.b, point_2.a
   };
 
-  unsigned int indices[] = {
+  unsigned short indices[] = {
       0, 1, 2
   };
 

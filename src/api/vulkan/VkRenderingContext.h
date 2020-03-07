@@ -13,8 +13,8 @@ class VkRenderingContext : public RenderingContext {
   VkPhysicalDevice *physical_device_;
   VkCommandPool *graphics_pool_;
   VkQueue *graphics_queue_;
-  VkRenderPass *vk_render_pass_;
-  VkExtent2D *swap_chain_extent_;
+  VkRenderPass *vk_render_pass_ = nullptr;
+  VkExtent2D *swap_chain_extent_ = nullptr;
   VkCommandBuffer *current_command_buffer_ = nullptr;
 
   uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
@@ -23,9 +23,7 @@ class VkRenderingContext : public RenderingContext {
   VkRenderingContext(VkPhysicalDevice *physical_device,
                      VkDevice *device,
                      VkCommandPool *graphics_pool,
-                     VkQueue *graphics_queue,
-                     VkRenderPass *vk_render_pass,
-                     VkExtent2D *swap_chain_extent);
+                     VkQueue *graphics_queue);
 
   VkDevice *GetDevice() const;
 
@@ -73,6 +71,8 @@ class VkRenderingContext : public RenderingContext {
   VkExtent2D *GetSwapChainExtent() const;
   VkCommandBuffer *GetCurrentCommandBuffer() const;
   void SetCurrentCommandBuffer(VkCommandBuffer *current_command_buffer);
+  void SetVkRenderPass(VkRenderPass *vk_render_pass);
+  void SetSwapChainExtent(VkExtent2D *swap_chain_extent);
   ~VkRenderingContext() override = default;
 };
 }

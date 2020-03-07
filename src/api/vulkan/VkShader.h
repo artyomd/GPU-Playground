@@ -12,7 +12,7 @@ class VkShader : public Shader {
  private:
   VkShaderModule shader_module_;
   VkDevice *device_;
-  VkPipelineShaderStageCreateInfo shader_stage_info_ = {};
+  VkPipelineShaderStageCreateInfo *shader_stage_info_;
  public:
   VkShader(VkRenderingContext *context,
            std::string
@@ -23,7 +23,7 @@ class VkShader : public Shader {
            ShaderType type
   );
 
-  const VkPipelineShaderStageCreateInfo &GetShaderStageInfo() const;
+  const VkPipelineShaderStageCreateInfo* GetShaderStageInfo() const;
 
   ~VkShader() override;
 };

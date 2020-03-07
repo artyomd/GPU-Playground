@@ -14,13 +14,7 @@ VkIndexBuffer::VkIndexBuffer(VkRenderingContext *context,
   if (type!=DATA_TYPE_UINT_16 && type!=DATA_TYPE_UINT_32) {
     throw std::runtime_error("unsupported type for index buffer");
   }
-
-  switch (type) {
-    case DATA_TYPE_UINT_16:index_type_ = VK_INDEX_TYPE_UINT16;
-      break;
-    case DATA_TYPE_UINT_32 :index_type_ = VK_INDEX_TYPE_UINT32;
-      break;
-  }
+  index_type_ = GetVkType(type);
 
   VkDeviceSize buffer_size = GetDataTypeSizeInBytes(type)*item_count;
   VkBuffer staging_buffer;

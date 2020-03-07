@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
+#include <vendor/glm/ext.hpp>
 #include "VkRenderingContext.h"
 #include "VkVertexBuffer.h"
 #include "VkIndexBuffer.h"
@@ -16,15 +17,12 @@ VkRenderingContext::VkRenderingContext(
     VkPhysicalDevice *physical_device,
     VkDevice *device,
     VkCommandPool *graphics_pool,
-    VkQueue *graphics_queue,
-    VkRenderPass *vk_render_pass,
-    VkExtent2D *swap_chain_extent) :
+    VkQueue *graphics_queue) :
+    RenderingContext(),
     physical_device_(physical_device),
     device_(device),
     graphics_pool_(graphics_pool),
-    graphics_queue_(graphics_queue),
-    vk_render_pass_(vk_render_pass),
-    swap_chain_extent_(swap_chain_extent) {
+    graphics_queue_(graphics_queue) {
 }
 
 IndexBuffer *VkRenderingContext::CreateIndexBuffer(const void *data, unsigned int size, DataType type) {
@@ -175,5 +173,17 @@ VkCommandBuffer *VkRenderingContext::GetCurrentCommandBuffer() const {
 }
 void VkRenderingContext::SetCurrentCommandBuffer(VkCommandBuffer *current_command_buffer) {
   current_command_buffer_ = current_command_buffer;
+}
+void VkRenderingContext::SetVkRenderPass(VkRenderPass *vk_render_pass) {
+  vk_render_pass_ = vk_render_pass;
+}
+void VkRenderingContext::SetSwapChainExtent(VkExtent2D *swap_chain_extent) {
+  swap_chain_extent_ = swap_chain_extent;
+  ortho_projection_ = glm::ortho(
+      -swap_chain_extent->width/2, //left
+      swap_chain_extent->width/2,  //right
+      -swap_chain_extent->height/2,//top
+      swap_chain_extent->height    //bottom
+  );
 }
 }
