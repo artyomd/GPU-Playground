@@ -34,12 +34,9 @@ void OpenGLApplication::SetupWindowHints() {
 
 void OpenGLApplication::OnWindowSizeChanged() {
   GL_CALL(glViewport(0, 0, this->window_width_, this->window_height_));
-  context_->SetOrthoProjection(glm::ortho(
-      -this->window_width_/2, //left
-      this->window_width_/2,  //right
-      this->window_height_/2, //top
-      -this->window_height_/2 //bottom
-      ));
+  float new_width = 4.0f;
+  float new_height = (window_height_ * new_width) / window_width_;
+  context_->SetOrthoProjection(glm::ortho(-new_width, new_width, -new_height, new_height));
 }
 
 void OpenGLApplication::InitContext() {
@@ -55,6 +52,7 @@ void OpenGLApplication::InitContext() {
   //GL_CALL(glEnable(GL_CULL_FACE));
   context_ = new api::GlRenderingContext();
   renderer_ = new api::Renderer(context_);
+  OnWindowSizeChanged();
   PrepareTestMenu(window_width_, window_height_);
 }
 

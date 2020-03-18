@@ -8,6 +8,7 @@
 #include "VulkanApplication.h"
 #include "api/vulkan/VkRenderingContext.h"
 #include <set>
+#include <vendor/glm/ext.hpp>
 
 namespace application {
 
@@ -57,13 +58,16 @@ void VulkanApplication::InitContext() {
   CreateSurface();
   PickPhysicalDevice();
   CreateLogicalDevice();
+  CreateDescriptorPool();
   context_ = new api::VkRenderingContext(
       &physical_device_,
       &device_,
       &graphics_command_pool_,
-      &graphics_queue_);
+      &graphics_queue_,
+      &descriptor_pool_,
+      max_frames_in_flight_);
   renderer_ = new api::Renderer(context_);
-  CreateDescriptorPool();
+//  OnWindowSizeChanged();
   CreateCommandPool();
   CreateSwapChain();
   CreateImageViews();
@@ -636,6 +640,7 @@ void VulkanApplication::DrawFrame() {
   }
 
   current_frame_ = (current_frame_ + 1)%max_frames_in_flight_;
+  context_->SetCurrentImageIndex(current_frame_);
 }
 
 void VulkanApplication::PrepareForShutdown() {

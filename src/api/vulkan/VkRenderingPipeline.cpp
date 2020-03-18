@@ -5,16 +5,21 @@
 #include "VkRenderingPipeline.h"
 #include "VkShader.h"
 #include "VkVertexBinding.h"
+#include "VkUniformBuffer.h"
+#include <utility>
+#include <array>
 
 api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
                                               const api::VertexBinding *vertex_binding,
                                               const api::IndexBuffer *index_buffer,
                                               const api::Shader *vertex_shader,
-                                              const api::Shader *fragment_shader) :
+                                              const api::Shader *fragment_shader,
+                                              const UniformBuffer *shader_properties) :
     RenderingPipeline(vertex_binding,
                       index_buffer,
                       vertex_shader,
-                      fragment_shader), device_(context->GetDevice()), context_(context) {
+                      fragment_shader,
+                      shader_properties), device_(context->GetDevice()), context_(context) {
 
   VkPipelineShaderStageCreateInfo shader_stages[] = {
       *dynamic_cast<const VkShader *>(vertex_shader)->GetShaderStageInfo(),
@@ -22,7 +27,8 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   };
 
   auto attribute_descriptions = dynamic_cast<const VkVertexBinding *>(vertex_binding)->GetAttributeDescriptions();
-  auto input_binding_description = dynamic_cast<const VkVertexBinding *>(vertex_binding)->GetVertexInputBindingDescription();
+  auto input_binding_description =
+      dynamic_cast<const VkVertexBinding *>(vertex_binding)->GetVertexInputBindingDescription();
 
   VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
   vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -72,7 +78,8 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
   VkPipelineColorBlendAttachmentState color_blend_attachment = {};
-  color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+  color_blend_attachment.colorWriteMask =
+      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
   color_blend_attachment.blendEnable = VK_FALSE;
 
   VkPipelineColorBlendStateCreateInfo color_blending = {};
@@ -86,14 +93,6 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   color_blending.blendConstants[2] = 0.0f;
   color_blending.blendConstants[3] = 0.0f;
 
-  VkPipelineLayoutCreateInfo pipeline_layout_info = {};
-  pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipeline_layout_info.setLayoutCount = 0;
-
-  if (vkCreatePipelineLayout(*device_, &pipeline_layout_info, nullptr, &pipeline_layout_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create pipeline layout!");
-  }
-
   VkGraphicsPipelineCreateInfo pipeline_info = {};
   pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipeline_info.stageCount = 2;
@@ -104,12 +103,12 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   pipeline_info.pRasterizationState = &rasterizer;
   pipeline_info.pMultisampleState = &multisampling;
   pipeline_info.pColorBlendState = &color_blending;
-  pipeline_info.layout = pipeline_layout_;
+  pipeline_info.layout = *dynamic_cast<const VkUniformBuffer *>(shader_properties_)->GetPipelineLayout();
   pipeline_info.renderPass = *context->GetVkRenderPass();
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-  if (vkCreateGraphicsPipelines(*device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(*device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_)!=VK_SUCCESS) {
     throw std::runtime_error("failed to create graphics pipeline!");
   }
 }
@@ -118,9 +117,9 @@ void api::VkRenderingPipeline::Render() {
   vkCmdBindPipeline(*context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   vertex_binding_->Bind();
   index_buffer_->Bind();
+  shader_properties_->Bind();
   vkCmdDrawIndexed(*context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
 }
 api::VkRenderingPipeline::~VkRenderingPipeline() {
-  vkDestroyPipelineLayout(*device_, pipeline_layout_, nullptr);
   vkDestroyPipeline(*device_, pipeline_, nullptr);
 }

@@ -9,7 +9,7 @@
 
 namespace test {
 
-TestTriangle::TestTriangle(api::Renderer *renderer) : Test(renderer) {
+TestTriangle::TestTriangle(api::Renderer *renderer) : TestModel(renderer) {
 
   geometry::Point point_0 = {-0.5f, -0.5f, 0.0f, 1, 1, 0, 0};
   geometry::Point point_1 = {0.5f, -0.5f, 0.0f, 1, 0, 1, 0};
@@ -17,17 +17,21 @@ TestTriangle::TestTriangle(api::Renderer *renderer) : Test(renderer) {
 
   auto *context = renderer->GetRenderingContext();
 
+  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObject),
+                                                 0,
+                                                 api::ShaderType::SHADER_TYPE_VERTEX);
+
   triangle_ = new geometry::Triangle(context, point_0, point_1, point_2);
-  vertex_shader_ = context->CreateShader("../res/shader/compiled/testTriangleV.spv",
-                                         "../res/shader/testTriangleV.glsl",
+  vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
+                                         "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
                                          api::SHADER_TYPE_VERTEX);
-  fragment_shader_ = context->CreateShader("../res/shader/compiled/testTriangleF.spv",
-                                           "../res/shader/testTriangleF.glsl",
+  fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
+                                           "../res/shader/default_color_fragment_shader.glsl",
                                            "main",
                                            api::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(triangle_->GetVertexBinding(), triangle_->GetIndexBuffer(),
-                                              vertex_shader_, fragment_shader_);
+                                              vertex_shader_, fragment_shader_, uniform_buffer_);
 }
 
 void TestTriangle::OnClear() {
@@ -35,6 +39,10 @@ void TestTriangle::OnClear() {
 }
 
 void TestTriangle::OnRender() {
+  ubo_->model_ = ComputeModelMatrix();
+  ubo_->proj_ =  renderer_->GetRenderingContext()->GetOrthoProjection();
+  ubo_->view_ = glm::mat4(1.0f);
+  uniform_buffer_->Update(ubo_);
   pipeline_->Render();
 }
 
@@ -43,6 +51,7 @@ TestTriangle::~TestTriangle() {
   context->FreeGraphicsPipeline(pipeline_);
   context->DeleteShader(fragment_shader_);
   context->DeleteShader(vertex_shader_);
+  context->DeleteUniformBuffer(uniform_buffer_);
   delete triangle_;
 }
 }

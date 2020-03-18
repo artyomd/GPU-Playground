@@ -12,7 +12,6 @@ void TestApplication::PrepareTestMenu(int width, int height) {
   }
   test_menu_ = new test::TestMenu(renderer_, current_test_);
   current_test_ = test_menu_;
-  current_test_->OnWindowSizeChanged(width, height);
 }
 
 void TestApplication::RenderMenu() {

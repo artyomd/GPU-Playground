@@ -9,6 +9,7 @@
 #include "GlIndexBuffer.h"
 #include "GlRenderingPipeline.h"
 #include "GlShader.h"
+#include "GlUniformBuffer.h"
 
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
@@ -41,8 +42,9 @@ void GlRenderingContext::FreeVertexBiding(VertexBinding *vertex_binding) {
 RenderingPipeline *GlRenderingContext::CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
-                                                              const Shader *fragment_shader) {
-  return new GlRenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader);
+                                                              const Shader *fragment_shader,
+                                                              const UniformBuffer *shader_properties) {
+  return new GlRenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
 }
 
 void GlRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
@@ -59,7 +61,13 @@ void GlRenderingContext::DeleteShader(Shader *vertex_binding) {
   delete vertex_binding;
 
 }
-void GlRenderingContext::SetOrthoProjection(const glm::mat4x4 &ortho_projection) {
-  ortho_projection_ = ortho_projection;
+
+UniformBuffer *GlRenderingContext::CreateUniformBuffer(int length,
+                                                       int binding_point,
+                                                       ShaderType shader_stage) {
+  return new GlUniformBuffer(length, binding_point, shader_stage);
+}
+void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
+  delete uniform_buffer;
 }
 }

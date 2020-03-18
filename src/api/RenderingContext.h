@@ -35,17 +35,26 @@ class RenderingContext {
 
   virtual void DeleteShader(Shader *vertex_binding) = 0;
 
+  virtual UniformBuffer *CreateUniformBuffer(int length,
+                                             int binding_point, ShaderType shader_stage) = 0;
+
+  virtual void DeleteUniformBuffer(UniformBuffer *uniform_buffer) = 0;
+
   virtual RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                                     const IndexBuffer *index_buffer,
                                                     const Shader *vertex_shader,
-                                                    const Shader *fragment_shader) = 0;
+                                                    const Shader *fragment_shader,
+                                                    const UniformBuffer *shader_properties) = 0;
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
+
+  void SetOrthoProjection(const glm::mat4x4 &ortho_projection) {
+    ortho_projection_ = ortho_projection;
+  }
 
   const glm::mat4x4 &GetOrthoProjection() const {
     return ortho_projection_;
   }
-
 
   virtual ~RenderingContext() = default;
 };

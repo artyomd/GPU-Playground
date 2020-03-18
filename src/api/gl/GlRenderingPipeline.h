@@ -16,7 +16,8 @@ class GlRenderingPipeline : public RenderingPipeline {
   GlRenderingPipeline(const VertexBinding *vertex_binding,
                       const IndexBuffer *index_buffer,
                       const Shader *vertex_shader,
-                      const Shader *fragment_shader);
+                      const Shader *fragment_shader,
+                      const UniformBuffer *shader_properties);
 
   void Render() override;
 

@@ -16,3 +16,6 @@ void test::TestClearColor::OnClear() {
 void test::TestClearColor::OnImGuiRender() {
   ImGui::ColorEdit4("Clear color", color_);
 }
+test::TestClearColor::~TestClearColor() {
+  renderer_->SetClearColor(0, 0, 0, 1);
+}

@@ -8,6 +8,7 @@
 #include "GlVertexBinding.h"
 #include "GlShader.h"
 #include "GlUtils.h"
+#include "GlUniformBuffer.h"
 
 namespace api {
 static inline void GetProgramInfoLog(int id) {
@@ -21,8 +22,9 @@ static inline void GetProgramInfoLog(int id) {
 }
 
 GlRenderingPipeline::GlRenderingPipeline(const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
-                                         const Shader *vertex_shader, const Shader *fragment_shader)
-    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader) {
+                                         const Shader *vertex_shader, const Shader *fragment_shader,
+                                         const UniformBuffer *shader_properties)
+    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties) {
   DataType type = index_buffer->GetType();
   if (type!=DATA_TYPE_BYTE &&
       type!=DATA_TYPE_UINT_16 &&
@@ -34,9 +36,9 @@ GlRenderingPipeline::GlRenderingPipeline(const VertexBinding *vertex_binding, co
   dynamic_cast<const GlShader *>(fragment_shader)->AttachShader(program_id_);
   GL_CALL(glLinkProgram(program_id_));
 
-  GLint linkStatus;
-  glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &linkStatus);
-  if (linkStatus==GL_FALSE) {
+  GLint link_status;
+  glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &link_status);
+  if (link_status==GL_FALSE) {
     GetProgramInfoLog(program_id_);
     dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
     dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);
@@ -45,7 +47,6 @@ GlRenderingPipeline::GlRenderingPipeline(const VertexBinding *vertex_binding, co
 
   GL_CALL(glValidateProgram(program_id_));
   GetProgramInfoLog(program_id_);
-
   dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
   dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);
 }
@@ -58,8 +59,11 @@ void GlRenderingPipeline::Render() {
   GL_CALL(glUseProgram(program_id_));
   dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Bind();
   index_buffer_->Bind();
+  dynamic_cast<const GlUniformBuffer *>(shader_properties_)->Bind();
 
   GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
+
+  dynamic_cast<const GlUniformBuffer *>(shader_properties_)->Unbind();
 
   index_buffer_->Unbind();
   dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Unbind();

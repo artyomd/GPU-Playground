@@ -29,7 +29,6 @@ void GlfwApplication::InitWindow() {
     app->window_height_ = height;
     app->window_width_ = width;
     app->OnWindowSizeChanged();
-    app->current_test_->OnWindowSizeChanged(width, height);
   });
 }
 

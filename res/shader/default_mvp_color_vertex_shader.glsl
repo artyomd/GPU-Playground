@@ -1,13 +1,19 @@
-#version 450 core
+#version 450
+#pragma shader_stage(vertex)
+#extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
 
-uniform mat4 u_MVP;
+layout(binding = 0, std140) uniform UniformBufferObject {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+};
 
-out vec4 v_color;
+layout(location = 0) out vec4 v_color;
 
 void main() {
-    gl_Position = u_MVP * position;
     v_color = color;
+    gl_Position = model * view* proj * position;
 }

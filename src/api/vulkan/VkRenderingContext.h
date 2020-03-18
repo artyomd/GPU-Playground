@@ -13,6 +13,9 @@ class VkRenderingContext : public RenderingContext {
   VkPhysicalDevice *physical_device_;
   VkCommandPool *graphics_pool_;
   VkQueue *graphics_queue_;
+  VkDescriptorPool *descriptor_pool_;
+  int image_count_;
+  int current_image_index_ = 0;
   VkRenderPass *vk_render_pass_ = nullptr;
   VkExtent2D *swap_chain_extent_ = nullptr;
   VkCommandBuffer *current_command_buffer_ = nullptr;
@@ -23,7 +26,9 @@ class VkRenderingContext : public RenderingContext {
   VkRenderingContext(VkPhysicalDevice *physical_device,
                      VkDevice *device,
                      VkCommandPool *graphics_pool,
-                     VkQueue *graphics_queue);
+                     VkQueue *graphics_queue,
+                     VkDescriptorPool *descriptor_pool,
+                     int image_count);
 
   VkDevice *GetDevice() const;
 
@@ -43,7 +48,8 @@ class VkRenderingContext : public RenderingContext {
   RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
-                                            const Shader *fragment_shader) override;
+                                            const Shader *fragment_shader,
+                                            const UniformBuffer *shader_properties) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 
@@ -53,6 +59,12 @@ class VkRenderingContext : public RenderingContext {
                        api::ShaderType type) override;
 
   void DeleteShader(Shader *vertex_binding) override;
+
+  UniformBuffer *CreateUniformBuffer(int length,
+                                     int binding_point,
+                                     ShaderType shader_stage) override;
+
+  void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
 
   void CreateBuffer(VkDeviceSize size,
                     VkBufferUsageFlags usage,
@@ -73,6 +85,10 @@ class VkRenderingContext : public RenderingContext {
   void SetCurrentCommandBuffer(VkCommandBuffer *current_command_buffer);
   void SetVkRenderPass(VkRenderPass *vk_render_pass);
   void SetSwapChainExtent(VkExtent2D *swap_chain_extent);
+  VkDescriptorPool *GetDescriptorPool();
+  int GetImageCount();
+  int GetCurrentImageIndex() const;
+  void SetCurrentImageIndex(int current_image_index);
   ~VkRenderingContext() override = default;
 };
 }

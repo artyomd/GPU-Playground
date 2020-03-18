@@ -25,7 +25,8 @@ class GlRenderingContext : public RenderingContext {
   RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
-                                            const Shader *fragment_shader) override;
+                                            const Shader *fragment_shader,
+                                            const UniformBuffer *shader_properties) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 
@@ -36,6 +37,10 @@ class GlRenderingContext : public RenderingContext {
 
   void DeleteShader(Shader *vertex_binding) override;
 
-  void SetOrthoProjection(const glm::mat4x4 &ortho_projection);
+  UniformBuffer *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
+
+  void DeleteUniformBuffer(UniformBuffer *vertex_binding) override;
+
+  ~GlRenderingContext() override = default;
 };
 }

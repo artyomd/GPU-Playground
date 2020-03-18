@@ -6,14 +6,25 @@
 #include "api/Renderer.hpp"
 #include "geometry/Triangle.h"
 #include "Test.h"
+#include "TestModel.h"
 
 namespace test {
-class TestTriangle : public Test {
+struct UniformBufferObject {
+  alignas(16) glm::mat4 model_;
+  alignas(16) glm::mat4 view_;
+  alignas(16) glm::mat4 proj_;
+};
+
+
+class TestTriangle : public TestModel {
  private:
   api::Shader *vertex_shader_ = nullptr;
   api::Shader *fragment_shader_ = nullptr;
+  api::UniformBuffer* uniform_buffer_ = nullptr;
   api::RenderingPipeline *pipeline_ = nullptr;
   geometry::Triangle *triangle_ = nullptr;
+  UniformBufferObject * ubo_ = new UniformBufferObject();
+
  public:
   TestTriangle(api::Renderer *renderer);
 

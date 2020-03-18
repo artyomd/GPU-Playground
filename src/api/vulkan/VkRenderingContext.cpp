@@ -11,18 +11,23 @@
 #include "VkVertexBinding.h"
 #include "VkShader.h"
 #include "VkRenderingPipeline.h"
+#include "VkUniformBuffer.h"
 
 namespace api {
 VkRenderingContext::VkRenderingContext(
     VkPhysicalDevice *physical_device,
     VkDevice *device,
     VkCommandPool *graphics_pool,
-    VkQueue *graphics_queue) :
+    VkQueue *graphics_queue,
+    VkDescriptorPool *descriptor_pool,
+    int image_count) :
     RenderingContext(),
     physical_device_(physical_device),
     device_(device),
     graphics_pool_(graphics_pool),
-    graphics_queue_(graphics_queue) {
+    graphics_queue_(graphics_queue),
+    descriptor_pool_(descriptor_pool),
+    image_count_(image_count) {
 }
 
 IndexBuffer *VkRenderingContext::CreateIndexBuffer(const void *data, unsigned int size, DataType type) {
@@ -74,6 +79,13 @@ void VkRenderingContext::CreateBuffer(VkDeviceSize size,
     throw std::runtime_error("failed to allocate buffer memory!");
   }
   vkBindBufferMemory(*device_, buffer, buffer_memory, 0);
+}
+
+VkDescriptorPool *VkRenderingContext::GetDescriptorPool() {
+  return descriptor_pool_;
+}
+int VkRenderingContext::GetImageCount() {
+  return image_count_;
 }
 
 void VkRenderingContext::CopyBuffer(VkBuffer &src_buffer, VkBuffer &dst_buffer, VkDeviceSize size) {
@@ -152,8 +164,9 @@ void VkRenderingContext::FreeVertexBiding(VertexBinding *vertex_binding) {
 RenderingPipeline *VkRenderingContext::CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
-                                                              const Shader *fragment_shader) {
-  return new VkRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader);
+                                                              const Shader *fragment_shader,
+                                                              const UniformBuffer *shader_properties) {
+  return new VkRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
 }
 void VkRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
   delete pipeline;
@@ -179,11 +192,22 @@ void VkRenderingContext::SetVkRenderPass(VkRenderPass *vk_render_pass) {
 }
 void VkRenderingContext::SetSwapChainExtent(VkExtent2D *swap_chain_extent) {
   swap_chain_extent_ = swap_chain_extent;
-  ortho_projection_ = glm::ortho(
-      -swap_chain_extent->width/2, //left
-      swap_chain_extent->width/2,  //right
-      -swap_chain_extent->height/2,//top
-      swap_chain_extent->height    //bottom
-  );
+  float new_width = 4.0f;
+  float new_height = (swap_chain_extent->height * new_width) / swap_chain_extent->width;
+  ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
+}
+UniformBuffer *VkRenderingContext::CreateUniformBuffer(int length,
+                                                       int binding_point,
+                                                       ShaderType shader_stage) {
+  return new VkUniformBuffer(this, length, binding_point, shader_stage);
+}
+void VkRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
+  delete uniform_buffer;
+}
+int VkRenderingContext::GetCurrentImageIndex() const {
+  return current_image_index_;
+}
+void VkRenderingContext::SetCurrentImageIndex(int current_image_index) {
+  current_image_index_ = current_image_index;
 }
 }

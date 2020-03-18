@@ -16,8 +16,6 @@ class TestMenu : public Test {
 
   void OnImGuiRender() override;
 
-  void OnWindowSizeChanged(int width, int height) override;
-
   template<typename T>
   void RegisterTest(const std::string &name) {
     std::cout << "Registering test: " << name << std::endl;
@@ -25,8 +23,6 @@ class TestMenu : public Test {
   }
 
  private:
-  int m_width_;
-  int m_height_;
   Test *&m_current_test_;
   std::vector<std::pair<std::string, std::function<Test *()>>> m_tests_;
 };

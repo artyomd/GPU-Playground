@@ -21,7 +21,5 @@ class Test {
   virtual void OnRender() {};
 
   virtual void OnImGuiRender() {};
-
-  virtual void OnWindowSizeChanged(int width, int height) {};
 };
 }

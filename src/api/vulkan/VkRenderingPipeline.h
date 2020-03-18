@@ -5,6 +5,7 @@
 #pragma once
 
 #include <api/RenderingPipeline.h>
+#include <vector>
 #include "VkRenderingContext.h"
 
 namespace api {
@@ -13,15 +14,16 @@ class VkRenderingPipeline : public RenderingPipeline {
   VkRenderingContext *context_;
   VkDevice *device_;
   VkPipeline pipeline_;
-  VkPipelineLayout pipeline_layout_;
+
  public:
   VkRenderingPipeline(VkRenderingContext *context,
                       const VertexBinding *vertex_binding,
                       const IndexBuffer *index_buffer,
                       const Shader *vertex_shader,
-                      const Shader *fragment_shader);
+                      const Shader *fragment_shader,
+                      const UniformBuffer *shader_properties);
 
   void Render() override;
-  virtual ~VkRenderingPipeline();
+  ~VkRenderingPipeline() override;
 };
 }
