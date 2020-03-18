@@ -48,9 +48,7 @@ class RenderingContext {
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
 
-  void SetOrthoProjection(const glm::mat4x4 &ortho_projection) {
-    ortho_projection_ = ortho_projection;
-  }
+  virtual void SetViewportSize(int width, int height) = 0;
 
   const glm::mat4x4 &GetOrthoProjection() const {
     return ortho_projection_;

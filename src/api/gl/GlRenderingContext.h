@@ -7,6 +7,9 @@
 
 namespace api {
 class GlRenderingContext : public RenderingContext {
+ private:
+  int viewport_width_ = 0;
+  int viewport_height = 0;
  public:
   GlRenderingContext();
   IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
@@ -30,6 +33,7 @@ class GlRenderingContext : public RenderingContext {
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 
+  void SetViewportSize(int width, int height) override;
   Shader *CreateShader(std::string sipr_v_shader_location,
                        std::string glsl_location,
                        std::string entry_point_name,
@@ -42,5 +46,7 @@ class GlRenderingContext : public RenderingContext {
   void DeleteUniformBuffer(UniformBuffer *vertex_binding) override;
 
   ~GlRenderingContext() override = default;
+  int GetViewportWidth() const;
+  int GetViewportHeight() const;
 };
 }

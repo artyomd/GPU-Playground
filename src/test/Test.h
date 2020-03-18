@@ -21,5 +21,7 @@ class Test {
   virtual void OnRender() {};
 
   virtual void OnImGuiRender() {};
+
+  virtual void OnViewportChange() {};
 };
 }

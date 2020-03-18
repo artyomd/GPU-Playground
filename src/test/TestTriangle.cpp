@@ -40,10 +40,14 @@ void TestTriangle::OnClear() {
 
 void TestTriangle::OnRender() {
   ubo_->model_ = ComputeModelMatrix();
-  ubo_->proj_ =  renderer_->GetRenderingContext()->GetOrthoProjection();
+  ubo_->proj_ = renderer_->GetRenderingContext()->GetOrthoProjection();
   ubo_->view_ = glm::mat4(1.0f);
   uniform_buffer_->Update(ubo_);
   pipeline_->Render();
+}
+
+void TestTriangle::OnViewportChange() {
+  pipeline_->ViewportChanged();
 }
 
 TestTriangle::~TestTriangle() {

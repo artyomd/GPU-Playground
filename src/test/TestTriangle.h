@@ -33,5 +33,6 @@ class TestTriangle : public TestModel {
   void OnRender() override;
 
   ~TestTriangle() override;
+  void OnViewportChange() override;
 };
 }

@@ -50,6 +50,7 @@ void VulkanApplication::SetupWindowHints() {
 
 void VulkanApplication::OnWindowSizeChanged() {
   this->framebuffer_resized_ = true;
+  context_->SetViewportSize(swap_chain_extent_.width, swap_chain_extent_.height);
 }
 
 void VulkanApplication::InitContext() {
@@ -348,7 +349,6 @@ void VulkanApplication::CreateSwapChain() {
   VkSurfaceFormatKHR surface_format = ChooseSwapSurfaceFormat(swap_chain_support.formats_);
   VkPresentModeKHR present_mode = ChooseSwapPresentMode(swap_chain_support.present_modes_);
   swap_chain_extent_ = ChooseSwapExtent(swap_chain_support.capabilities_);
-  context_->SetSwapChainExtent(&swap_chain_extent_);
   swap_chain_image_format_ = surface_format.format;
   uint32_t image_count = swap_chain_support.capabilities_.minImageCount + 1;
   if (swap_chain_support.capabilities_.maxImageCount > 0 &&

@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <vendor/glm/ext.hpp>
 #include "GlRenderingContext.h"
 #include "GlVertexBuffer.h"
 #include "GlVertexBinding.h"
@@ -44,7 +45,7 @@ RenderingPipeline *GlRenderingContext::CreateGraphicsPipeline(const VertexBindin
                                                               const Shader *vertex_shader,
                                                               const Shader *fragment_shader,
                                                               const UniformBuffer *shader_properties) {
-  return new GlRenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
+  return new GlRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
 }
 
 void GlRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
@@ -69,5 +70,18 @@ UniformBuffer *GlRenderingContext::CreateUniformBuffer(int length,
 }
 void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
   delete uniform_buffer;
+}
+void GlRenderingContext::SetViewportSize(int width, int height) {
+  viewport_width_ = width;
+  viewport_height = height;
+  float new_width = 4.0f;
+  float new_height = (width*new_width)/height;
+  ortho_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
+}
+int GlRenderingContext::GetViewportWidth() const {
+  return viewport_width_;
+}
+int GlRenderingContext::GetViewportHeight() const {
+  return viewport_height;
 }
 }

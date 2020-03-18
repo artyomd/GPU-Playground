@@ -15,6 +15,9 @@ class VkRenderingPipeline : public RenderingPipeline {
   VkDevice *device_;
   VkPipeline pipeline_;
 
+  void DestroyPipeline();
+  void CreatePipeline();
+
  public:
   VkRenderingPipeline(VkRenderingContext *context,
                       const VertexBinding *vertex_binding,
@@ -24,6 +27,7 @@ class VkRenderingPipeline : public RenderingPipeline {
                       const UniformBuffer *shader_properties);
 
   void Render() override;
+  void ViewportChanged() override ;
   ~VkRenderingPipeline() override;
 };
 }

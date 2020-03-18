@@ -33,10 +33,7 @@ void OpenGLApplication::SetupWindowHints() {
 }
 
 void OpenGLApplication::OnWindowSizeChanged() {
-  GL_CALL(glViewport(0, 0, this->window_width_, this->window_height_));
-  float new_width = 4.0f;
-  float new_height = (window_height_ * new_width) / window_width_;
-  context_->SetOrthoProjection(glm::ortho(-new_width, new_width, -new_height, new_height));
+  context_->SetViewportSize(window_width_, window_height_);
 }
 
 void OpenGLApplication::InitContext() {

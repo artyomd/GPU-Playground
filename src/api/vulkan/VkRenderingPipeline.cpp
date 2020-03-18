@@ -20,15 +20,31 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
                       vertex_shader,
                       fragment_shader,
                       shader_properties), device_(context->GetDevice()), context_(context) {
+  CreatePipeline();
+}
 
+void api::VkRenderingPipeline::Render() {
+  vkCmdBindPipeline(*context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+  vertex_binding_->Bind();
+  index_buffer_->Bind();
+  shader_properties_->Bind();
+  vkCmdDrawIndexed(*context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
+}
+
+void api::VkRenderingPipeline::ViewportChanged() {
+  DestroyPipeline();
+  CreatePipeline();
+}
+
+void api::VkRenderingPipeline::CreatePipeline() {
   VkPipelineShaderStageCreateInfo shader_stages[] = {
-      *dynamic_cast<const VkShader *>(vertex_shader)->GetShaderStageInfo(),
-      *dynamic_cast<const VkShader *>(fragment_shader)->GetShaderStageInfo()
+      *dynamic_cast<const VkShader *>(vertex_shader_)->GetShaderStageInfo(),
+      *dynamic_cast<const VkShader *>(fragment_shader_)->GetShaderStageInfo()
   };
 
-  auto attribute_descriptions = dynamic_cast<const VkVertexBinding *>(vertex_binding)->GetAttributeDescriptions();
+  auto attribute_descriptions = dynamic_cast<const VkVertexBinding *>(vertex_binding_)->GetAttributeDescriptions();
   auto input_binding_description =
-      dynamic_cast<const VkVertexBinding *>(vertex_binding)->GetVertexInputBindingDescription();
+      dynamic_cast<const VkVertexBinding *>(vertex_binding_)->GetVertexInputBindingDescription();
 
   VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
   vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -42,18 +58,18 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   input_assembly.primitiveRestartEnable = VK_FALSE;
 
-  auto swap_chain_extent = context->GetSwapChainExtent();
+  auto swap_chain_extent = context_->GetSwapChainExtent();
   VkViewport viewport = {};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float) swap_chain_extent->width;
-  viewport.height = (float) swap_chain_extent->height;
+  viewport.width = (float) swap_chain_extent.width;
+  viewport.height = (float) swap_chain_extent.height;
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
   VkRect2D scissor = {};
   scissor.offset = {0, 0};
-  scissor.extent = *swap_chain_extent;
+  scissor.extent = swap_chain_extent;
 
   VkPipelineViewportStateCreateInfo viewport_state = {};
   viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -104,7 +120,7 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   pipeline_info.pMultisampleState = &multisampling;
   pipeline_info.pColorBlendState = &color_blending;
   pipeline_info.layout = *dynamic_cast<const VkUniformBuffer *>(shader_properties_)->GetPipelineLayout();
-  pipeline_info.renderPass = *context->GetVkRenderPass();
+  pipeline_info.renderPass = *context_->GetVkRenderPass();
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
@@ -113,13 +129,11 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
   }
 }
 
-void api::VkRenderingPipeline::Render() {
-  vkCmdBindPipeline(*context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
-  vertex_binding_->Bind();
-  index_buffer_->Bind();
-  shader_properties_->Bind();
-  vkCmdDrawIndexed(*context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
-}
-api::VkRenderingPipeline::~VkRenderingPipeline() {
+void api::VkRenderingPipeline::DestroyPipeline() {
   vkDestroyPipeline(*device_, pipeline_, nullptr);
 }
+
+api::VkRenderingPipeline::~VkRenderingPipeline() {
+  DestroyPipeline();
+}
+

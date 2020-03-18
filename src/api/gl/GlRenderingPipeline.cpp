@@ -21,10 +21,12 @@ static inline void GetProgramInfoLog(int id) {
   }
 }
 
-GlRenderingPipeline::GlRenderingPipeline(const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
+GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
+                                         const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
                                          const Shader *vertex_shader, const Shader *fragment_shader,
                                          const UniformBuffer *shader_properties)
-    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties) {
+    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties),
+      context_(context) {
   DataType type = index_buffer->GetType();
   if (type!=DATA_TYPE_BYTE &&
       type!=DATA_TYPE_UINT_16 &&
@@ -68,5 +70,8 @@ void GlRenderingPipeline::Render() {
   index_buffer_->Unbind();
   dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Unbind();
   GL_CALL(glUseProgram(0));
+}
+void GlRenderingPipeline::ViewportChanged() {
+  GL_CALL(glViewport(0, 0, context_->GetViewportWidth(), context_->GetViewportHeight()));
 }
 }

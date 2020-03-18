@@ -52,7 +52,7 @@ VkDevice *VkRenderingContext::GetDevice() const {
 VkRenderPass *VkRenderingContext::GetVkRenderPass() const {
   return vk_render_pass_;
 }
-VkExtent2D *VkRenderingContext::GetSwapChainExtent() const {
+VkExtent2D VkRenderingContext::GetSwapChainExtent() const {
   return swap_chain_extent_;
 }
 
@@ -190,12 +190,7 @@ void VkRenderingContext::SetCurrentCommandBuffer(VkCommandBuffer *current_comman
 void VkRenderingContext::SetVkRenderPass(VkRenderPass *vk_render_pass) {
   vk_render_pass_ = vk_render_pass;
 }
-void VkRenderingContext::SetSwapChainExtent(VkExtent2D *swap_chain_extent) {
-  swap_chain_extent_ = swap_chain_extent;
-  float new_width = 4.0f;
-  float new_height = (swap_chain_extent->height * new_width) / swap_chain_extent->width;
-  ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
-}
+
 UniformBuffer *VkRenderingContext::CreateUniformBuffer(int length,
                                                        int binding_point,
                                                        ShaderType shader_stage) {
@@ -209,5 +204,11 @@ int VkRenderingContext::GetCurrentImageIndex() const {
 }
 void VkRenderingContext::SetCurrentImageIndex(int current_image_index) {
   current_image_index_ = current_image_index;
+}
+void VkRenderingContext::SetViewportSize(int width, int height) {
+  swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+  float new_width = 4.0f;
+  float new_height = (width*new_width)/height;
+  ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
 }
 }

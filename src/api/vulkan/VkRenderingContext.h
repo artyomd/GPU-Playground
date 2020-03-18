@@ -17,7 +17,7 @@ class VkRenderingContext : public RenderingContext {
   int image_count_;
   int current_image_index_ = 0;
   VkRenderPass *vk_render_pass_ = nullptr;
-  VkExtent2D *swap_chain_extent_ = nullptr;
+  VkExtent2D swap_chain_extent_{};
   VkCommandBuffer *current_command_buffer_ = nullptr;
 
   uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
@@ -80,11 +80,11 @@ class VkRenderingContext : public RenderingContext {
 
   void EndSingleTimeCommands(VkQueue &queue, VkCommandPool &pool, VkCommandBuffer &command_buffer);
   VkRenderPass *GetVkRenderPass() const;
-  VkExtent2D *GetSwapChainExtent() const;
+  VkExtent2D GetSwapChainExtent() const;
   VkCommandBuffer *GetCurrentCommandBuffer() const;
   void SetCurrentCommandBuffer(VkCommandBuffer *current_command_buffer);
   void SetVkRenderPass(VkRenderPass *vk_render_pass);
-  void SetSwapChainExtent(VkExtent2D *swap_chain_extent);
+  void SetViewportSize(int width, int height) override;
   VkDescriptorPool *GetDescriptorPool();
   int GetImageCount();
   int GetCurrentImageIndex() const;

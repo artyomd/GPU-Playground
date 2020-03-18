@@ -30,6 +30,8 @@ class RenderingPipeline {
 
   virtual void Render() = 0;
 
+  virtual void ViewportChanged() = 0;
+
   virtual ~RenderingPipeline() = default;
 };
 }
