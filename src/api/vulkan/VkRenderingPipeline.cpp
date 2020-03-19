@@ -6,7 +6,6 @@
 #include "VkShader.h"
 #include "VkVertexBinding.h"
 #include "VkUniformBuffer.h"
-#include <utility>
 #include <array>
 
 api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,

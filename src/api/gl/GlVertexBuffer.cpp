@@ -1,8 +1,6 @@
 //
 // Created by artyomd on 12/30/19.
 //
-
-#include <assert.h>
 #include "GlVertexBuffer.h"
 #include "GlUtils.h"
 

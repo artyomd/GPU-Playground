@@ -26,11 +26,11 @@ class VertexBufferLayout {
     throw std::runtime_error("not implemented");
   }
 
-  inline const std::vector<VertexAttribute> GetElements() const {
+  [[nodiscard]] inline std::vector<VertexAttribute> GetElements() const {
     return elements_;
   }
 
-  inline const unsigned int GetStride() const {
+  [[nodiscard]] inline unsigned int GetStride() const {
     return stride_;
   }
 };

@@ -7,9 +7,9 @@
 geometry::Triangle::Triangle(api::RenderingContext *context, geometry::Point &point_0, geometry::Point &point_1,
                              geometry::Point &point_2) : GeometryItem(context) {
   float positions[] = {
-      point_0.x, point_0.y, point_0.z, point_0.r, point_0.g, point_0.b, point_0.a,
-      point_1.x, point_1.y, point_1.z, point_1.r, point_1.g, point_1.b, point_1.a,
-      point_2.x, point_2.y, point_2.z, point_2.r, point_2.g, point_2.b, point_2.a
+      point_0.x_, point_0.y_, point_0.z_, point_0.r_, point_0.g_, point_0.b_, point_0.a_,
+      point_1.x_, point_1.y_, point_1.z_, point_1.r_, point_1.g_, point_1.b_, point_1.a_,
+      point_2.x_, point_2.y_, point_2.z_, point_2.r_, point_2.g_, point_2.b_, point_2.a_
   };
 
   unsigned short indices[] = {

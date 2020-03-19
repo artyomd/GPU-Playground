@@ -18,7 +18,7 @@ class GlfwApplication : public TestApplication {
 
   virtual void SetupWindowHints() = 0;
 
-  virtual void OnWindowSizeChanged() = 0;
+  virtual void OnWindowSizeChanged(){};
 
   virtual bool PrepareFrame() = 0;
 

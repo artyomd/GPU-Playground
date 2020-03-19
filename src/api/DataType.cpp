@@ -4,7 +4,6 @@
 
 #include "DataType.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 #include <stdexcept>
 
 int api::GetGlType(DataType type) {
@@ -17,7 +16,7 @@ int api::GetGlType(DataType type) {
   throw std::runtime_error("unsupported enum");
 }
 
-VkFormat api::GetVkFormat(DataType type, int count) {
+VkFormat api::GetVkFormat(DataType type, unsigned int count) {
   switch (type) {
     case DATA_TYPE_BYTE:
       switch (count) {

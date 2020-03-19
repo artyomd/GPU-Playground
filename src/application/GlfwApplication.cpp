@@ -23,11 +23,13 @@ void GlfwApplication::InitWindow() {
     glfwTerminate();
     throw std::runtime_error("could not create window");
   }
+  renderer_->SetViewport(window_width_, window_height_);
   glfwSetWindowUserPointer(window_, this);
   glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
     auto app = reinterpret_cast<GlfwApplication *>(glfwGetWindowUserPointer(window));
     app->window_height_ = height;
     app->window_width_ = width;
+    app->renderer_->SetViewport(width, height);
     app->OnWindowSizeChanged();
     app->current_test_->OnViewportChange();
   });

@@ -8,7 +8,6 @@
 #include <vendor/imgui/imgui_impl_glfw.h>
 #include <api/gl/GlUtils.h>
 #include <api/gl/GlRenderingContext.h>
-#include <vendor/glm/ext.hpp>
 #include "OpenGLApplication.h"
 
 void GLAPIENTRY
@@ -18,7 +17,7 @@ MessageCallback(GLenum source,
                 GLenum severity,
                 GLsizei length,
                 const GLchar *message,
-                const void *userParam) {
+                const void *user_param) {
   fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
           (type==GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
           type, severity, message);
@@ -30,10 +29,6 @@ void OpenGLApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-}
-
-void OpenGLApplication::OnWindowSizeChanged() {
-  context_->SetViewportSize(window_width_, window_height_);
 }
 
 void OpenGLApplication::InitContext() {
@@ -48,9 +43,8 @@ void OpenGLApplication::InitContext() {
   GL_CALL(glDebugMessageCallback(MessageCallback, nullptr));
   //GL_CALL(glEnable(GL_CULL_FACE));
   context_ = new api::GlRenderingContext();
-  renderer_ = new api::Renderer(context_);
-  OnWindowSizeChanged();
-  PrepareTestMenu(window_width_, window_height_);
+  renderer_->SetContext(context_);
+  PrepareTestMenu();
 }
 
 void OpenGLApplication::InitImGui() {
@@ -92,7 +86,6 @@ void OpenGLApplication::DestroyImGui() {
 
 void OpenGLApplication::DestroyContext() {
   DeleteTestMenu();
-  delete renderer_;
   delete context_;
   glfwMakeContextCurrent(nullptr);
 }

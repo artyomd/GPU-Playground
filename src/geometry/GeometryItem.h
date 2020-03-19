@@ -17,11 +17,11 @@ class GeometryItem {
  public:
   explicit GeometryItem(api::RenderingContext *context) : context_(context) {}
 
-  inline const api::VertexBinding *GetVertexBinding() const {
+  [[nodiscard]] inline const api::VertexBinding *GetVertexBinding() const {
     return vertex_binding_;
   }
 
-  inline const api::IndexBuffer *GetIndexBuffer() const {
+  [[nodiscard]] inline const api::IndexBuffer *GetIndexBuffer() const {
     return index_buffer_;
   }
 

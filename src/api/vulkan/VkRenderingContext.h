@@ -30,7 +30,7 @@ class VkRenderingContext : public RenderingContext {
                      VkDescriptorPool *descriptor_pool,
                      int image_count);
 
-  VkDevice *GetDevice() const;
+  [[nodiscard]] VkDevice *GetDevice() const;
 
   IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
 
@@ -79,15 +79,15 @@ class VkRenderingContext : public RenderingContext {
   VkCommandBuffer BeginSingleTimeCommands(VkCommandPool &command_pool);
 
   void EndSingleTimeCommands(VkQueue &queue, VkCommandPool &pool, VkCommandBuffer &command_buffer);
-  VkRenderPass *GetVkRenderPass() const;
-  VkExtent2D GetSwapChainExtent() const;
-  VkCommandBuffer *GetCurrentCommandBuffer() const;
+  [[nodiscard]] VkRenderPass *GetVkRenderPass() const;
+  [[nodiscard]] VkExtent2D GetSwapChainExtent() const;
+  [[nodiscard]] VkCommandBuffer *GetCurrentCommandBuffer() const;
   void SetCurrentCommandBuffer(VkCommandBuffer *current_command_buffer);
   void SetVkRenderPass(VkRenderPass *vk_render_pass);
   void SetViewportSize(int width, int height) override;
   VkDescriptorPool *GetDescriptorPool();
   int GetImageCount();
-  int GetCurrentImageIndex() const;
+  [[nodiscard]] int GetCurrentImageIndex() const;
   void SetCurrentImageIndex(int current_image_index);
   ~VkRenderingContext() override = default;
 };

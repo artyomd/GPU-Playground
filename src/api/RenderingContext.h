@@ -11,7 +11,7 @@ namespace api {
 
 class RenderingContext {
  protected:
-  glm::mat4x4 ortho_projection_;
+  glm::mat4x4 ortho_projection_{};
  public:
   RenderingContext() = default;
 
@@ -50,7 +50,7 @@ class RenderingContext {
 
   virtual void SetViewportSize(int width, int height) = 0;
 
-  const glm::mat4x4 &GetOrthoProjection() const {
+  [[nodiscard]] const glm::mat4x4 &GetOrthoProjection() const {
     return ortho_projection_;
   }
 

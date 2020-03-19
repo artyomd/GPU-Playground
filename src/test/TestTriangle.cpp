@@ -43,7 +43,7 @@ void TestTriangle::OnRender() {
   ubo_->proj_ = renderer_->GetRenderingContext()->GetOrthoProjection();
   ubo_->view_ = glm::mat4(1.0f);
   uniform_buffer_->Update(ubo_);
-  pipeline_->Render();
+  api::Renderer::Render(pipeline_);
 }
 
 void TestTriangle::OnViewportChange() {

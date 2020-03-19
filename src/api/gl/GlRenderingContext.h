@@ -9,7 +9,7 @@ namespace api {
 class GlRenderingContext : public RenderingContext {
  private:
   int viewport_width_ = 0;
-  int viewport_height = 0;
+  int viewport_height_ = 0;
  public:
   GlRenderingContext();
   IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
@@ -45,8 +45,10 @@ class GlRenderingContext : public RenderingContext {
 
   void DeleteUniformBuffer(UniformBuffer *vertex_binding) override;
 
+  [[nodiscard]] int GetViewportWidth() const;
+
+  [[nodiscard]] int GetViewportHeight() const;
+
   ~GlRenderingContext() override = default;
-  int GetViewportWidth() const;
-  int GetViewportHeight() const;
 };
 }

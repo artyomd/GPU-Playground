@@ -21,7 +21,7 @@ class VkUniformBuffer : public UniformBuffer {
   VkPipelineLayout *pipeline_layout_;
  public:
   VkUniformBuffer(VkRenderingContext *context, int length, int binding_point, ShaderType shader_stage);
-  VkPipelineLayout *GetPipelineLayout() const;
+  [[nodiscard]] VkPipelineLayout *GetPipelineLayout() const;
   void Update(const void *data) override;
   void Bind() const override;
   ~VkUniformBuffer() override;

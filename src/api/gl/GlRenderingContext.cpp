@@ -73,15 +73,15 @@ void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
 }
 void GlRenderingContext::SetViewportSize(int width, int height) {
   viewport_width_ = width;
-  viewport_height = height;
+  viewport_height_ = height;
   float new_width = 4.0f;
-  float new_height = (width*new_width)/height;
+  float new_height = ((float) width*new_width)/(float) height;
   ortho_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
 }
 int GlRenderingContext::GetViewportWidth() const {
   return viewport_width_;
 }
 int GlRenderingContext::GetViewportHeight() const {
-  return viewport_height;
+  return viewport_height_;
 }
 }

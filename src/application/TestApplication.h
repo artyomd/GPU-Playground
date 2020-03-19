@@ -14,7 +14,7 @@ class TestApplication : public Application {
  protected:
   test::Test *current_test_ = nullptr;
 
-  void PrepareTestMenu(int width, int height);
+  void PrepareTestMenu();
 
   virtual void RenderMenu() final;
 

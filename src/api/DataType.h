@@ -14,7 +14,7 @@ int GetGlType(DataType type);
 
 VkIndexType GetVkType(DataType type);
 
-VkFormat GetVkFormat(DataType type, int count);
+VkFormat GetVkFormat(DataType type, unsigned int count);
 
 int GetDataTypeSizeInBytes(DataType type);
 }

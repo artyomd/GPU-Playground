@@ -3,7 +3,6 @@
 //
 
 #include <iostream>
-#include <assert.h>
 #include "GlShader.h"
 #include "Utils.h"
 #include "GlUtils.h"

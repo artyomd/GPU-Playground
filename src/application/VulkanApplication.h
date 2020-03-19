@@ -118,7 +118,7 @@ class VulkanApplication : public GlfwApplication {
 
   void CreateRenderPass();
 
-  void CreateFramebuffers();
+  void CreateFrameBuffers();
 
   void CreateCommandBuffers();
 
@@ -131,8 +131,6 @@ class VulkanApplication : public GlfwApplication {
 
   void OnWindowSizeChanged() final;
 
-  void InitImGui() final;
-
   bool PrepareFrame() final;
 
   void CreateImGuiFrame() final;
@@ -141,13 +139,15 @@ class VulkanApplication : public GlfwApplication {
 
   void DrawFrame() final;
 
-  void DestroyImGui() final;
-
   void PrepareForShutdown() final;
 
  public:
   void InitContext() final;
 
-  void DestroyContext() override;
+  void InitImGui() final;
+
+  void DestroyImGui() final;
+
+  void DestroyContext() final;
 };
 }

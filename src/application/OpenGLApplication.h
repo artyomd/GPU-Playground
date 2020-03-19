@@ -14,8 +14,6 @@ class OpenGLApplication : public GlfwApplication {
  protected:
   void SetupWindowHints() final;
 
-  void OnWindowSizeChanged() final;
-
   bool PrepareFrame() final;
 
   void CreateImGuiFrame() final;

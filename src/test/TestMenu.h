@@ -23,7 +23,7 @@ class TestMenu : public Test {
   }
 
  private:
-  Test *&m_current_test_;
+  Test *&current_test_;
   std::vector<std::pair<std::string, std::function<Test *()>>> m_tests_;
 };
 }

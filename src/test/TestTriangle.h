@@ -26,7 +26,7 @@ class TestTriangle : public TestModel {
   UniformBufferObject * ubo_ = new UniformBufferObject();
 
  public:
-  TestTriangle(api::Renderer *renderer);
+  explicit TestTriangle(api::Renderer *renderer);
 
   void OnClear() override;
 

@@ -15,9 +15,9 @@ class VkVertexBinding : public VertexBinding {
  public:
   VkVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout);
 
-  const VkVertexInputBindingDescription* GetVertexInputBindingDescription() const;
+  [[nodiscard]] const VkVertexInputBindingDescription* GetVertexInputBindingDescription() const;
 
-  const std::vector<VkVertexInputAttributeDescription>* GetAttributeDescriptions() const;
+  [[nodiscard]] const std::vector<VkVertexInputAttributeDescription>* GetAttributeDescriptions() const;
 
   void Bind() const override;
   void Unbind() const override;

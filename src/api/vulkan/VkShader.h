@@ -23,7 +23,7 @@ class VkShader : public Shader {
            ShaderType type
   );
 
-  const VkPipelineShaderStageCreateInfo* GetShaderStageInfo() const;
+  [[nodiscard]] const VkPipelineShaderStageCreateInfo* GetShaderStageInfo() const;
 
   ~VkShader() override;
 };

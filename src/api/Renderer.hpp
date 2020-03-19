@@ -10,16 +10,16 @@
 namespace api {
 class Renderer {
  private:
-  float *clear_color_;
+  float *clear_color_ = new float[4]{0.0f, 0.0f, 0.0f, 0.0f};
   RenderingContext *context_ = nullptr;
+  int viewport_height_ = 0;
+  int viewport_width_ = 0;
 
  public:
-  explicit Renderer(RenderingContext *context) : context_(context) {
-    clear_color_ = new float[4]{0.0f, 0.0f, 0.0f, 0.0f};
-  }
+  Renderer() = default;
 
   ~Renderer() {
-    delete clear_color_;
+    delete[] clear_color_;
   }
 
   void SetClearColor(float red, float green, float blue, float alpha) {
@@ -33,11 +33,27 @@ class Renderer {
     return clear_color_;
   }
 
+  void SetContext(RenderingContext *context) {
+    if (context_!=nullptr) {
+      throw std::runtime_error("SetContext must only be called once");
+    }
+    context_ = context;
+    context->SetViewportSize(viewport_width_, viewport_height_);
+  }
+
+  void SetViewport(int width, int height) {
+    this->viewport_width_ = width;
+    this->viewport_height_ = height;
+    if (context_!=nullptr) {
+      context_->SetViewportSize(viewport_width_, viewport_height_);
+    }
+  }
+
   RenderingContext *GetRenderingContext() {
     return context_;
   }
 
-  void Render(RenderingPipeline *pipeline) {
+  static void Render(RenderingPipeline *pipeline) {
     pipeline->Render();
   }
 };

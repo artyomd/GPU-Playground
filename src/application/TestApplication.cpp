@@ -6,7 +6,7 @@
 #include "TestApplication.h"
 
 namespace application {
-void TestApplication::PrepareTestMenu(int width, int height) {
+void TestApplication::PrepareTestMenu() {
   if (test_menu_!=nullptr) {
     throw std::runtime_error("prepare test menu should be could only once");
   }

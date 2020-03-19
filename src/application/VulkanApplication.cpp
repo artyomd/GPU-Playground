@@ -8,7 +8,6 @@
 #include "VulkanApplication.h"
 #include "api/vulkan/VkRenderingContext.h"
 #include <set>
-#include <vendor/glm/ext.hpp>
 
 namespace application {
 
@@ -50,7 +49,6 @@ void VulkanApplication::SetupWindowHints() {
 
 void VulkanApplication::OnWindowSizeChanged() {
   this->framebuffer_resized_ = true;
-  context_->SetViewportSize(swap_chain_extent_.width, swap_chain_extent_.height);
 }
 
 void VulkanApplication::InitContext() {
@@ -67,16 +65,17 @@ void VulkanApplication::InitContext() {
       &graphics_queue_,
       &descriptor_pool_,
       max_frames_in_flight_);
-  renderer_ = new api::Renderer(context_);
-//  OnWindowSizeChanged();
+  renderer_->SetContext(context_);
   CreateCommandPool();
+
   CreateSwapChain();
   CreateImageViews();
   CreateRenderPass();
-  CreateFramebuffers();
+  CreateFrameBuffers();
   CreateCommandBuffers();
+
   CreateSyncObjects();
-  PrepareTestMenu(window_width_, window_height_);
+  PrepareTestMenu();
 }
 
 void VulkanApplication::RecreateSwapChain() {
@@ -87,10 +86,11 @@ void VulkanApplication::RecreateSwapChain() {
   vkDeviceWaitIdle(device_);
 
   CleanupSwapChain();
+
   CreateSwapChain();
   CreateImageViews();
   CreateRenderPass();
-  CreateFramebuffers();
+  CreateFrameBuffers();
   CreateCommandBuffers();
 }
 
@@ -477,7 +477,7 @@ void VulkanApplication::CreateRenderPass() {
   context_->SetVkRenderPass(&render_pass_);
 }
 
-void VulkanApplication::CreateFramebuffers() {
+void VulkanApplication::CreateFrameBuffers() {
   swap_chain_frame_buffers_.resize(swap_chain_image_views_.size());
   for (size_t i = 0; i < swap_chain_image_views_.size(); i++) {
     VkImageView attachments[] = {swap_chain_image_views_[i]};
@@ -529,9 +529,6 @@ void VulkanApplication::CreateSyncObjects() {
 void VulkanApplication::InitImGui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-
-  ImGui::StyleColorsDark();
-
   ImGui_ImplGlfw_InitForVulkan(window_, true);
   ImGui_ImplVulkan_InitInfo init_info = {};
   init_info.Instance = vulkan_instance_;
@@ -549,6 +546,8 @@ void VulkanApplication::InitImGui() {
   ImGui_ImplVulkan_CreateFontsTexture(buffer);
   context_->EndSingleTimeCommands(graphics_queue_, graphics_command_pool_, buffer);
   ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+  ImGui::StyleColorsDark();
 }
 
 bool VulkanApplication::PrepareFrame() {
@@ -670,8 +669,8 @@ void VulkanApplication::CleanupSwapChain() {
 }
 
 void VulkanApplication::DestroyContext() {
+  DeleteTestMenu();
   delete context_;
-  delete renderer_;
   CleanupSwapChain();
   for (size_t i = 0; i < max_frames_in_flight_; i++) {
     vkDestroySemaphore(device_, render_finished_semaphores_[i], nullptr);
