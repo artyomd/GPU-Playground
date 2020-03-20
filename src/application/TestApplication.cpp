@@ -15,7 +15,12 @@ void TestApplication::PrepareTestMenu() {
 }
 
 void TestApplication::RenderMenu() {
-  if (current_test_!=test_menu_ && ImGui::Button("<--")) {
+  return_pressed_ = current_test_!=test_menu_ && ImGui::Button("<--");
+}
+
+void TestApplication::PostRender() {
+  if (return_pressed_) {
+    renderer_->GetRenderingContext()->WaitForGpuIdle();
     delete current_test_;
     current_test_ = test_menu_;
   }

@@ -31,6 +31,7 @@ void api::VkRenderingPipeline::Render() {
 }
 
 void api::VkRenderingPipeline::ViewportChanged() {
+  context_->WaitForGpuIdle();
   DestroyPipeline();
   CreatePipeline();
 }

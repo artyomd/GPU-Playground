@@ -89,6 +89,7 @@ class VkRenderingContext : public RenderingContext {
   int GetImageCount();
   [[nodiscard]] int GetCurrentImageIndex() const;
   void SetCurrentImageIndex(int current_image_index);
+  void WaitForGpuIdle() const override;
   ~VkRenderingContext() override = default;
 };
 }

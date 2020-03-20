@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 
 #define GL_CALL(x) GlClearError;\
     x;\

@@ -211,4 +211,7 @@ void VkRenderingContext::SetViewportSize(int width, int height) {
   float new_height = (width*new_width)/height;
   ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
 }
+void VkRenderingContext::WaitForGpuIdle() const {
+  vkDeviceWaitIdle(*device_);
+}
 }

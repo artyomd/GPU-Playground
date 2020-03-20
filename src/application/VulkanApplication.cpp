@@ -83,7 +83,7 @@ void VulkanApplication::RecreateSwapChain() {
     glfwGetFramebufferSize(window_, &window_width_, &window_height_);
     glfwWaitEvents();
   }
-  vkDeviceWaitIdle(device_);
+  context_->WaitForGpuIdle();
 
   CleanupSwapChain();
 
@@ -643,7 +643,7 @@ void VulkanApplication::DrawFrame() {
 }
 
 void VulkanApplication::PrepareForShutdown() {
-  vkDeviceWaitIdle(device_);
+  context_->WaitForGpuIdle();
 }
 
 void VulkanApplication::DestroyImGui() {

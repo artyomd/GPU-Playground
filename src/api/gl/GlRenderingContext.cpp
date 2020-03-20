@@ -11,6 +11,7 @@
 #include "GlRenderingPipeline.h"
 #include "GlShader.h"
 #include "GlUniformBuffer.h"
+#include "GlUtils.h"
 
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
@@ -83,5 +84,8 @@ int GlRenderingContext::GetViewportWidth() const {
 }
 int GlRenderingContext::GetViewportHeight() const {
   return viewport_height_;
+}
+void GlRenderingContext::WaitForGpuIdle() const {
+  GL_CALL(glFinish());
 }
 }

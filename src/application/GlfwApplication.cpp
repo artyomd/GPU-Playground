@@ -60,6 +60,7 @@ void GlfwApplication::Run() {
     RenderImGui();
 
     DrawFrame();
+    PostRender();
   }
   PrepareForShutdown();
 }

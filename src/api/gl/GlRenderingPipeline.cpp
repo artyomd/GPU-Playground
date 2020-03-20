@@ -72,6 +72,7 @@ void GlRenderingPipeline::Render() {
   GL_CALL(glUseProgram(0));
 }
 void GlRenderingPipeline::ViewportChanged() {
+  context_->WaitForGpuIdle();
   GL_CALL(glViewport(0, 0, context_->GetViewportWidth(), context_->GetViewportHeight()));
 }
 }

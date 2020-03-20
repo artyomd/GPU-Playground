@@ -11,12 +11,15 @@ namespace application {
 class TestApplication : public Application {
  private:
   test::TestMenu *test_menu_ = nullptr;
+  bool return_pressed_ = false;
  protected:
   test::Test *current_test_ = nullptr;
 
   void PrepareTestMenu();
 
   virtual void RenderMenu() final;
+
+  void PostRender();
 
   void DeleteTestMenu();
  public:

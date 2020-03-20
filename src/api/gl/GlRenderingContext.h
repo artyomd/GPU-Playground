@@ -49,6 +49,7 @@ class GlRenderingContext : public RenderingContext {
 
   [[nodiscard]] int GetViewportHeight() const;
 
+  void WaitForGpuIdle() const override;
   ~GlRenderingContext() override = default;
 };
 }

@@ -48,6 +48,7 @@ void VkIndexBuffer::Unbind() const {
 }
 
 VkIndexBuffer::~VkIndexBuffer() {
+  context_->WaitForGpuIdle();
   vkDestroyBuffer(*device_, buffer_, nullptr);
   vkFreeMemory(*device_, memory_, nullptr);
 }

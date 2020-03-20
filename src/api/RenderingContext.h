@@ -50,6 +50,8 @@ class RenderingContext {
 
   virtual void SetViewportSize(int width, int height) = 0;
 
+  virtual void WaitForGpuIdle() const = 0;
+
   [[nodiscard]] const glm::mat4x4 &GetOrthoProjection() const {
     return ortho_projection_;
   }
