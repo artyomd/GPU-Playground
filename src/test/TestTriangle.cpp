@@ -17,7 +17,7 @@ TestTriangle::TestTriangle(api::Renderer *renderer) : TestModel(renderer) {
 
   auto *context = renderer->GetRenderingContext();
 
-  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObject),
+  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
                                                  0,
                                                  api::ShaderType::SHADER_TYPE_VERTEX);
 

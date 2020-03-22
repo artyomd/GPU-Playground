@@ -1,9 +1,13 @@
 #version 450
+#pragma shader_stage(fragment)
+#extension GL_ARB_separate_shader_objects : enable
 
-uniform vec2 u_screenSize;
-uniform float u_time;
+layout(binding = 0, std140) uniform UniformBufferObject {
+    vec2 u_screenSize;
+    float u_time;
+};
 
-out vec4 out_color;
+layout(location = 0) out vec4 out_color;
 
 void main(){
     vec2 st = gl_FragCoord.xy/u_screenSize.xy;

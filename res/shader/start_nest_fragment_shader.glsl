@@ -3,6 +3,8 @@
 // This content is under the MIT License.
 
 #version 450
+#pragma shader_stage(fragment)
+#extension GL_ARB_separate_shader_objects : enable
 
 #define iterations 17
 #define formuparam 0.53
@@ -19,10 +21,12 @@
 #define distfading 0.730
 #define saturation 0.850
 
-out vec4 out_color;
+layout(binding = 0, std140) uniform UniformBufferObject {
+    vec2 u_screenSize;
+    float u_time;
+};
 
-uniform vec2 u_screenSize;
-uniform float u_time;
+layout(location = 0) out vec4 out_color;
 
 void main()
 {

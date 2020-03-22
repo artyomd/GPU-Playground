@@ -1,5 +1,11 @@
+#include <test/TestRaymarching.hpp>
+#include <test/TestSeascapeShader.h>
+#include <test/TestColorShader.h>
+#include <test/TestShapingFunctionShader.h>
+#include <test/TestSquaresShader.h>
+#include <test/TestStarNestShader.h>
 #include "application/TestApplication.h"
-#include "application/OpenGLApplication.h"
+#include "application/OpenGlApplication.h"
 #include "application/VulkanApplication.h"
 #include "test/TestTriangle.h"
 #include "test/TestClearColor.h"
@@ -12,14 +18,14 @@ int main() {
     test_application->InitImGui();
     test_application->RegisterTest<test::TestClearColor>("Clear Color");
     test_application->RegisterTest<test::TestTriangle>("Triangle");
-//        testApplication->registerTest<test::TestSeascapeShader>("Seascape");
-//        testApplication->registerTest<test::TestRaymarching>("Raymarching");
-//        testApplication->registerTest<test::TestStarNestShader>("Star Nest");
-//        testApplication->registerTest<test::TestShapingFunctionShader>("Shader Shaping Function");
-//        testApplication->registerTest<test::TestColorShader>("Shader Colors");
-//        testApplication->registerTest<test::TestSquaresShader>("Shader Squares");
-//        testApplication->registerTest<test::TestTexture2d>("Texture2D");
-//        testApplication->registerTest<test::TestSphere>("Sphere");
+    test_application->RegisterTest<test::TestRaymarching>("Reflections");
+    test_application->RegisterTest<test::TestSeascapeShader>("Seascape");
+    test_application->RegisterTest<test::TestStarNestShader>("Star Nest");
+    test_application->RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
+    test_application->RegisterTest<test::TestColorShader>("Shader Colors");
+    test_application->RegisterTest<test::TestSquaresShader>("Shader Squares");
+//    testApplication->registerTest<test::TestTexture2d>("Texture2D");
+//    testApplication->registerTest<test::TestSphere>("Sphere");
     test_application->Run();
     test_application->DestroyImGui();
     test_application->DestroyContext();

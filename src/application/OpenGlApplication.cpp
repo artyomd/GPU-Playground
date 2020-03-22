@@ -8,7 +8,7 @@
 #include <vendor/imgui/imgui_impl_glfw.h>
 #include <api/gl/GlUtils.h>
 #include <api/gl/GlRenderingContext.h>
-#include "OpenGLApplication.h"
+#include "OpenGlApplication.h"
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -24,14 +24,14 @@ MessageCallback(GLenum source,
 }
 
 namespace application {
-void OpenGLApplication::SetupWindowHints() {
+void OpenGlApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
-void OpenGLApplication::InitContext() {
+void OpenGlApplication::InitContext() {
   glfwMakeContextCurrent(window_);
   glfwSwapInterval(1);
   if (glewInit()!=GLEW_OK) {
@@ -47,7 +47,7 @@ void OpenGLApplication::InitContext() {
   PrepareTestMenu();
 }
 
-void OpenGLApplication::InitImGui() {
+void OpenGlApplication::InitImGui() {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGui_ImplGlfw_InitForOpenGL(window_, true);
@@ -55,36 +55,36 @@ void OpenGLApplication::InitImGui() {
   ImGui::StyleColorsDark();
 }
 
-bool OpenGLApplication::PrepareFrame() {
+bool OpenGlApplication::PrepareFrame() {
   GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
   float *color = renderer_->GetColor();
   GL_CALL(glClearColor(color[0], color[1], color[2], color[3]));
   return true;
 }
 
-void OpenGLApplication::CreateImGuiFrame() {
+void OpenGlApplication::CreateImGuiFrame() {
   ImGui_ImplOpenGL3_NewFrame();
 }
 
-void OpenGLApplication::RenderImGui() {
+void OpenGlApplication::RenderImGui() {
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void OpenGLApplication::DrawFrame() {
+void OpenGlApplication::DrawFrame() {
   glfwSwapBuffers(window_);
 }
 
-void OpenGLApplication::PrepareForShutdown() {
+void OpenGlApplication::PrepareForShutdown() {
   glFinish();
 }
 
-void OpenGLApplication::DestroyImGui() {
+void OpenGlApplication::DestroyImGui() {
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 }
 
-void OpenGLApplication::DestroyContext() {
+void OpenGlApplication::DestroyContext() {
   DeleteTestMenu();
   delete context_;
   glfwMakeContextCurrent(nullptr);

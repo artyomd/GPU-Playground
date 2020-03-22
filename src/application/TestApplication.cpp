@@ -4,6 +4,7 @@
 
 #include <vendor/imgui/imgui.h>
 #include "TestApplication.h"
+#include <iostream>
 
 namespace application {
 void TestApplication::PrepareTestMenu() {

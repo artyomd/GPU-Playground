@@ -14,9 +14,9 @@ geometry::Quad::Quad(api::RenderingContext *context, geometry::Point &top_left, 
       bottom_left.x_, bottom_left.y_, bottom_left.z_, bottom_left.r_, bottom_left.g_, bottom_left.b_, bottom_left.a_
   };
 
-  unsigned char indices[] = {
-      0, 1, 2,
-      2, 3, 0
+  unsigned short indices[] = {
+      3, 2, 0,
+      2, 1, 0
   };
 
   vertex_buffer_ = context->CreateVertexBuffer(positions, 4*7*sizeof(float));
@@ -25,7 +25,7 @@ geometry::Quad::Quad(api::RenderingContext *context, geometry::Point &top_left, 
   layout_->Push<float>(4);
 
   vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(indices, 6, api::DATA_TYPE_BYTE);
+  index_buffer_ = context->CreateIndexBuffer(indices, 6, api::DATA_TYPE_UINT_16);
 }
 
 geometry::Quad::~Quad() {

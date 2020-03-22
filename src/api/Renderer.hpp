@@ -8,12 +8,16 @@
 #include "RenderingPipeline.h"
 
 namespace api {
+struct Size {
+  int width_ = 0;
+  int height_ = 0;
+};
+
 class Renderer {
  private:
   float *clear_color_ = new float[4]{0.0f, 0.0f, 0.0f, 0.0f};
   RenderingContext *context_ = nullptr;
-  int viewport_height_ = 0;
-  int viewport_width_ = 0;
+  Size viewport_size_{};
 
  public:
   Renderer() = default;
@@ -38,15 +42,18 @@ class Renderer {
       throw std::runtime_error("SetContext must only be called once");
     }
     context_ = context;
-    context->SetViewportSize(viewport_width_, viewport_height_);
+    context_->SetViewportSize(viewport_size_.width_, viewport_size_.height_);
   }
 
   void SetViewport(int width, int height) {
-    this->viewport_width_ = width;
-    this->viewport_height_ = height;
+    viewport_size_ = {width, height};
     if (context_!=nullptr) {
-      context_->SetViewportSize(viewport_width_, viewport_height_);
+      context_->SetViewportSize(viewport_size_.width_, viewport_size_.height_);
     }
+  }
+
+  [[nodiscard]] const Size &GetViewportSize() const {
+    return viewport_size_;
   }
 
   RenderingContext *GetRenderingContext() {

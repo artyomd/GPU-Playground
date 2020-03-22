@@ -670,8 +670,8 @@ void VulkanApplication::CleanupSwapChain() {
 
 void VulkanApplication::DestroyContext() {
   DeleteTestMenu();
-  delete context_;
   CleanupSwapChain();
+  delete context_;
   for (size_t i = 0; i < max_frames_in_flight_; i++) {
     vkDestroySemaphore(device_, render_finished_semaphores_[i], nullptr);
     vkDestroySemaphore(device_, image_available_semaphores_[i], nullptr);

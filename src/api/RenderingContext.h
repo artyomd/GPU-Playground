@@ -8,7 +8,6 @@
 #include "RenderingPipeline.h"
 
 namespace api {
-
 class RenderingContext {
  protected:
   glm::mat4x4 ortho_projection_{};

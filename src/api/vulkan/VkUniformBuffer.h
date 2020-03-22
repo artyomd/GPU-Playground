@@ -18,7 +18,7 @@ class VkUniformBuffer : public UniformBuffer {
   std::vector<VkBuffer> uniform_buffers_{};
   std::vector<VkDeviceMemory> uniform_buffers_memory_{};
   VkDescriptorSetLayout descriptor_set_layout_;
-  VkPipelineLayout *pipeline_layout_;
+  VkPipelineLayout *pipeline_layout_ = new VkPipelineLayout();
  public:
   VkUniformBuffer(VkRenderingContext *context, int length, int binding_point, ShaderType shader_stage);
   [[nodiscard]] VkPipelineLayout *GetPipelineLayout() const;

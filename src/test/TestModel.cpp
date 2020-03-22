@@ -6,12 +6,6 @@
 #include <vendor/imgui/imgui.h>
 #include "TestModel.h"
 
-test::TestModel::TestModel(api::Renderer *renderer) : Test(renderer),
-                                                      translation_(glm::vec3(0.0f, 0.0f, 0.0f)),
-                                                      scale_(glm::vec3(1.0f, 1.0f, 1.0f)),
-                                                      rotate_(glm::vec3(0.0f, 0.0f, 0.0f)){
-}
-
 void test::TestModel::OnImGuiRender() {
   ImGui::SliderFloat2("translation", &translation_.x, -max_side_, max_side_);
   ImGui::SliderFloat2("scale", &scale_.x, 0, 20);

@@ -8,7 +8,7 @@
 #include "api/gl/GlRenderingContext.h"
 
 namespace application {
-class OpenGLApplication : public GlfwApplication {
+class OpenGlApplication : public GlfwApplication {
  private:
   api::GlRenderingContext *context_;
  protected:

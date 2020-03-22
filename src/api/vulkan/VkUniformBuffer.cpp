@@ -17,8 +17,7 @@ api::VkUniformBuffer::VkUniformBuffer(VkRenderingContext *context,
     : UniformBuffer(length, binding_point, shader_stage),
       context_(context),
       device_(context->GetDevice()),
-      descriptor_pool_(context->GetDescriptorPool()),
-      image_count_(context->GetImageCount()) {
+      descriptor_pool_(context->GetDescriptorPool()), image_count_(context->GetImageCount()) {
   VkDescriptorSetLayoutBinding descriptor_set_layout_binding{};
   descriptor_set_layout_binding.binding = binding_location_;
   descriptor_set_layout_binding.descriptorCount = 1;

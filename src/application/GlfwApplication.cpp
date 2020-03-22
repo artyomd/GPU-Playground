@@ -62,6 +62,7 @@ void GlfwApplication::Run() {
     DrawFrame();
     PostRender();
   }
+  PostRender();
   PrepareForShutdown();
 }
 

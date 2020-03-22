@@ -12,8 +12,6 @@ class Test {
  public:
   explicit Test(api::Renderer *renderer) : renderer_(renderer) {};
 
-  virtual ~Test() = default;
-
   virtual void OnClear() {}
 
   virtual void OnUpdate(float delta_time) {};
@@ -23,5 +21,7 @@ class Test {
   virtual void OnImGuiRender() {};
 
   virtual void OnViewportChange() {};
+
+  virtual ~Test() = default;
 };
 }
