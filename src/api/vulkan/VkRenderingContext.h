@@ -49,9 +49,12 @@ class VkRenderingContext : public RenderingContext {
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
                                             const Shader *fragment_shader,
-                                            const UniformBuffer *shader_properties) override;
+                                            const RenderingPipelineLayout *pipeline_layout) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
+
+  RenderingPipelineLayout *CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) override;
+  void FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) override;
 
   Shader *CreateShader(std::string sipr_v_shader_location,
                        std::string glsl_location,
@@ -60,11 +63,11 @@ class VkRenderingContext : public RenderingContext {
 
   void DeleteShader(Shader *vertex_binding) override;
 
-  UniformBuffer *CreateUniformBuffer(int length,
-                                     int binding_point,
-                                     ShaderType shader_stage) override;
+  Uniform *CreateUniformBuffer(int length,
+                               int binding_point,
+                               ShaderType shader_stage) override;
 
-  void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
+  void DeleteUniformBuffer(Uniform *uniform_buffer) override;
 
   void CreateBuffer(VkDeviceSize size,
                     VkBufferUsageFlags usage,

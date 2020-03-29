@@ -8,7 +8,7 @@
 #include "GlVertexBinding.h"
 #include "GlShader.h"
 #include "GlUtils.h"
-#include "GlUniformBuffer.h"
+#include "GlRenderingPipelineLayout.h"
 
 namespace api {
 static inline void GetProgramInfoLog(int id) {
@@ -24,8 +24,8 @@ static inline void GetProgramInfoLog(int id) {
 GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
                                          const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
                                          const Shader *vertex_shader, const Shader *fragment_shader,
-                                         const UniformBuffer *shader_properties)
-    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties),
+                                         const RenderingPipelineLayout *pipeline_layout)
+    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout),
       context_(context) {
   DataType type = index_buffer->GetType();
   if (type!=DATA_TYPE_BYTE &&
@@ -61,11 +61,11 @@ void GlRenderingPipeline::Render() {
   GL_CALL(glUseProgram(program_id_));
   dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Bind();
   index_buffer_->Bind();
-  dynamic_cast<const GlUniformBuffer *>(shader_properties_)->Bind();
+  pipeline_layout_->Bind();
 
   GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
 
-  dynamic_cast<const GlUniformBuffer *>(shader_properties_)->Unbind();
+  dynamic_cast<const GlRenderingPipelineLayout *>(pipeline_layout_)->UnBind();
 
   index_buffer_->Unbind();
   dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Unbind();

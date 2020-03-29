@@ -165,8 +165,8 @@ RenderingPipeline *VkRenderingContext::CreateGraphicsPipeline(const VertexBindin
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
                                                               const Shader *fragment_shader,
-                                                              const UniformBuffer *shader_properties) {
-  return new VkRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
+                                                              const RenderingPipelineLayout *pipeline_layout) {
+  return new VkRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout);
 }
 void VkRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
   delete pipeline;
@@ -191,12 +191,12 @@ void VkRenderingContext::SetVkRenderPass(VkRenderPass *vk_render_pass) {
   vk_render_pass_ = vk_render_pass;
 }
 
-UniformBuffer *VkRenderingContext::CreateUniformBuffer(int length,
-                                                       int binding_point,
-                                                       ShaderType shader_stage) {
+Uniform *VkRenderingContext::CreateUniformBuffer(int length,
+                                                 int binding_point,
+                                                 ShaderType shader_stage) {
   return new VkUniformBuffer(this, length, binding_point, shader_stage);
 }
-void VkRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
+void VkRenderingContext::DeleteUniformBuffer(Uniform *uniform_buffer) {
   delete uniform_buffer;
 }
 int VkRenderingContext::GetCurrentImageIndex() const {
@@ -208,10 +208,16 @@ void VkRenderingContext::SetCurrentImageIndex(int current_image_index) {
 void VkRenderingContext::SetViewportSize(int width, int height) {
   swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
   float new_width = 4.0f;
-  float new_height = (width*new_width)/height;
+  float new_height = ((float) width*new_width)/(float) height;
   ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
 }
 void VkRenderingContext::WaitForGpuIdle() const {
   vkDeviceWaitIdle(*device_);
+}
+RenderingPipelineLayout *VkRenderingContext::CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) {
+  return new VkRenderingPipelineLayout(this, bindings);
+}
+void VkRenderingContext::FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) {
+  delete pipeline_layout;
 }
 }

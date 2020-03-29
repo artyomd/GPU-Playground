@@ -1,26 +1,23 @@
 //
-// Created by Artyom Dangizyan on 2018-11-29.
+// Created by artyomd on 3/23/20.
 //
 #pragma once
 
-#include "api/Renderer.hpp"
-#include "geometry/Triangle.h"
-#include "Test.h"
+#include <geometry/GeometryItem.h>
 #include "TestModel.h"
-
 namespace test {
-class TestTriangle : public TestModel {
+class TestSphere : public TestModel {
  private:
   api::Shader *vertex_shader_ = nullptr;
   api::Shader *fragment_shader_ = nullptr;
   api::Uniform *uniform_buffer_ = nullptr;
   api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
   api::RenderingPipeline *pipeline_ = nullptr;
-  geometry::Triangle *triangle_ = nullptr;
+  geometry::GeometryItem *sphere_ = nullptr;
   UniformBufferObjectMvp *ubo_ = new UniformBufferObjectMvp();
 
  public:
-  explicit TestTriangle(api::Renderer *renderer);
+  explicit TestSphere(api::Renderer *renderer);
 
   void OnClear() override;
 
@@ -28,6 +25,6 @@ class TestTriangle : public TestModel {
 
   void OnViewportChange() override;
 
-  ~TestTriangle() override;
+  ~TestSphere() override;
 };
 }

@@ -5,7 +5,6 @@
 #include "VkRenderingPipeline.h"
 #include "VkShader.h"
 #include "VkVertexBinding.h"
-#include "VkUniformBuffer.h"
 #include <array>
 
 api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
@@ -13,12 +12,12 @@ api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
                                               const api::IndexBuffer *index_buffer,
                                               const api::Shader *vertex_shader,
                                               const api::Shader *fragment_shader,
-                                              const UniformBuffer *shader_properties) :
+                                              const RenderingPipelineLayout *pipeline_layout) :
     RenderingPipeline(vertex_binding,
                       index_buffer,
                       vertex_shader,
                       fragment_shader,
-                      shader_properties), device_(context->GetDevice()), context_(context) {
+                      pipeline_layout), device_(context->GetDevice()), context_(context) {
   CreatePipeline();
 }
 
@@ -26,7 +25,7 @@ void api::VkRenderingPipeline::Render() {
   vkCmdBindPipeline(*context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   vertex_binding_->Bind();
   index_buffer_->Bind();
-  shader_properties_->Bind();
+  pipeline_layout_->Bind();
   vkCmdDrawIndexed(*context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
 }
 
@@ -119,7 +118,7 @@ void api::VkRenderingPipeline::CreatePipeline() {
   pipeline_info.pRasterizationState = &rasterizer;
   pipeline_info.pMultisampleState = &multisampling;
   pipeline_info.pColorBlendState = &color_blending;
-  pipeline_info.layout = *dynamic_cast<const VkUniformBuffer *>(shader_properties_)->GetPipelineLayout();
+  pipeline_info.layout = *dynamic_cast<const VkRenderingPipelineLayout *>(pipeline_layout_)->GetPipelineLayout();
   pipeline_info.renderPass = *context_->GetVkRenderPass();
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;

@@ -18,6 +18,9 @@ test::TestShader::TestShader(api::Renderer *renderer, api::Shader *fragment_shad
   uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectShader),
                                                  0,
                                                  api::ShaderType::SHADER_TYPE_FRAGMENT);
+  std::vector<api::Uniform *> uniforms;
+  uniforms.push_back(uniform_buffer_);
+  pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
   quad_ = new geometry::Quad(context, point_0, point_1, point_2, point_3);
 
@@ -27,7 +30,7 @@ test::TestShader::TestShader(api::Renderer *renderer, api::Shader *fragment_shad
                                          api::SHADER_TYPE_VERTEX);
 
   pipeline_ = context->CreateGraphicsPipeline(quad_->GetVertexBinding(), quad_->GetIndexBuffer(),
-                                              vertex_shader_, fragment_shader_, uniform_buffer_);
+                                              vertex_shader_, fragment_shader_, pipeline_layout_);
   UpdateUniformBufferScreenSize();
 }
 
@@ -63,5 +66,6 @@ test::TestShader::~TestShader() {
   context->DeleteShader(fragment_shader_);
   context->DeleteShader(vertex_shader_);
   context->DeleteUniformBuffer(uniform_buffer_);
+  context->FreeRenderingPipelineLayout(pipeline_layout_);
   delete quad_;
 }

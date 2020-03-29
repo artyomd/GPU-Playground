@@ -12,6 +12,7 @@
 #include "GlShader.h"
 #include "GlUniformBuffer.h"
 #include "GlUtils.h"
+#include "GlRenderingPipelineLayout.h"
 
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
@@ -45,8 +46,8 @@ RenderingPipeline *GlRenderingContext::CreateGraphicsPipeline(const VertexBindin
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
                                                               const Shader *fragment_shader,
-                                                              const UniformBuffer *shader_properties) {
-  return new GlRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, shader_properties);
+                                                              const RenderingPipelineLayout *pipeline_layout) {
+  return new GlRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout);
 }
 
 void GlRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
@@ -64,12 +65,12 @@ void GlRenderingContext::DeleteShader(Shader *vertex_binding) {
 
 }
 
-UniformBuffer *GlRenderingContext::CreateUniformBuffer(int length,
-                                                       int binding_point,
-                                                       ShaderType shader_stage) {
+Uniform *GlRenderingContext::CreateUniformBuffer(int length,
+                                                 int binding_point,
+                                                 ShaderType shader_stage) {
   return new GlUniformBuffer(length, binding_point, shader_stage);
 }
-void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
+void GlRenderingContext::DeleteUniformBuffer(Uniform *uniform_buffer) {
   delete uniform_buffer;
 }
 void GlRenderingContext::SetViewportSize(int width, int height) {
@@ -87,5 +88,11 @@ int GlRenderingContext::GetViewportHeight() const {
 }
 void GlRenderingContext::WaitForGpuIdle() const {
   GL_CALL(glFinish());
+}
+RenderingPipelineLayout *GlRenderingContext::CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) {
+  return new GlRenderingPipelineLayout(bindings);
+}
+void GlRenderingContext::FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) {
+  delete pipeline_layout;
 }
 }

@@ -6,7 +6,7 @@
 namespace geometry {
 struct Point {
   float x_, y_, z_;
-  float a_, r_, g_, b_;
+  float r_, g_, b_, a_;
 
   Point operator+(const Point &p) {
     Point point{};

@@ -41,7 +41,6 @@ void OpenGlApplication::InitContext() {
   }
   GL_CALL(glEnable(GL_DEBUG_OUTPUT));
   GL_CALL(glDebugMessageCallback(MessageCallback, nullptr));
-  //GL_CALL(glEnable(GL_CULL_FACE));
   context_ = new api::GlRenderingContext();
   renderer_->SetContext(context_);
   PrepareTestMenu();
@@ -56,7 +55,7 @@ void OpenGlApplication::InitImGui() {
 }
 
 bool OpenGlApplication::PrepareFrame() {
-  GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
+  GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
   float *color = renderer_->GetColor();
   GL_CALL(glClearColor(color[0], color[1], color[2], color[3]));
   return true;

@@ -4,26 +4,24 @@
 
 #pragma once
 
-#include <api/UniformBuffer.h>
 #include "VkRenderingContext.h"
+#include "VkUniform.h"
 
 namespace api {
-class VkUniformBuffer : public UniformBuffer {
+class VkUniformBuffer : public VkUniform {
  private:
   VkRenderingContext *context_;
   VkDescriptorPool *descriptor_pool_;
   VkDevice *device_;
-  int image_count_;
-  std::vector<VkDescriptorSet> descriptor_sets_{};
+  int length_;
   std::vector<VkBuffer> uniform_buffers_{};
+  std::vector<VkDescriptorBufferInfo> descriptor_buffer_info_{};
   std::vector<VkDeviceMemory> uniform_buffers_memory_{};
-  VkDescriptorSetLayout descriptor_set_layout_;
-  VkPipelineLayout *pipeline_layout_ = new VkPipelineLayout();
  public:
   VkUniformBuffer(VkRenderingContext *context, int length, int binding_point, ShaderType shader_stage);
-  [[nodiscard]] VkPipelineLayout *GetPipelineLayout() const;
   void Update(const void *data) override;
-  void Bind() const override;
+  [[nodiscard]] VkDescriptorSetLayoutBinding GetLayoutBinding() const override;
+  [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(int image_index) const override;
   ~VkUniformBuffer() override;
 };
 }

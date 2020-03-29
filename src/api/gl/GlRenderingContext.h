@@ -29,7 +29,7 @@ class GlRenderingContext : public RenderingContext {
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
                                             const Shader *fragment_shader,
-                                            const UniformBuffer *shader_properties) override;
+                                            const RenderingPipelineLayout *rendering_pipeline_layout) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 
@@ -41,9 +41,12 @@ class GlRenderingContext : public RenderingContext {
 
   void DeleteShader(Shader *vertex_binding) override;
 
-  UniformBuffer *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
+  RenderingPipelineLayout *CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) override;
+  void FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) override;
 
-  void DeleteUniformBuffer(UniformBuffer *vertex_binding) override;
+  Uniform *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
+
+  void DeleteUniformBuffer(Uniform *vertex_binding) override;
 
   [[nodiscard]] int GetViewportWidth() const;
 

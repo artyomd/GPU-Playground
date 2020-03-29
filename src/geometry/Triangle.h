@@ -14,7 +14,7 @@ class Triangle : public GeometryItem {
   api::VertexBuffer *vertex_buffer_ = nullptr;
   api::VertexBufferLayout *layout_ = nullptr;
  public:
-  explicit Triangle(api::RenderingContext *context,
+  explicit  Triangle(api::RenderingContext *context,
                     Point &point_0,
                     Point &point_1,
                     Point &point_2);

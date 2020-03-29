@@ -4,6 +4,7 @@
 #include <test/TestShapingFunctionShader.h>
 #include <test/TestSquaresShader.h>
 #include <test/TestStarNestShader.h>
+#include <test/TestSphere.h>
 #include "application/TestApplication.h"
 #include "application/OpenGlApplication.h"
 #include "application/VulkanApplication.h"
@@ -25,7 +26,7 @@ int main() {
     test_application->RegisterTest<test::TestColorShader>("Shader Colors");
     test_application->RegisterTest<test::TestSquaresShader>("Shader Squares");
 //    testApplication->registerTest<test::TestTexture2d>("Texture2D");
-//    testApplication->registerTest<test::TestSphere>("Sphere");
+    test_application->RegisterTest<test::TestSphere>("Sphere");
     test_application->Run();
     test_application->DestroyImGui();
     test_application->DestroyContext();

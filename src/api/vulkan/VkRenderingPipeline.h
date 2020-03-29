@@ -7,6 +7,7 @@
 #include <api/RenderingPipeline.h>
 #include <vector>
 #include "VkRenderingContext.h"
+#include "VkRenderingPipelineLayout.h"
 
 namespace api {
 class VkRenderingPipeline : public RenderingPipeline {
@@ -24,10 +25,10 @@ class VkRenderingPipeline : public RenderingPipeline {
                       const IndexBuffer *index_buffer,
                       const Shader *vertex_shader,
                       const Shader *fragment_shader,
-                      const UniformBuffer *shader_properties);
+                      const RenderingPipelineLayout *pipeline_layout);
 
   void Render() override;
-  void ViewportChanged() override ;
+  void ViewportChanged() override;
   ~VkRenderingPipeline() override;
 };
 }

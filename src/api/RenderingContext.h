@@ -34,18 +34,21 @@ class RenderingContext {
 
   virtual void DeleteShader(Shader *vertex_binding) = 0;
 
-  virtual UniformBuffer *CreateUniformBuffer(int length,
-                                             int binding_point, ShaderType shader_stage) = 0;
+  virtual Uniform *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) = 0;
 
-  virtual void DeleteUniformBuffer(UniformBuffer *uniform_buffer) = 0;
+  virtual void DeleteUniformBuffer(Uniform *uniform_buffer) = 0;
 
-  virtual RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
+  virtual api::RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
                                                     const IndexBuffer *index_buffer,
                                                     const Shader *vertex_shader,
                                                     const Shader *fragment_shader,
-                                                    const UniformBuffer *shader_properties) = 0;
+                                                    const RenderingPipelineLayout *pipeline_layout) = 0;
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
+
+  virtual RenderingPipelineLayout *CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) = 0;
+
+  virtual void FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) = 0;
 
   virtual void SetViewportSize(int width, int height) = 0;
 

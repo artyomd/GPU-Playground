@@ -2,17 +2,17 @@
 // Created by artyomd on 3/10/20.
 //
 #pragma once
-#include <api/UniformBuffer.h>
 #include <api/Shader.h>
 #include <GL/gl.h>
+#include "GlUniform.h"
 namespace api {
-class GlUniformBuffer : public UniformBuffer {
+class GlUniformBuffer : public GlUniform {
  private:
-  GLuint render_id_ = -1;
+  int length_;
  public:
   GlUniformBuffer(int length, int binding_point, api::ShaderType shader_stage);
   void Bind() const override;
-  void Unbind() const;
+  void Unbind() const override;
   void Update(const void *data) override;
   ~GlUniformBuffer() override;
 };
