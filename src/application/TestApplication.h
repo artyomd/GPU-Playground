@@ -26,7 +26,9 @@ class TestApplication : public Application {
 
   template<typename T>
   void RegisterTest(const std::string &name) {
-    test_menu_->RegisterTest<T>(name);
+    if (test_menu_!=nullptr) {
+      test_menu_->RegisterTest<T>(name);
+    }
   }
 };
 }

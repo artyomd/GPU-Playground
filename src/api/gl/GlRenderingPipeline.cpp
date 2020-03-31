@@ -15,9 +15,10 @@ static inline void GetProgramInfoLog(int id) {
   int length;
   GL_CALL(glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length));
   if (length!=0) {
-    char *message = (char *) alloca(length*sizeof(char));
+    char *message = (char *) malloc(length*sizeof(char));
     GL_CALL(glGetProgramInfoLog(id, length, &length, message));
     std::cout << "Program creation info message:" << message;
+    free(message);
   }
 }
 
