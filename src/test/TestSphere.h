@@ -10,7 +10,7 @@ class TestSphere : public TestModel {
  private:
   api::Shader *vertex_shader_ = nullptr;
   api::Shader *fragment_shader_ = nullptr;
-  api::Uniform *uniform_buffer_ = nullptr;
+  api::UniformBuffer *uniform_buffer_ = nullptr;
   api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
   api::RenderingPipeline *pipeline_ = nullptr;
   geometry::GeometryItem *sphere_ = nullptr;

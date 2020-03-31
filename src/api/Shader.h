@@ -11,6 +11,8 @@ enum ShaderType {
   SHADER_TYPE_FRAGMENT
 };
 
+VkShaderStageFlags GetVkShaderStageFlag(api::ShaderType shader_type);
+
 int GetShaderGlType(ShaderType shader_type);
 
 VkShaderStageFlagBits GetShaderVkType(ShaderType shader_type);

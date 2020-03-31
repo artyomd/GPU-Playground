@@ -20,7 +20,7 @@ api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *co
 
   VkDescriptorSetLayoutCreateInfo layout_info = {};
   layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  layout_info.bindingCount = 1;
+  layout_info.bindingCount = p_bindings.size();
   layout_info.pBindings = p_bindings.data();
 
   if (vkCreateDescriptorSetLayout(*device_, &layout_info, nullptr, &descriptor_set_layout_)!=VK_SUCCESS) {
@@ -48,9 +48,11 @@ api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *co
 
   for (size_t i = 0; i < image_count_; i++) {
     std::vector<VkWriteDescriptorSet> descriptor_writes{};
-    for (auto value: bindings_) {
-      auto descriptor_write = dynamic_cast<VkUniform *>(value)->GetWriteDescriptorSetFor(i);
+    for (int j = 0; j < bindings_.size(); j++) {
+      auto descriptor_write = dynamic_cast<VkUniform *>(bindings_[j])->GetWriteDescriptorSetFor(i);
       descriptor_write.dstSet = descriptor_sets_[i];
+      descriptor_write.dstBinding = j;
+      descriptor_write.dstArrayElement = 0;
       descriptor_writes.push_back(descriptor_write);
     }
     vkUpdateDescriptorSets(*device_,

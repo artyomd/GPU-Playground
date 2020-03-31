@@ -5,18 +5,11 @@
 #include <cstring>
 #include "VkUniformBuffer.h"
 
-VkShaderStageFlags GetVkShaderStageFlag(api::ShaderType shader_type) {
-  switch (shader_type) {
-    case api::SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
-    case api::SHADER_TYPE_FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
-  }
-}
 api::VkUniformBuffer::VkUniformBuffer(VkRenderingContext *context,
                                       int length, int binding_point, api::ShaderType shader_stage)
-    : VkUniform(binding_point, shader_stage),
+    : UniformBuffer(binding_point, shader_stage),
       context_(context),
       device_(context->GetDevice()),
-      descriptor_pool_(context->GetDescriptorPool()),
       length_(length) {
 
   auto image_count = context->GetImageCount();
@@ -49,8 +42,6 @@ VkDescriptorSetLayoutBinding api::VkUniformBuffer::GetLayoutBinding() const {
 VkWriteDescriptorSet api::VkUniformBuffer::GetWriteDescriptorSetFor(int image_index) const {
   VkWriteDescriptorSet descriptor_writes = {};
   descriptor_writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-  descriptor_writes.dstBinding = 0;
-  descriptor_writes.dstArrayElement = 0;
   descriptor_writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   descriptor_writes.descriptorCount = 1;
   descriptor_writes.pBufferInfo = &descriptor_buffer_info_[image_index];

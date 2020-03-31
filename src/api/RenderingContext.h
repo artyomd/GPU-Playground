@@ -6,6 +6,8 @@
 #include "Shader.h"
 #include "IndexBuffer.h"
 #include "RenderingPipeline.h"
+#include "UniformBuffer.h"
+#include "Texture2D.h"
 
 namespace api {
 class RenderingContext {
@@ -34,15 +36,19 @@ class RenderingContext {
 
   virtual void DeleteShader(Shader *vertex_binding) = 0;
 
-  virtual Uniform *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) = 0;
+  virtual UniformBuffer *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) = 0;
 
-  virtual void DeleteUniformBuffer(Uniform *uniform_buffer) = 0;
+  virtual void DeleteUniformBuffer(UniformBuffer *uniform_buffer) = 0;
+
+  virtual Texture2D *CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) = 0;
+
+  virtual void DeleteTexture2D(Texture2D *texture_2_d) = 0;
 
   virtual api::RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
-                                                    const IndexBuffer *index_buffer,
-                                                    const Shader *vertex_shader,
-                                                    const Shader *fragment_shader,
-                                                    const RenderingPipelineLayout *pipeline_layout) = 0;
+                                                         const IndexBuffer *index_buffer,
+                                                         const Shader *vertex_shader,
+                                                         const Shader *fragment_shader,
+                                                         const RenderingPipelineLayout *pipeline_layout) = 0;
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
 

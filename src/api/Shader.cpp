@@ -16,6 +16,13 @@ int api::GetShaderGlType(ShaderType shader_type) {
   throw std::runtime_error("invalid shader type");
 }
 
+VkShaderStageFlags api::GetVkShaderStageFlag(api::ShaderType shader_type) {
+  switch (shader_type) {
+    case api::SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
+    case api::SHADER_TYPE_FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
+  }
+}
+
 VkShaderStageFlagBits api::GetShaderVkType(ShaderType shader_type) {
   switch (shader_type) {
     case SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;

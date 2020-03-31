@@ -13,6 +13,7 @@
 #include "GlUniformBuffer.h"
 #include "GlUtils.h"
 #include "GlRenderingPipelineLayout.h"
+#include "GlTexture2D.h"
 
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
@@ -62,16 +63,22 @@ Shader *GlRenderingContext::CreateShader(std::string sipr_v_shader_location, std
 
 void GlRenderingContext::DeleteShader(Shader *vertex_binding) {
   delete vertex_binding;
-
 }
 
-Uniform *GlRenderingContext::CreateUniformBuffer(int length,
-                                                 int binding_point,
-                                                 ShaderType shader_stage) {
+UniformBuffer *GlRenderingContext::CreateUniformBuffer(int length,
+                                                       int binding_point,
+                                                       ShaderType shader_stage) {
   return new GlUniformBuffer(length, binding_point, shader_stage);
 }
-void GlRenderingContext::DeleteUniformBuffer(Uniform *uniform_buffer) {
+
+void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
   delete uniform_buffer;
+}
+Texture2D *GlRenderingContext::CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) {
+  return new GlTexture2D(image_path, binding_point, shader_stage);
+}
+void GlRenderingContext::DeleteTexture2D(Texture2D *texture_2_d) {
+  delete texture_2_d;
 }
 void GlRenderingContext::SetViewportSize(int width, int height) {
   viewport_width_ = width;

@@ -44,9 +44,9 @@ class GlRenderingContext : public RenderingContext {
   RenderingPipelineLayout *CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) override;
   void FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) override;
 
-  Uniform *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
+  UniformBuffer *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
 
-  void DeleteUniformBuffer(Uniform *vertex_binding) override;
+  void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
 
   [[nodiscard]] int GetViewportWidth() const;
 
@@ -54,5 +54,7 @@ class GlRenderingContext : public RenderingContext {
 
   void WaitForGpuIdle() const override;
   ~GlRenderingContext() override = default;
+  Texture2D *CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) override;
+  void DeleteTexture2D(Texture2D *texture_2_d) override;
 };
 }

@@ -2,11 +2,13 @@
 // Created by artyomd on 3/10/20.
 //
 #pragma once
+
 #include <api/Shader.h>
 #include <GL/gl.h>
+#include <api/UniformBuffer.h>
 #include "GlUniform.h"
 namespace api {
-class GlUniformBuffer : public GlUniform {
+class GlUniformBuffer : public UniformBuffer, public GlUniform {
  private:
   int length_;
  public:

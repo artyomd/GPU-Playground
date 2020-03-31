@@ -20,8 +20,6 @@ class VkRenderingContext : public RenderingContext {
   VkExtent2D swap_chain_extent_{};
   VkCommandBuffer *current_command_buffer_ = nullptr;
 
-  uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
-
  public:
   VkRenderingContext(VkPhysicalDevice *physical_device,
                      VkDevice *device,
@@ -63,11 +61,17 @@ class VkRenderingContext : public RenderingContext {
 
   void DeleteShader(Shader *vertex_binding) override;
 
-  Uniform *CreateUniformBuffer(int length,
+  UniformBuffer *CreateUniformBuffer(int length,
                                int binding_point,
                                ShaderType shader_stage) override;
 
-  void DeleteUniformBuffer(Uniform *uniform_buffer) override;
+  void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
+
+  void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+  void TransitionImageLayout(VkImage image,
+                             VkImageLayout old_layout,
+                             VkImageLayout new_layout);
 
   void CreateBuffer(VkDeviceSize size,
                     VkBufferUsageFlags usage,
@@ -82,6 +86,7 @@ class VkRenderingContext : public RenderingContext {
   VkCommandBuffer BeginSingleTimeCommands(VkCommandPool &command_pool);
 
   void EndSingleTimeCommands(VkQueue &queue, VkCommandPool &pool, VkCommandBuffer &command_buffer);
+  uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
   [[nodiscard]] VkRenderPass *GetVkRenderPass() const;
   [[nodiscard]] VkExtent2D GetSwapChainExtent() const;
   [[nodiscard]] VkCommandBuffer *GetCurrentCommandBuffer() const;
@@ -94,5 +99,7 @@ class VkRenderingContext : public RenderingContext {
   void SetCurrentImageIndex(int current_image_index);
   void WaitForGpuIdle() const override;
   ~VkRenderingContext() override = default;
+  Texture2D *CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) override;
+  void DeleteTexture2D(Texture2D *texture_2_d) override;
 };
 }

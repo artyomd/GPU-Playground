@@ -4,14 +4,14 @@
 
 #pragma once
 
+#include <api/UniformBuffer.h>
 #include "VkRenderingContext.h"
 #include "VkUniform.h"
 
 namespace api {
-class VkUniformBuffer : public VkUniform {
+class VkUniformBuffer : public UniformBuffer, public VkUniform {
  private:
   VkRenderingContext *context_;
-  VkDescriptorPool *descriptor_pool_;
   VkDevice *device_;
   int length_;
   std::vector<VkBuffer> uniform_buffers_{};

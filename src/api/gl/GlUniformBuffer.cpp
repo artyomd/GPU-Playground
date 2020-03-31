@@ -8,7 +8,7 @@
 #include "GlRenderingPipeline.h"
 
 api::GlUniformBuffer::GlUniformBuffer(int length, int binding_point, api::ShaderType shader_stage)
-    : GlUniform(binding_point, shader_stage),
+    : UniformBuffer(binding_point, shader_stage),
       length_(length) {
   GL_CALL(glGenBuffers(1, &render_id_));
 }

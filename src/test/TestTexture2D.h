@@ -1,26 +1,27 @@
 //
-// Created by Artyom Dangizyan on 2018-11-29.
+// Created by artyomd on 3/31/20.
 //
 #pragma once
-
-#include "api/Renderer.hpp"
-#include "geometry/Triangle.h"
-#include "Test.h"
+#include <geometry/Triangle.h>
+#include <geometry/Quad.h>
 #include "TestModel.h"
-
 namespace test {
-class TestTriangle : public TestModel {
+class TestTexture2D : public TestModel {
  private:
   api::Shader *vertex_shader_ = nullptr;
   api::Shader *fragment_shader_ = nullptr;
   api::UniformBuffer *uniform_buffer_ = nullptr;
+  api::Texture2D *texture_2_d_ = nullptr;
   api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
   api::RenderingPipeline *pipeline_ = nullptr;
-  geometry::Triangle *triangle_ = nullptr;
+  api::VertexBuffer* vertex_buffer_ = nullptr;
+  api::IndexBuffer* index_buffer_ = nullptr;
+  api::VertexBufferLayout* vertex_buffer_layout_ = nullptr;
+  api::VertexBinding* vertex_binding_ = nullptr;
   UniformBufferObjectMvp *ubo_ = new UniformBufferObjectMvp();
 
  public:
-  explicit TestTriangle(api::Renderer *renderer);
+  explicit TestTexture2D(api::Renderer *renderer);
 
   void OnClear() override;
 
@@ -28,6 +29,6 @@ class TestTriangle : public TestModel {
 
   void OnViewportChange() override;
 
-  ~TestTriangle() override;
+  ~TestTexture2D() override;
 };
 }
