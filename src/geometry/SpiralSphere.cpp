@@ -1,74 +1,75 @@
 //
-// Created by Artyom Dangizyan on 2018-12-05.
+// Created by artyomd on 3/22/20.
 //
 
 #include <cmath>
+#include <GL/glew.h>
 #include "SpiralSphere.h"
-#include "api/Renderer.h"
+#include "Point.hpp"
 
-namespace geometry {
-    SpiralSphere::SpiralSphere(const float radius, const unsigned int loops, const unsigned int segmentsPerLoop) {
-        for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-            float theta = 0;
-            auto phi = static_cast<float>(loopSegmentNumber * 2 * M_PI / segmentsPerLoop);
-            float sinTheta = std::sin(theta);
-            float sinPhi = std::sin(phi);
-            float cosTheta = std::cos(theta);
-            float cosPhi = std::cos(phi);
-            Point point = {radius * cosPhi * sinTheta, radius * sinPhi * sinTheta, radius * cosTheta, 1.0f, 0.0f, 0.0f,
-                           0.0f};
-            geometryData.push_back(point);
+geometry::SpiralSphere::SpiralSphere(api::RenderingContext *context,
+                                     float radius,
+                                     unsigned int loops,
+                                     unsigned int segmentsPerLoop)
+    : GeometryItem(context) {
 
-        }
-        for (unsigned int loopNumber = 0; loopNumber <= loops; ++loopNumber) {
-            for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-                auto theta = static_cast<float>((loopNumber * M_PI / loops) +
-                                                ((M_PI * loopSegmentNumber) / (segmentsPerLoop * loops)));
-                if (loopNumber == loops) {
-                    theta = static_cast<float>(M_PI);
-                }
-                auto phi = static_cast<float>(loopSegmentNumber * 2 * M_PI / segmentsPerLoop);
-                float sinTheta = std::sin(theta);
-                float sinPhi = std::sin(phi);
-                float cosTheta = std::cos(theta);
-                float cosPhi = std::cos(phi);
-                Point point = {radius * cosPhi * sinTheta, radius * sinPhi * sinTheta, radius * cosTheta, 1.0f, 1.0f,
-                               1.0f,
-                               1.0f};
-                geometryData.push_back(point);
+  std::vector<Point> geometry_data;
+  std::vector<unsigned short> index_data;
 
-            }
-        }
-        for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-            indexData.push_back(static_cast<unsigned short &&>(loopSegmentNumber));
-            indexData.push_back(static_cast<unsigned short &&>(segmentsPerLoop + loopSegmentNumber));
-        }
-        for (unsigned int loopNumber = 0; loopNumber < loops; ++loopNumber) {
-            for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-                indexData.push_back(
-                        static_cast<unsigned short &&>(((loopNumber + 1) * segmentsPerLoop) + loopSegmentNumber));
-                indexData.push_back(
-                        static_cast<unsigned short &&>(((loopNumber + 2) * segmentsPerLoop) + loopSegmentNumber));
-            }
-        }
+  for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+    float theta = 0;
+    auto phi = static_cast<float>(loop_segment_number*2*M_PI/segmentsPerLoop);
+    float sin_theta = std::sin(theta);
+    float sin_phi = std::sin(phi);
+    float cos_theta = std::cos(theta);
+    float cos_phi = std::cos(phi);
+    Point point = {radius*cos_phi*sin_theta, radius*sin_phi*sin_theta, radius*cos_theta,
+                   1.0f, 0.0f, 0.0f, 0.0f};
+    geometry_data.push_back(point);
 
-        VertexBuffer vertexBuffer(&geometryData[0], static_cast<unsigned int>(7 * geometryData.size() * sizeof(float)));
+  }
+  for (unsigned int loop_number = 0; loop_number <= loops; ++loop_number) {
+    for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+      auto theta = static_cast<float>((loop_number*M_PI/loops) +
+          ((M_PI*loop_segment_number)/(segmentsPerLoop*loops)));
+      if (loop_number==loops) {
+        theta = static_cast<float>(M_PI);
+      }
+      auto phi = static_cast<float>(loop_segment_number*2*M_PI/segmentsPerLoop);
+      float sin_theta = std::sin(theta);
+      float sin_phi = std::sin(phi);
+      float cos_theta = std::cos(theta);
+      float cos_phi = std::cos(phi);
+      Point point = {radius*cos_phi*sin_theta, radius*sin_phi*sin_theta, radius*cos_theta,
+                     1.0f, 1.0f, 1.0f, 1.0f};
+      geometry_data.push_back(point);
 
-        vertexArray = new VertexArray();
-
-        VertexBufferLayout layout;
-        layout.Push<float>(3);
-        layout.Push<float>(4);
-        vertexArray->addBuffer(&vertexBuffer, &layout);
-
-        indexBuffer = new IndexBuffer(&indexData[0], static_cast<unsigned int>(indexData.size()));
-
-        vertexArray->unbind();
-        vertexBuffer.unbind();
-        indexBuffer->unbind();
     }
-
-    void SpiralSphere::render(Shader &shader) const {
-        Renderer::draw(*vertexArray, shader, *indexBuffer);
+  }
+  for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+    index_data.push_back(static_cast<unsigned short &&>(loop_segment_number));
+    index_data.push_back(static_cast<unsigned short &&>(segmentsPerLoop + loop_segment_number));
+  }
+  for (unsigned int loop_number = 0; loop_number < loops; ++loop_number) {
+    for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+      index_data.push_back(
+          static_cast<unsigned short &&>(((loop_number + 1)*segmentsPerLoop) + loop_segment_number));
+      index_data.push_back(
+          static_cast<unsigned short &&>(((loop_number + 2)*segmentsPerLoop) + loop_segment_number));
     }
+  }
+
+  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 7*geometry_data.size()*sizeof(float));
+  layout_ = new api::VertexBufferLayout();
+  layout_->Push<float>(3);
+  layout_->Push<float>(4);
+
+  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
+  index_buffer_ = context->CreateIndexBuffer(index_data.data(), index_data.size(), api::DATA_TYPE_UINT_16);
+}
+geometry::SpiralSphere::~SpiralSphere() {
+  context_->FreeIndexBuffer(index_buffer_);
+  context_->FreeVertexBiding(vertex_binding_);
+  delete (layout_);
+  context_->FreeVertexBuffer(vertex_buffer_);
 }

@@ -3,16 +3,15 @@
 //
 #pragma once
 
+namespace api {
 class VertexBuffer {
-private:
-    unsigned int m_RendererId;
-public:
-    VertexBuffer(const void *data, unsigned int size);
+ public:
+  VertexBuffer() = default;
 
-    ~VertexBuffer();
+  virtual void Bind() const = 0;
 
-    void bind() const;
+  virtual void Unbind() const = 0;
 
-    void unbind() const;
-
+  virtual ~VertexBuffer() = default;
 };
+}

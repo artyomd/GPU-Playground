@@ -1,15 +1,18 @@
 //
-// Created by artyomd on 12/3/19.
+// Created by artyomd on 3/22/20.
 //
 #pragma once
-
-#include <glm/glm.hpp>
-#include <vendor/glm/gtc/matrix_transform.hpp>
 #include "TestShader.h"
 
 namespace test {
-    class TestRaymarching : public TestShader {
-    public:
-        TestRaymarching() : TestShader("default_empty_vertex_shader", "raymarched_reflections") {}
-    };
+class TestRaymarching : public TestShader {
+ public:
+  explicit TestRaymarching(api::Renderer *renderer) :
+      TestShader(renderer,
+                 renderer->GetRenderingContext()->
+                     CreateShader("../res/shader/compiled/raymarched_reflections.spv",
+                                  "../res/shader/raymarched_reflections.glsl",
+                                  "main",
+                                  api::SHADER_TYPE_FRAGMENT)) {}
+};
 }

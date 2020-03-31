@@ -1,39 +1,33 @@
 //
-// Created by Artyom Dangizyan on 2018-12-03.
+// Created by artyomd on 1/6/20.
 //
 
 #include "Triangle.h"
-#include "api/Renderer.h"
 
-namespace geometry {
-    Triangle::Triangle(Point &point0, Point &point1, Point &point2) {
-        float positions[] = {
-                point0.x, point0.y, point0.z, point0.r, point0.g, point0.b, point0.a,
-                point1.x, point1.y, point1.z, point1.r, point1.g, point1.b, point1.a,
-                point2.x, point2.y, point2.z, point2.r, point2.g, point2.b, point2.a
-        };
+geometry::Triangle::Triangle(api::RenderingContext *context, geometry::Point &point_0, geometry::Point &point_1,
+                             geometry::Point &point_2) : GeometryItem(context) {
 
-        unsigned int indices[] = {
-                0, 1, 2
-        };
+  std::vector<Point> geometry_data;
+  geometry_data.push_back(point_2);
+  geometry_data.push_back(point_1);
+  geometry_data.push_back(point_0);
 
-        VertexBuffer vertexBuffer(positions, 3 * 7 * sizeof(float));
+  unsigned short indices[] = {
+      0, 1, 2
+  };
 
-        vertexArray = new VertexArray();
+  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 3*7*sizeof(float));
+  layout_ = new api::VertexBufferLayout();
+  layout_->Push<float>(3);
+  layout_->Push<float>(4);
 
-        VertexBufferLayout layout;
-        layout.Push<float>(3);
-        layout.Push<float>(4);
-        vertexArray->addBuffer(&vertexBuffer, &layout);
+  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
+  index_buffer_ = context->CreateIndexBuffer(indices, 3, api::DATA_TYPE_UINT_16);
+}
 
-        indexBuffer = new IndexBuffer(indices, 3);
-
-        vertexArray->unbind();
-        vertexBuffer.unbind();
-        indexBuffer->unbind();
-    }
-
-    void Triangle::render(Shader &shader) const {
-        Renderer::draw(*vertexArray, shader, *indexBuffer);
-    }
+geometry::Triangle::~Triangle() {
+  context_->FreeIndexBuffer(index_buffer_);
+  context_->FreeVertexBiding(vertex_binding_);
+  delete (layout_);
+  context_->FreeVertexBuffer(vertex_buffer_);
 }

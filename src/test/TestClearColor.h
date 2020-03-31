@@ -6,15 +6,16 @@
 #include "Test.h"
 
 namespace test {
-    class TestClearColor : public Test {
-    public:
-        TestClearColor();
+class TestClearColor : public Test {
+ public:
+  explicit TestClearColor(api::Renderer *renderer);
 
-        void onClear(RenderingContext* context) override;
+  void OnClear() override;
 
-        void onImGuiRender() override;
+  void OnImGuiRender() override;
 
-    private:
-        float m_Color[4];
-    };
+  ~TestClearColor() override;
+ private:
+  float color_[4] = {0.2f, 0.3f, 0.8f, 1.0f};
+};
 }

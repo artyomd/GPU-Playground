@@ -3,23 +3,31 @@
 //
 #pragma once
 
-#include "api/VertexArray.h"
-#include "api/IndexBuffer.h"
-#include "api/Shader.h"
-#include "Triangle.h"
-#include "TestMVP.h"
+#include "api/Renderer.hpp"
+#include "geometry/Triangle.h"
+#include "Test.h"
+#include "TestModel.h"
 
 namespace test {
-    class TestTriangle : public TestMVP {
-    public:
-        TestTriangle();
+class TestTriangle : public TestModel {
+ private:
+  api::Shader *vertex_shader_ = nullptr;
+  api::Shader *fragment_shader_ = nullptr;
+  api::UniformBuffer *uniform_buffer_ = nullptr;
+  api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
+  api::RenderingPipeline *pipeline_ = nullptr;
+  geometry::Triangle *triangle_ = nullptr;
+  UniformBufferObjectMvp *ubo_ = new UniformBufferObjectMvp();
 
-        ~TestTriangle() override;
+ public:
+  explicit TestTriangle(api::Renderer *renderer);
 
-        void onRender() override;
+  void OnClear() override;
 
-    private:
-        Shader *shader;
-        geometry::Triangle *triangle;
-    };
+  void OnRender() override;
+
+  void OnViewportChange() override;
+
+  ~TestTriangle() override;
+};
 }

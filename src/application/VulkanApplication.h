@@ -6,152 +6,148 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-#include "GLFWApplication.h"
+#include "GlfwApplication.h"
+#include "api/vulkan/VkRenderingContext.h"
 #include <vulkan/vulkan.h>
 
 namespace application {
-    class VulkanApplication : public GLFWApplication {
-    private:
+class VulkanApplication : public GlfwApplication {
+ private:
+  api::VkRenderingContext *context_ = nullptr;
 #ifdef NDEBUG
-        const bool enableValidationLayers = false;
+  const bool enable_validation_layers_ = false;
 #else
-        const bool enableValidationLayers = true;
+  const bool enable_validation_layers_ = true;
 #endif
-        const std::vector<const char *> validationLayers = {
-                "VK_LAYER_KHRONOS_validation"
-        };
+  const std::vector<const char *> validation_layers_ = {
+      "VK_LAYER_KHRONOS_validation"
+  };
 
-        const std::vector<const char *> deviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
+  const std::vector<const char *> device_extensions_ = {
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
 
-        const int MAX_FRAMES_IN_FLIGHT = 2;
+  const int max_frames_in_flight_ = 2;
 
-        VkInstance vulkanInstance;
-        VkDebugUtilsMessengerEXT debugMessenger;
+  VkInstance vulkan_instance_;
+  VkDebugUtilsMessengerEXT debug_messenger_;
 
-        VkSurfaceKHR surface;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
+  VkSurfaceKHR surface_;
+  VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+  VkDevice device_;
 
-        VkRenderPass renderPass;
-        VkQueue graphicsQueue;
-        VkQueue presentQueue;
+  VkRenderPass render_pass_;
 
-        VkSwapchainKHR swapChain;
-        VkExtent2D swapChainExtent;
-        VkFormat swapChainImageFormat;
-        std::vector<VkImage> swapChainImages;
-        std::vector<VkImageView> swapChainImageViews;
-        std::vector<VkFramebuffer> swapChainFrameBuffers;
+  VkQueue graphics_queue_;
+  VkCommandPool graphics_command_pool_;
+  std::vector<VkCommandBuffer> graphics_command_buffers_;
 
-        VkDescriptorPool descriptorPool;
-        VkCommandPool commandPool;
-        std::vector<VkCommandBuffer> commandBuffers;
+  VkQueue present_queue_;
 
-        std::vector<VkSemaphore> imageAvailableSemaphores;
-        std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> inFlightFences;
-        std::vector<VkFence> imagesInFlight;
+  VkSwapchainKHR swap_chain_;
+  VkExtent2D swap_chain_extent_;
+  VkFormat swap_chain_image_format_;
+  std::vector<VkImage> swap_chain_images_;
+  std::vector<VkImageView> swap_chain_image_views_;
+  std::vector<VkFramebuffer> swap_chain_frame_buffers_;
 
-        bool framebufferResized = false;
-        int currentFrame = 0;
-        uint32_t currentImage = 0;
+  VkDescriptorPool descriptor_pool_;
 
-        struct QueueFamilyIndices {
-            std::optional<uint32_t> graphicsFamily;
-            std::optional<uint32_t> presentFamily;
+  std::vector<VkSemaphore> image_available_semaphores_;
+  std::vector<VkSemaphore> render_finished_semaphores_;
+  std::vector<VkFence> in_flight_fences_;
+  std::vector<VkFence> images_in_flight_;
 
-            bool isComplete() {
-                return graphicsFamily.has_value() &&
-                       presentFamily.has_value();
-            }
-        };
+  bool framebuffer_resized_ = false;
+  int current_frame_ = 0;
+  uint32_t current_image_ = 0;
 
-        struct SwapChainSupportDetails {
-            VkSurfaceCapabilitiesKHR capabilities{};
-            std::vector<VkSurfaceFormatKHR> formats;
-            std::vector<VkPresentModeKHR> presentModes;
-        };
+  struct QueueFamilyIndices {
+    std::optional<uint32_t> graphics_family_;
+    std::optional<uint32_t> present_family_;
 
-        void createInstance();
+    bool IsComplete() {
+      return graphics_family_.has_value() &&
+          present_family_.has_value();
+    }
+  };
 
-        void rereateSwapChain();
+  struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities_{};
+    std::vector<VkSurfaceFormatKHR> formats_;
+    std::vector<VkPresentModeKHR> present_modes_;
+  };
 
-        bool checkValidationLayerSupport();
+  void CreateInstance();
 
-        std::vector<const char *> getRequiredExtensions();
+  void RecreateSwapChain();
 
-        void setupDebugMessenger();
+  bool CheckValidationLayerSupport();
 
-        void createSurface();
+  std::vector<const char *> GetRequiredExtensions();
 
-        bool isDeviceSuitable(VkPhysicalDevice device);
+  void SetupDebugMessenger();
 
-        void pickPhysicalDevice();
+  void CreateSurface();
 
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+  bool IsDeviceSuitable(VkPhysicalDevice device);
 
-        bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+  void PickPhysicalDevice();
 
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+  QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
-        void createLogicalDevice();
+  bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
-        void createDescriptorPool();
+  SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 
-        void createCommandPool();
+  void CreateLogicalDevice();
 
-        void createSwapChain();
+  void CreateDescriptorPool();
 
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+  void CreateCommandPool();
 
-        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+  void CreateSwapChain();
 
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+  static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available_formats);
 
-        void createImageViews();
+  static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &available_present_modes);
 
-        ////maybe this should be an api method
-        VkImageView createImageView(VkDevice device, VkImage image, VkFormat format);
+  VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
-        VkCommandBuffer beginSingleTimeCommands();
+  void CreateImageViews();
 
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-        //// end maybe api methods
+  void CreateRenderPass();
 
-        void createRenderPass();
+  void CreateFrameBuffers();
 
-        void createFramebuffers();
+  void CreateCommandBuffers();
 
-        void createCommandBuffers();
+  void CreateSyncObjects();
 
-        void createSyncObjects();
+  void CleanupSwapChain();
 
-        void cleanupSwapChain();
+ protected:
+  void SetupWindowHints() final;
 
-    protected:
-        void setupWindowHints() final;
+  void OnWindowSizeChanged() final;
 
-        void onWindowSizeChanged() final;
+  bool PrepareFrame() final;
 
-        void initImGui() final;
+  void CreateImGuiFrame() final;
 
-        bool prepareFrame() final;
+  void RenderImGui() final;
 
-        void createImGuiFrame() final;
+  void DrawFrame() final;
 
-        void renderImGui() final;
+  void PrepareForShutdown() final;
 
-        void drawFrame() final;
+ public:
+  void InitContext() final;
 
-        void destroyImGui() final;
+  void InitImGui() final;
 
-        void prepareForShutdown() final;
+  void DestroyImGui() final;
 
-    public:
-        void initContext() final;
-
-        void destroyContext() override;
-    };
+  void DestroyContext() final;
+};
 }

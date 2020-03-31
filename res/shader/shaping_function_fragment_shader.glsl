@@ -1,12 +1,16 @@
 #version 450
+#pragma shader_stage(fragment)
+#extension GL_ARB_separate_shader_objects : enable
 
-uniform vec2 u_screenSize;
-uniform float u_time;
+layout(binding = 0, std140) uniform UniformBufferObject {
+    vec2 u_screenSize;
+    float u_time;
+};
 
-out vec4 out_color;
+layout(location = 0) out vec4 out_color;
 
 float plot(float y, float pct){
-     return  smoothstep(pct-0.02, pct, y) -smoothstep( pct, pct+0.02, y);
+    return smoothstep(pct-0.02, pct, y) -smoothstep(pct, pct+0.02, y);
 }
 
 void main() {

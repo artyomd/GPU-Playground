@@ -6,20 +6,14 @@
 #include "imgui/imgui.h"
 
 namespace test {
-    test::TestMenu::TestMenu(Test *&currentTest) : m_CurrentTest(currentTest), m_width(0), m_height(0) {
+    test::TestMenu::TestMenu(api::Renderer *renderer, Test *&current_test) : Test(renderer),
+                                                                             current_test_(current_test){
     }
-
-    void test::TestMenu::onImGuiRender() {
-        for (auto &test : m_Tests) {
+    void test::TestMenu::OnImGuiRender() {
+        for (auto &test : m_tests_) {
             if (ImGui::Button(test.first.c_str())) {
-                m_CurrentTest = test.second();
-                m_CurrentTest->onWindowSizeChanged(m_width, m_height);
+              current_test_ = test.second();
             }
         }
-    }
-
-    void TestMenu::onWindowSizeChanged(int width, int height) {
-        this->m_width = width;
-        this->m_height = height;
     }
 }

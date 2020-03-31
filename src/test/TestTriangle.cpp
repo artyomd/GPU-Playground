@@ -2,36 +2,64 @@
 // Created by Artyom Dangizyan on 2018-11-29.
 //
 
-#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include <api/ShaderPropertyMatrix4f.h>
+#include "geometry/Point.hpp"
+#include "geometry/Triangle.h"
 #include "TestTriangle.h"
 
 namespace test {
 
-    TestTriangle::TestTriangle() : TestMVP() {
+TestTriangle::TestTriangle(api::Renderer *renderer) : TestModel(renderer) {
 
-        geometry::Point point0 = {-0.5f, -0.5f, 0.0f, 1, 1, 0, 0};
-        geometry::Point point1 = {0.5f, -0.5f, 0.0f, 1, 0, 1, 0};
-        geometry::Point point2 = {0.0f, 0.5f, 0.0f, 1, 0, 0, 1};
+  geometry::Point point_0 = {-0.5f, -0.5f, 0.0f, 1, 0, 0, 1};
+  geometry::Point point_1 = {0.5f, -0.5f, 0.0f, 0, 1, 0, 1};
+  geometry::Point point_2 = {0.0f, 0.5f, 0.0f, 0, 0, 1, 1};
 
-        triangle = new geometry::Triangle(point0, point1, point2);
+  auto *context = renderer->GetRenderingContext();
 
-        shader = new Shader("../res/shader/default_mvp_color_vertex_shader.glsl", "../res/shader/default_color_fragment_shader.glsl");
-    }
+  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
+                                                 0,
+                                                 api::ShaderType::SHADER_TYPE_VERTEX);
+  std::vector<api::Uniform *> uniforms;
+  uniforms.push_back(uniform_buffer_);
+  pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
-    void TestTriangle::onRender() {
-        shader->bind();
-        glm::mat4 mvp = computeMVP();
-        auto property = new ShaderPropertyMatrix4f(mvp);
-        shader->setUniform("u_MVP", property);
-        delete property;
-        triangle->render(*shader);
-        shader->unbind();
-    }
+  triangle_ = new geometry::Triangle(context, point_0, point_1, point_2);
+  vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
+                                         "../res/shader/default_mvp_color_vertex_shader.glsl",
+                                         "main",
+                                         api::SHADER_TYPE_VERTEX);
+  fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
+                                           "../res/shader/default_color_fragment_shader.glsl",
+                                           "main",
+                                           api::SHADER_TYPE_FRAGMENT);
+  pipeline_ = context->CreateGraphicsPipeline(triangle_->GetVertexBinding(), triangle_->GetIndexBuffer(),
+                                              vertex_shader_, fragment_shader_, pipeline_layout_);
+}
 
-    TestTriangle::~TestTriangle() {
-        delete shader;
-        delete triangle;
-    }
+void TestTriangle::OnClear() {
+  renderer_->SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void TestTriangle::OnRender() {
+  ubo_->model_ = ComputeModelMatrix();
+  ubo_->proj_ = renderer_->GetRenderingContext()->GetOrthoProjection();
+  ubo_->view_ = glm::mat4(1.0f);
+  uniform_buffer_->Update(ubo_);
+  api::Renderer::Render(pipeline_);
+}
+
+void TestTriangle::OnViewportChange() {
+  pipeline_->ViewportChanged();
+}
+
+TestTriangle::~TestTriangle() {
+  auto context = renderer_->GetRenderingContext();
+  context->FreeGraphicsPipeline(pipeline_);
+  context->FreeRenderingPipelineLayout(pipeline_layout_);
+  context->DeleteShader(fragment_shader_);
+  context->DeleteShader(vertex_shader_);
+  context->DeleteUniformBuffer(uniform_buffer_);
+  delete triangle_;
+}
 }

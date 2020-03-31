@@ -1,26 +1,30 @@
 //
-// Created by Artyom Dangizyan on 2018-11-30.
+// Created by artyomd on 3/23/20.
 //
 #pragma once
 
-#include "api/Shader.h"
-#include "api/VertexArray.h"
-#include "api/IndexBuffer.h"
-#include "../geometry/StackedSphere.h"
-#include "../geometry/SpiralSphere.h"
-#include "TestMVP.h"
-
+#include <geometry/GeometryItem.h>
+#include "TestModel.h"
 namespace test {
-    class TestSphere : public TestMVP {
-    public:
-        TestSphere();
+class TestSphere : public TestModel {
+ private:
+  api::Shader *vertex_shader_ = nullptr;
+  api::Shader *fragment_shader_ = nullptr;
+  api::UniformBuffer *uniform_buffer_ = nullptr;
+  api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
+  api::RenderingPipeline *pipeline_ = nullptr;
+  geometry::GeometryItem *sphere_ = nullptr;
+  UniformBufferObjectMvp *ubo_ = new UniformBufferObjectMvp();
 
-        ~TestSphere() override;
+ public:
+  explicit TestSphere(api::Renderer *renderer);
 
-        void onRender() override;
+  void OnClear() override;
 
-    private:
-        Shader *shader;
-        geometry::GeometryItem *sphere;
-    };
+  void OnRender() override;
+
+  void OnViewportChange() override;
+
+  ~TestSphere() override;
+};
 }

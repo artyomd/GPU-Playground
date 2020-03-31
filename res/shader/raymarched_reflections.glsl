@@ -1,10 +1,15 @@
 #version 450
+#pragma shader_stage(fragment)
+#extension GL_ARB_separate_shader_objects : enable
 
 #define FAR 30.
 
-uniform vec2 u_screenSize;
-uniform float u_time;
-out vec4 out_color;
+layout(binding = 0, std140) uniform UniformBufferObject {
+    vec2 u_screenSize;
+    float u_time;
+};
+
+layout(location = 0) out vec4 out_color;
 
 // Distance function. This one is pretty simple. I chose rounded
 // spherical boxes, because they're cheap and they display the
@@ -33,7 +38,7 @@ float map(vec3 p)
     p = abs(p);
     //return max(p.x, max(p.y, p.z)) - 0.25 + dot(p, p)*0.5;
 
-    return length(p) - 0.225; // Just spheres.
+    return length(p) - 0.225;// Just spheres.
 }
 
 // Standard raymarching routine.
@@ -46,9 +51,9 @@ float trace(vec3 ro, vec3 rd){
         d = map(ro + rd*t);
 
         // Using the hacky "abs," trick, for more accuracy.
-        if(abs(d)<.001 || t>FAR) break;
+        if (abs(d)<.001 || t>FAR) break;
 
-        t += d*.75;  // Using more accuracy, in the first pass.
+        t += d*.75;// Using more accuracy, in the first pass.
     }
 
     return t;
@@ -70,7 +75,7 @@ float traceRef(vec3 ro, vec3 rd){
 
         d = map(ro + rd*t);
 
-        if(abs(d)<.002 || t>FAR) break;
+        if (abs(d)<.002 || t>FAR) break;
 
         t += d;
     }
@@ -86,7 +91,7 @@ float softShadow(vec3 ro, vec3 lp, float k){
     // More would be nicer. More is always nicer, but not really affordable... Not on my slow test machine, anyway.
     const int maxIterationsShad = 24;
 
-    vec3 rd = (lp-ro); // Unnormalized direction ray.
+    vec3 rd = (lp-ro);// Unnormalized direction ray.
 
     float shade = 1.;
     float dist = .0035;
@@ -101,7 +106,7 @@ float softShadow(vec3 ro, vec3 lp, float k){
 
         float h = map(ro + rd*dist);
         //shade = min(shade, k*h/dist);
-        shade = min(shade, smoothstep(0., 1., k*h/dist)); // Subtle difference. Thanks to IQ for this tidbit.
+        shade = min(shade, smoothstep(0., 1., k*h/dist));// Subtle difference. Thanks to IQ for this tidbit.
         // So many options here, and none are perfect: dist += min(h, .2), dist += clamp(h, .01, .2),
         // clamp(h, .02, stepDist*2.), etc.
         dist += clamp(h, .02, .25);
@@ -126,7 +131,7 @@ vec3 getNormal(in vec3 p) {
 */
 
 // Tetrahedral normal, to save a couple of "map" calls. Courtesy of IQ.
-vec3 getNormal( in vec3 p ){
+vec3 getNormal(in vec3 p){
 
     // Note the slightly increased sampling distance, to alleviate
     // artifacts due to hit point inaccuracies.
@@ -150,7 +155,7 @@ vec3 getObjectColor(vec3 p){
 
     // "floor(p)" is analogous to a unique ID - based on position.
     // This could be stepped, but it's more intuitive this way.
-    if(fract(dot(floor(p), vec3(.5))) > .001) col = vec3(.6, .3, 1.);
+    if (fract(dot(floor(p), vec3(.5))) > .001) col = vec3(.6, .3, 1.);
 
     return col;
 
@@ -161,9 +166,9 @@ vec3 getObjectColor(vec3 p){
 // standard stuff.
 vec3 doColor(in vec3 sp, in vec3 rd, in vec3 sn, in vec3 lp, float t){
 
-    vec3 ld = lp-sp; // Light direction vector.
-    float lDist = max(length(ld), .001); // Light to surface distance.
-    ld /= lDist; // Normalizing the light vector.
+    vec3 ld = lp-sp;// Light direction vector.
+    float lDist = max(length(ld), .001);// Light to surface distance.
+    ld /= lDist;// Normalizing the light vector.
 
     // Attenuating the light, based on distance.
     float atten = 1. / (1. + lDist*.2 + lDist*lDist*.1);
@@ -171,7 +176,7 @@ vec3 doColor(in vec3 sp, in vec3 rd, in vec3 sn, in vec3 lp, float t){
     // Standard diffuse term.
     float diff = max(dot(sn, ld), 0.);
     // Standard specualr term.
-    float spec = pow(max( dot( reflect(-ld, sn), -rd ), 0.), 8.);
+    float spec = pow(max(dot(reflect(-ld, sn), -rd), 0.), 8.);
 
     // Coloring the object. You could set it to a single color, to
     // make things simpler, if you wanted.
@@ -198,6 +203,7 @@ vec3 doColor(in vec3 sp, in vec3 rd, in vec3 sn, in vec3 lp, float t){
 void main(){
     // Screen coordinates.
     vec2 uv = (gl_FragCoord.xy - u_screenSize.xy*.5) / u_screenSize.y;
+    //vec2 uv = (gl_FragCoord.xy - vec2(x, y)*.5) / y;
 
     // Unit direction ray.
     vec3 rd = normalize(vec3(uv, 1.));
@@ -220,7 +226,6 @@ void main(){
     // FIRST PASS.
 
     float t = trace(ro, rd);
-
 
 
     // Advancing the ray origin, "ro," to the new hit point.
@@ -282,8 +287,6 @@ void main(){
     // save cycles and skipping it. It's not really noticeable anyway. By the way, ambient
     // occlusion would make it a little nicer, but we're saving cycles and keeping things simple.
     sceneColor *= sh;
-
-
 
 
     // Clamping the scene color, performing some rough gamma correction (the "sqrt" bit), then

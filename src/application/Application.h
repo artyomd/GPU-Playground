@@ -4,23 +4,28 @@
 
 #pragma once
 
-#include <string>
-
 namespace application {
-    class Application {
-    public:
-        virtual void initWindow() = 0;
+class Application {
+ protected:
+  api::Renderer *renderer_ = new api::Renderer();
+ public:
+  Application() = default;
+  virtual void InitWindow() = 0;
 
-        virtual void initContext() = 0;
+  virtual void InitContext() = 0;
 
-        virtual void initImGui() = 0;
+  virtual void InitImGui() = 0;
 
-        virtual void run() = 0;
+  virtual void Run() = 0;
 
-        virtual void destroyImGui() = 0;
+  virtual void DestroyImGui() = 0;
 
-        virtual void destroyContext() = 0;
+  virtual void DestroyContext() = 0;
 
-        virtual void destroyWindow() = 0;
-    };
+  virtual void DestroyWindow() = 0;
+
+  virtual ~Application() {
+    delete renderer_;
+  };
+};
 }

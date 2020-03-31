@@ -4,46 +4,34 @@
 #pragma once
 
 #include <vector>
-#include <GL/glew.h>
-#include <cassert>
+#include <stdexcept>
+#include "DataType.h"
 
-struct VertexBufferElement {
-    unsigned int type;
-    unsigned int count;
-    unsigned char normalized;
-
-    static unsigned int getSizeOfType(unsigned int type) {
-        switch (type) {
-            case GL_FLOAT:
-                return 4;
-            case GL_UNSIGNED_INT:
-                return 4;
-            case GL_UNSIGNED_BYTE:
-                return 1;
-        }
-        assert(false);
-        return 0;
-    }
+namespace api {
+struct VertexAttribute {
+  DataType type_;
+  unsigned int count_;
 };
 
 class VertexBufferLayout {
 
-private:
-    std::vector<VertexBufferElement> elements;
-    unsigned int stride;
-public:
-    VertexBufferLayout() : stride(0) {}
+ private:
+  std::vector<VertexAttribute> elements_;
+  unsigned int stride_;
+ public:
+  VertexBufferLayout() : stride_(0) {}
 
-    template<typename T>
-    void Push(unsigned int count) {
-        assert(false); //Not implemented
-    }
+  template<typename T>
+  inline void Push(unsigned int count) {
+    throw std::runtime_error("not implemented");
+  }
 
-    inline const std::vector<VertexBufferElement> getElements() const {
-        return elements;
-    }
+  [[nodiscard]] inline std::vector<VertexAttribute> GetElements() const {
+    return elements_;
+  }
 
-    inline unsigned int getStride() const {
-        return stride;
-    }
+  [[nodiscard]] inline unsigned int GetStride() const {
+    return stride_;
+  }
 };
+}

@@ -3,23 +3,25 @@
 //
 #pragma once
 
-#include "RenderingContext.hpp"
+#include "Renderer.hpp"
 
 namespace test {
-    class Test {
-    public:
-        Test() = default;
+class Test {
+ protected:
+  api::Renderer *renderer_;
+ public:
+  explicit Test(api::Renderer *renderer) : renderer_(renderer) {};
 
-        virtual ~Test() = default;
+  virtual void OnClear() {}
 
-        virtual void onClear(RenderingContext* context) {}
+  virtual void OnUpdate(float delta_time) {};
 
-        virtual void onUpdate(float deltaTime) {};
+  virtual void OnRender() {};
 
-        virtual void onRender() {};
+  virtual void OnImGuiRender() {};
 
-        virtual void onImGuiRender() {};
+  virtual void OnViewportChange() {};
 
-        virtual void onWindowSizeChanged(int width, int height) {};
-    };
+  virtual ~Test() = default;
+};
 }
