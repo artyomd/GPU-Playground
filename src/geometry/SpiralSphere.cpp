@@ -13,66 +13,59 @@ geometry::SpiralSphere::SpiralSphere(api::RenderingContext *context,
                                      unsigned int segmentsPerLoop)
     : GeometryItem(context) {
 
-  auto *geometry_data = new std::vector<Point>();
-  auto *index_data = new std::vector<unsigned int>();
+  std::vector<Point> geometry_data;
+  std::vector<unsigned short> index_data;
 
-  for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
+  for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
     float theta = 0;
-    auto phi = static_cast<float>(loopSegmentNumber*2*M_PI/segmentsPerLoop);
-    float sinTheta = std::sin(theta);
-    float sinPhi = std::sin(phi);
-    float cosTheta = std::cos(theta);
-    float cosPhi = std::cos(phi);
-    Point point = {radius*cosPhi*sinTheta, radius*sinPhi*sinTheta, radius*cosTheta,
-                   1, 1, 1,1};
-    geometry_data->push_back(point);
+    auto phi = static_cast<float>(loop_segment_number*2*M_PI/segmentsPerLoop);
+    float sin_theta = std::sin(theta);
+    float sin_phi = std::sin(phi);
+    float cos_theta = std::cos(theta);
+    float cos_phi = std::cos(phi);
+    Point point = {radius*cos_phi*sin_theta, radius*sin_phi*sin_theta, radius*cos_theta,
+                   1.0f, 0.0f, 0.0f, 0.0f};
+    geometry_data.push_back(point);
 
   }
-  for (unsigned int loopNumber = 0; loopNumber <= loops; ++loopNumber) {
-    for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-      auto theta = static_cast<float>((loopNumber*M_PI/loops) +
-          ((M_PI*loopSegmentNumber)/(segmentsPerLoop*loops)));
-      if (loopNumber==loops) {
+  for (unsigned int loop_number = 0; loop_number <= loops; ++loop_number) {
+    for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+      auto theta = static_cast<float>((loop_number*M_PI/loops) +
+          ((M_PI*loop_segment_number)/(segmentsPerLoop*loops)));
+      if (loop_number==loops) {
         theta = static_cast<float>(M_PI);
       }
-      auto phi = static_cast<float>(loopSegmentNumber*2*M_PI/segmentsPerLoop);
-      float sinTheta = std::sin(theta);
-      float sinPhi = std::sin(phi);
-      float cosTheta = std::cos(theta);
-      float cosPhi = std::cos(phi);
-      Point point = {radius*cosPhi*sinTheta, radius*sinPhi*sinTheta, radius*cosTheta,
-                     1, 1, 1,1};
-      geometry_data->push_back(point);
+      auto phi = static_cast<float>(loop_segment_number*2*M_PI/segmentsPerLoop);
+      float sin_theta = std::sin(theta);
+      float sin_phi = std::sin(phi);
+      float cos_theta = std::cos(theta);
+      float cos_phi = std::cos(phi);
+      Point point = {radius*cos_phi*sin_theta, radius*sin_phi*sin_theta, radius*cos_theta,
+                     1.0f, 1.0f, 1.0f, 1.0f};
+      geometry_data.push_back(point);
 
     }
   }
-  for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-    index_data->push_back(static_cast<unsigned short &&>(loopSegmentNumber));
-    index_data->push_back(static_cast<unsigned short &&>(segmentsPerLoop + loopSegmentNumber));
+  for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+    index_data.push_back(static_cast<unsigned short &&>(loop_segment_number));
+    index_data.push_back(static_cast<unsigned short &&>(segmentsPerLoop + loop_segment_number));
   }
-  for (unsigned int loopNumber = 0; loopNumber < loops; ++loopNumber) {
-    for (unsigned int loopSegmentNumber = 0; loopSegmentNumber < segmentsPerLoop; ++loopSegmentNumber) {
-      index_data->push_back(
-          static_cast<unsigned short &&>(((loopNumber + 1)*segmentsPerLoop) + loopSegmentNumber));
-      index_data->push_back(
-          static_cast<unsigned short &&>(((loopNumber + 2)*segmentsPerLoop) + loopSegmentNumber));
+  for (unsigned int loop_number = 0; loop_number < loops; ++loop_number) {
+    for (unsigned int loop_segment_number = 0; loop_segment_number < segmentsPerLoop; ++loop_segment_number) {
+      index_data.push_back(
+          static_cast<unsigned short &&>(((loop_number + 1)*segmentsPerLoop) + loop_segment_number));
+      index_data.push_back(
+          static_cast<unsigned short &&>(((loop_number + 2)*segmentsPerLoop) + loop_segment_number));
     }
   }
 
-  vertex_buffer_ =
-      context->CreateVertexBuffer(geometry_data->data(),
-                                  static_cast<unsigned int>(7*geometry_data->size()*sizeof(float)));
+  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 7*geometry_data.size()*sizeof(float));
   layout_ = new api::VertexBufferLayout();
   layout_->Push<float>(3);
   layout_->Push<float>(4);
 
   vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(index_data->data(),
-                                             static_cast<unsigned int>(index_data->size()),
-                                             api::DATA_TYPE_UINT_32);
-  delete index_data;
-  delete geometry_data;
-
+  index_buffer_ = context->CreateIndexBuffer(index_data.data(), index_data.size(), api::DATA_TYPE_UINT_16);
 }
 geometry::SpiralSphere::~SpiralSphere() {
   context_->FreeIndexBuffer(index_buffer_);

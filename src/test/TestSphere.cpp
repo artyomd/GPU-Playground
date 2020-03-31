@@ -16,7 +16,7 @@ test::TestSphere::TestSphere(api::Renderer *renderer) : TestModel(renderer) {
   uniforms.push_back(uniform_buffer_);
   pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
-  sphere_ = new geometry::StackedSphere(context, 4.0f);
+  sphere_ = new geometry::StackedSphere(context, 1.0f);
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
                                          "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
