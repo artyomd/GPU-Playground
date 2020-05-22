@@ -81,12 +81,12 @@ test::TestObj::TestObj(api::Renderer *renderer) : TestModel(renderer) {
   uniforms.push_back(obj_texture_);
   pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
-  vertex_shader_ = context->CreateShader("../res/shader/compiled/obj_vertex.spv",
-                                         "../res/shader/obj_vertex.glsl",
+  vertex_shader_ = context->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
+                                         "../res/shader/texture2d_vertex.glsl",
                                          "main",
                                          api::SHADER_TYPE_VERTEX);
-  fragment_shader_ = context->CreateShader("../res/shader/compiled/obj_fragment.spv",
-                                           "../res/shader/obj_fragment.glsl",
+  fragment_shader_ = context->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
+                                           "../res/shader/texture2d_fragment.glsl",
                                            "main",
                                            api::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(vertex_binding_, index_buffer_,

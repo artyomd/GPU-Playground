@@ -7,6 +7,7 @@
 #include <test/TestSphere.h>
 #include <test/TestTexture2D.h>
 #include <test/TestObj.h>
+#include <test/TestCube.h>
 #include "application/OpenGlApplication.h"
 #include "application/VulkanApplication.h"
 #include "test/TestTriangle.h"
@@ -26,6 +27,7 @@ int main() {
     test_application.RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
     test_application.RegisterTest<test::TestColorShader>("Shader Colors");
     test_application.RegisterTest<test::TestSquaresShader>("Shader Squares");
+    test_application.RegisterTest<test::TestCube>("Cube");
     test_application.RegisterTest<test::TestTexture2D>("Texture2D");
     test_application.RegisterTest<test::TestObj>("Obj");
     test_application.RegisterTest<test::TestSphere>("Sphere");
