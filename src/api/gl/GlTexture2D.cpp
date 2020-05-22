@@ -10,7 +10,7 @@
 api::GlTexture2D::GlTexture2D(const std::string &image_path, int binding_point, api::ShaderType shader_stage)
     : Texture2D(image_path, binding_point, shader_stage) {
 
-  stbi_set_flip_vertically_on_load(1);
+  //stbi_set_flip_vertically_on_load(1);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load(image_path_.c_str(), &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
   if (!pixels) {

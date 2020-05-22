@@ -8,10 +8,10 @@ namespace test {
 TestTexture2D::TestTexture2D(api::Renderer *renderer) : TestModel(renderer) {
 
   float positions[] = {
-      -0.5f, -0.5f, 0.0f, 0.0f,
-      0.5f, -0.5f, 1.0f, 0.0f,
-      -0.5f, 0.5f, 0.0f, 1.0f,
-      0.5f, 0.5f, 1.0f, 1.0f
+      -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f, -0.5f, 1.0f, 1.0f,
+      -0.5f, 0.5f, 0.0f, 0.0f,
+      0.5f, 0.5f, 1.0f, 0.0f
   };
 
   unsigned short indices[] = {

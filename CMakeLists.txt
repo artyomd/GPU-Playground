@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.2)
+cmake_minimum_required(VERSION 3.16.5)
 
 project(playground)
 
@@ -46,14 +46,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #        FORCE)
 #
 # UndefinedBehaviour
-set(CMAKE_C_FLAGS
-        "-fsanitize=undefined"
-        CACHE STRING "Flags used by the C compiler during UndefinedBehaviourSanitizer builds."
-        FORCE)
-set(CMAKE_CXX_FLAGS
-        "-fsanitize=undefined"
-        CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
-        FORCE)
+#set(CMAKE_C_FLAGS
+#        "-fsanitize=undefined"
+#        CACHE STRING "Flags used by the C compiler during UndefinedBehaviourSanitizer builds."
+#        FORCE)
+#set(CMAKE_CXX_FLAGS
+#        "-fsanitize=undefined"
+#        CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
+#        FORCE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
@@ -112,7 +112,7 @@ ELSE (USE_D2D_WSI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_XCB_KHR")
 ENDIF (USE_D2D_WSI)
 
-file(GLOB_RECURSE SOURCE_FILES_C src/*.cpp src/*.hpp src/*.h)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.hpp src/*.h)
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/api")
@@ -121,5 +121,5 @@ include_directories("${PROJECT_SOURCE_DIR}/src/geometry")
 include_directories("${PROJECT_SOURCE_DIR}/src/vendor")
 include_directories("${PROJECT_SOURCE_DIR}/src/test")
 
-add_executable(playground ${SOURCE_FILES_C})
+add_executable(playground ${SOURCE_FILES})
 target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} ${XCB_LIBRARIES} ${WAYLAND_CLIENT_LIBRARIES})

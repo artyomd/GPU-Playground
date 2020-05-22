@@ -29,7 +29,8 @@ class GlRenderingContext : public RenderingContext {
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
                                             const Shader *fragment_shader,
-                                            const RenderingPipelineLayout *rendering_pipeline_layout) override;
+                                            const RenderingPipelineLayout *rendering_pipeline_layout,
+                                            const RenderingPipelineLayoutConfig &config = {}) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 

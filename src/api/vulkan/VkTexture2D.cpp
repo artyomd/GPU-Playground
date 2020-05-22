@@ -14,7 +14,6 @@ api::VkTexture2D::VkTexture2D(VkRenderingContext *context,
     : Texture2D(std::move(image_path), binding_point, shader_stage),
       context_(context), device_(context_->GetDevice()) {
 
-  stbi_set_flip_vertically_on_load(1);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load(image_path_.c_str(), &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
   if (!pixels) {
@@ -37,14 +36,15 @@ api::VkTexture2D::VkTexture2D(VkRenderingContext *context,
 
   stbi_image_free(pixels);
 
-  CreateImage(tex_width,
-              tex_height,
-              VK_FORMAT_R8G8B8A8_SRGB,
-              VK_IMAGE_TILING_OPTIMAL,
-              VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-              image_,
-              image_memory_);
+  context_->CreateImage(tex_width,
+                        tex_height,
+                        VK_SAMPLE_COUNT_1_BIT,
+                        VK_FORMAT_R8G8B8A8_SRGB,
+                        VK_IMAGE_TILING_OPTIMAL,
+                        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        image_,
+                        image_memory_);
 
   context_->TransitionImageLayout(image_,
                                   VK_IMAGE_LAYOUT_UNDEFINED,
@@ -60,7 +60,7 @@ api::VkTexture2D::VkTexture2D(VkRenderingContext *context,
   vkDestroyBuffer(*device_, staging_buffer, nullptr);
   vkFreeMemory(*device_, staging_buffer_memory, nullptr);
 
-  image_view_ = context_->CreateImageView(image_, VK_FORMAT_R8G8B8A8_SRGB);
+  image_view_ = context_->CreateImageView(image_, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
   CreateTextureSampler();
   image_info_.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
   image_info_.imageView = image_view_;
@@ -87,48 +87,6 @@ void api::VkTexture2D::CreateTextureSampler() {
   if (vkCreateSampler(*device_, &sampler_info, nullptr, &sampler_)!=VK_SUCCESS) {
     throw std::runtime_error("failed to create texture sampler!");
   }
-}
-
-void api::VkTexture2D::CreateImage(uint32_t width,
-                                   uint32_t height,
-                                   VkFormat format,
-                                   VkImageTiling tiling,
-                                   VkImageUsageFlags usage,
-                                   VkMemoryPropertyFlags properties,
-                                   VkImage &image,
-                                   VkDeviceMemory &image_memory) {
-  VkImageCreateInfo image_info = {};
-  image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  image_info.imageType = VK_IMAGE_TYPE_2D;
-  image_info.extent.width = width;
-  image_info.extent.height = height;
-  image_info.extent.depth = 1;
-  image_info.mipLevels = 1;
-  image_info.arrayLayers = 1;
-  image_info.format = format;
-  image_info.tiling = tiling;
-  image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  image_info.usage = usage;
-  image_info.samples = VK_SAMPLE_COUNT_1_BIT;
-  image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-  if (vkCreateImage(*device_, &image_info, nullptr, &image)!=VK_SUCCESS) {
-    throw std::runtime_error("failed to create image!");
-  }
-
-  VkMemoryRequirements mem_requirements;
-  vkGetImageMemoryRequirements(*device_, image, &mem_requirements);
-
-  VkMemoryAllocateInfo alloc_info = {};
-  alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  alloc_info.allocationSize = mem_requirements.size;
-  alloc_info.memoryTypeIndex = context_->FindMemoryType(mem_requirements.memoryTypeBits, properties);
-
-  if (vkAllocateMemory((*device_), &alloc_info, nullptr, &image_memory)!=VK_SUCCESS) {
-    throw std::runtime_error("failed to allocate image memory!");
-  }
-
-  vkBindImageMemory(*device_, image, image_memory, 0);
 }
 
 VkDescriptorSetLayoutBinding api::VkTexture2D::GetLayoutBinding() const {

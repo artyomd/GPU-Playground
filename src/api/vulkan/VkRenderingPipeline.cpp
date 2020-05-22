@@ -5,19 +5,20 @@
 #include "VkRenderingPipeline.h"
 #include "VkShader.h"
 #include "VkVertexBinding.h"
-#include <array>
 
 api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
                                               const api::VertexBinding *vertex_binding,
                                               const api::IndexBuffer *index_buffer,
                                               const api::Shader *vertex_shader,
                                               const api::Shader *fragment_shader,
-                                              const RenderingPipelineLayout *pipeline_layout) :
+                                              const RenderingPipelineLayout *pipeline_layout,
+                                              const RenderingPipelineLayoutConfig &config) :
     RenderingPipeline(vertex_binding,
                       index_buffer,
                       vertex_shader,
                       fragment_shader,
-                      pipeline_layout), device_(context->GetDevice()), context_(context) {
+                      pipeline_layout,
+                      config), device_(context->GetDevice()), context_(context) {
   CreatePipeline();
 }
 
@@ -77,20 +78,41 @@ void api::VkRenderingPipeline::CreatePipeline() {
   viewport_state.scissorCount = 1;
   viewport_state.pScissors = &scissor;
 
+  VkCullModeFlags cull_mode;
+  VkFrontFace front_face;
+  switch (config_.cull_mode_) {
+    case CullMode::BACK: cull_mode = VK_CULL_MODE_BACK_BIT;
+      break;
+    case CullMode::FRONT: cull_mode = VK_CULL_MODE_FRONT_BIT;
+      break;
+    case CullMode::FRONT_AND_BACK: cull_mode = VK_CULL_MODE_FRONT_AND_BACK;
+      break;
+    case CullMode::NONE: cull_mode = VK_CULL_MODE_NONE;
+      break;
+    default: throw std::runtime_error("not implemented");
+  }
+  switch (config_.front_face_) {
+    case FrontFace::CW: front_face = VK_FRONT_FACE_CLOCKWISE;
+      break;
+    case FrontFace::CCW: front_face = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+      break;
+    default: throw std::runtime_error("not implemented");
+  }
+
   VkPipelineRasterizationStateCreateInfo rasterizer = {};
   rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   rasterizer.depthClampEnable = VK_FALSE;
   rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
   rasterizer.lineWidth = 1.0f;
-  rasterizer.cullMode = VK_CULL_MODE_NONE;
-  rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  rasterizer.cullMode = cull_mode;
+  rasterizer.frontFace = front_face;
   rasterizer.depthBiasEnable = VK_FALSE;
 
   VkPipelineMultisampleStateCreateInfo multisampling = {};
   multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
-  multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+  multisampling.rasterizationSamples = context_->GetMsaaSamples();
 
   VkPipelineColorBlendAttachmentState color_blend_attachment = {};
   color_blend_attachment.colorWriteMask =
@@ -108,9 +130,25 @@ void api::VkRenderingPipeline::CreatePipeline() {
   color_blending.blendConstants[2] = 0.0f;
   color_blending.blendConstants[3] = 0.0f;
 
+  VkCompareOp compare_op;
+  switch (config_.depth_function_) {
+    case DepthFunction::LESS: compare_op = VK_COMPARE_OP_LESS;
+      break;
+    default: throw std::runtime_error("not implemented");
+  }
+  VkPipelineDepthStencilStateCreateInfo depth_stencil = {};
+  depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  depth_stencil.depthTestEnable = config_.enable_depth_test_;
+  depth_stencil.depthWriteEnable = VK_TRUE;
+  depth_stencil.depthCompareOp = compare_op;
+  depth_stencil.depthBoundsTestEnable = VK_FALSE;
+  depth_stencil.minDepthBounds = 0.0f;
+  depth_stencil.maxDepthBounds = 1.0f;
+
   VkGraphicsPipelineCreateInfo pipeline_info = {};
   pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipeline_info.stageCount = 2;
+  pipeline_info.pDepthStencilState = &depth_stencil;
   pipeline_info.pStages = shader_stages;
   pipeline_info.pVertexInputState = &vertex_input_info;
   pipeline_info.pInputAssemblyState = &input_assembly;
