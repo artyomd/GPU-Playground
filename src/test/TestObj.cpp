@@ -73,7 +73,7 @@ test::TestObj::TestObj(api::Renderer *renderer) : TestModel(renderer) {
   uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
                                                  0,
                                                  api::ShaderType::SHADER_TYPE_VERTEX);
-  obj_texture_ = context->CreateTexture2D("../res/models/chalet.jpg",
+  obj_texture_ = context->CreateTexture2D("../res/textures/chalet.jpg",
                                           1,
                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
   std::vector<api::Uniform *> uniforms;
