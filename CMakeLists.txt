@@ -57,21 +57,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" OFF)
-OPTION(USE_WAYLAND_WSI "Build the project using Wayland swapchain" ON)
-
 find_package(glfw3 REQUIRED)
 
-find_package(GLEW REQUIRED)
-add_definitions(${GLEW_DEFINITIONS})
-add_compile_definitions(GLEW_STATIC)
+
 IF (APPLE)
-    FIND_LIBRARY(OpenGL_LIBRARY OpenGL)
-    SET(OPEN_GL ${OpenGL_LIBRARY})
     OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" ON)
     OPTION(USE_WAYLAND_WSI "Build the project using Wayland swapchain" OFF)
+    OPTION(ENABLE_OPENGL OFF)
 ELSE ()
-    SET(OPEN_GL GL)
+    OPTION(USE_D2D_WSI "Build the project using Direct to Display swapchain" OFF)
+    OPTION(USE_WAYLAND_WSI "Build the project using Wayland swapchain" ON)
+    OPTION(ENABLE_OPENGL ON)
 ENDIF (APPLE)
 
 find_package(Vulkan)
@@ -114,6 +110,17 @@ ENDIF (USE_D2D_WSI)
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.hpp src/*.h)
 
+IF (ENABLE_OPENGL)
+    SET(OPEN_GL GL)
+
+    find_package(GLEW REQUIRED)
+    add_definitions(${GLEW_DEFINITIONS})
+    add_compile_definitions(GLEW_STATIC)
+ELSE()
+    list(FILTER SOURCE_FILES EXCLUDE REGEX "(/gl)|opengl|OpenGL|OpenGl")
+ENDIF (ENABLE_OPENGL)
+
+include_directories(${GLEW_INCLUDE_DIRS})
 include_directories("${PROJECT_SOURCE_DIR}/src")
 include_directories("${PROJECT_SOURCE_DIR}/src/api")
 include_directories("${PROJECT_SOURCE_DIR}/src/application")

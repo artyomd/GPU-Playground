@@ -5,7 +5,7 @@
 #pragma once
 
 #include <api/Uniform.h>
-#include <GL/gl.h>
+#include "GlUtils.h"
 
 namespace api {
 class GlUniform {

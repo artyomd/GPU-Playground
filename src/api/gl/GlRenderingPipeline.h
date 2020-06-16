@@ -7,7 +7,6 @@
 #include "RenderingPipeline.h"
 #include "GlRenderingContext.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 #include <api/RenderingContext.h>
 
 namespace api {

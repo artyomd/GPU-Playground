@@ -7,7 +7,7 @@
 #include "VertexBinding.h"
 #include "VertexBufferLayout.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
+#include "GlUtils.h"
 
 namespace api {
 class GlVertexBinding : public VertexBinding {

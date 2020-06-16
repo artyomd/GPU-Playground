@@ -9,6 +9,7 @@
 #include "GlfwApplication.h"
 #include "api/vulkan/VkRenderingContext.h"
 #include <vulkan/vulkan.h>
+#include <optional>
 
 namespace application {
 class VulkanApplication : public GlfwApplication {

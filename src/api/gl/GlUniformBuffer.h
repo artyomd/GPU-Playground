@@ -4,7 +4,6 @@
 #pragma once
 
 #include <api/Shader.h>
-#include <GL/gl.h>
 #include <api/UniformBuffer.h>
 #include "GlUniform.h"
 namespace api {

@@ -8,6 +8,7 @@
 #include "VulkanApplication.h"
 #include "api/vulkan/VkRenderingContext.h"
 #include <set>
+#include <array>
 
 namespace application {
 
