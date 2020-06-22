@@ -20,14 +20,7 @@ class VkTexture2D : public Texture2D, public VkUniform {
   VkDeviceMemory image_memory_{};
 
   void CreateTextureSampler();
-  void CreateImage(uint32_t width,
-                   uint32_t height,
-                   VkFormat format,
-                   VkImageTiling tiling,
-                   VkImageUsageFlags usage,
-                   VkMemoryPropertyFlags properties,
-                   VkImage &image,
-                   VkDeviceMemory &image_memory);
+
  public:
   VkTexture2D(VkRenderingContext *context, std::string image_path, int binding_point, ShaderType shader_stage);
   ~VkTexture2D() override;

@@ -7,7 +7,6 @@
 #include "RenderingPipeline.h"
 #include "GlRenderingContext.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 #include <api/RenderingContext.h>
 
 namespace api {
@@ -21,7 +20,8 @@ class GlRenderingPipeline : public RenderingPipeline {
                       const IndexBuffer *index_buffer,
                       const Shader *vertex_shader,
                       const Shader *fragment_shader,
-                      const RenderingPipelineLayout *pipeline_layout);
+                      const RenderingPipelineLayout *pipeline_layout,
+                      const RenderingPipelineLayoutConfig &config = {});
 
   void Render() override;
   void ViewportChanged() override;

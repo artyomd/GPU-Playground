@@ -5,7 +5,6 @@
 
 #include "Shader.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 
 namespace api {
 class GlShader : public Shader {

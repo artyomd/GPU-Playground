@@ -19,7 +19,9 @@ class VkRenderingContext : public RenderingContext {
   VkRenderPass *vk_render_pass_ = nullptr;
   VkExtent2D swap_chain_extent_{};
   VkCommandBuffer *current_command_buffer_ = nullptr;
+  VkSampleCountFlagBits msaa_samples_;
 
+  VkSampleCountFlagBits GetMaxUsableSampleCount();
  public:
   VkRenderingContext(VkPhysicalDevice *physical_device,
                      VkDevice *device,
@@ -47,7 +49,8 @@ class VkRenderingContext : public RenderingContext {
                                             const IndexBuffer *index_buffer,
                                             const Shader *vertex_shader,
                                             const Shader *fragment_shader,
-                                            const RenderingPipelineLayout *pipeline_layout) override;
+                                            const RenderingPipelineLayout *pipeline_layout,
+                                            const RenderingPipelineLayoutConfig &config = {}) override;
 
   void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
 
@@ -62,8 +65,8 @@ class VkRenderingContext : public RenderingContext {
   void DeleteShader(Shader *vertex_binding) override;
 
   UniformBuffer *CreateUniformBuffer(int length,
-                               int binding_point,
-                               ShaderType shader_stage) override;
+                                     int binding_point,
+                                     ShaderType shader_stage) override;
 
   void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
 
@@ -81,12 +84,12 @@ class VkRenderingContext : public RenderingContext {
 
   void CopyBuffer(VkBuffer &src_buffer, VkBuffer &dst_buffer, VkDeviceSize size);
 
-  VkImageView CreateImageView(VkImage &image, VkFormat format);
+  VkImageView CreateImageView(VkImage &image, VkFormat format, VkImageAspectFlagBits aspect_mask);
 
   VkCommandBuffer BeginSingleTimeCommands(VkCommandPool &command_pool);
 
   void EndSingleTimeCommands(VkQueue &queue, VkCommandPool &pool, VkCommandBuffer &command_buffer);
-  uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
+  uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
   [[nodiscard]] VkRenderPass *GetVkRenderPass() const;
   [[nodiscard]] VkExtent2D GetSwapChainExtent() const;
   [[nodiscard]] VkCommandBuffer *GetCurrentCommandBuffer() const;
@@ -101,5 +104,20 @@ class VkRenderingContext : public RenderingContext {
   ~VkRenderingContext() override = default;
   Texture2D *CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) override;
   void DeleteTexture2D(Texture2D *texture_2_d) override;
+  [[nodiscard]] VkFormat FindDepthFormat() const;
+  [[nodiscard]] VkFormat FindSupportedFormat(const std::vector<VkFormat> &candidates,
+                                             VkImageTiling tiling,
+                                             VkFormatFeatureFlags features) const;
+  void CreateImage(uint32_t width,
+                   uint32_t height,
+                   VkSampleCountFlagBits num_samples,
+                   VkFormat format,
+                   VkImageTiling tiling,
+                   VkImageUsageFlags usage,
+                   VkMemoryPropertyFlags properties,
+                   VkImage &image,
+                   VkDeviceMemory &image_memory) const;
+
+  [[nodiscard]] VkSampleCountFlagBits GetMsaaSamples() const;
 };
 }

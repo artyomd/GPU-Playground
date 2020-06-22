@@ -28,7 +28,35 @@ VkRenderingContext::VkRenderingContext(
     graphics_pool_(graphics_pool),
     graphics_queue_(graphics_queue),
     descriptor_pool_(descriptor_pool),
-    image_count_(image_count) {
+    image_count_(image_count),
+    msaa_samples_(GetMaxUsableSampleCount()) {
+}
+
+VkSampleCountFlagBits VkRenderingContext::GetMaxUsableSampleCount() {
+  VkPhysicalDeviceProperties physical_device_properties;
+  vkGetPhysicalDeviceProperties(*physical_device_,
+                                &physical_device_properties);
+  VkSampleCountFlags counts = std::min(physical_device_properties.limits.framebufferColorSampleCounts,
+                                       physical_device_properties.limits.framebufferDepthSampleCounts);
+  if (counts & VK_SAMPLE_COUNT_64_BIT) {
+    return VK_SAMPLE_COUNT_64_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_32_BIT) {
+    return VK_SAMPLE_COUNT_32_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_16_BIT) {
+    return VK_SAMPLE_COUNT_16_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_8_BIT) {
+    return VK_SAMPLE_COUNT_8_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_4_BIT) {
+    return VK_SAMPLE_COUNT_4_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_2_BIT) {
+    return VK_SAMPLE_COUNT_2_BIT;
+  }
+  return VK_SAMPLE_COUNT_1_BIT;
 }
 
 IndexBuffer *VkRenderingContext::CreateIndexBuffer(const void *data, unsigned int size, DataType type) {
@@ -173,7 +201,7 @@ void VkRenderingContext::CopyBuffer(VkBuffer &src_buffer, VkBuffer &dst_buffer, 
   EndSingleTimeCommands(*graphics_queue_, *graphics_pool_, command_buffer);
 }
 
-uint32_t VkRenderingContext::FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) {
+uint32_t VkRenderingContext::FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const {
   VkPhysicalDeviceMemoryProperties mem_properties;
   vkGetPhysicalDeviceMemoryProperties(*physical_device_, &mem_properties);
 
@@ -186,13 +214,13 @@ uint32_t VkRenderingContext::FindMemoryType(uint32_t type_filter, VkMemoryProper
   throw std::runtime_error("failed to find suitable memory type!");
 }
 
-VkImageView VkRenderingContext::CreateImageView(VkImage &image, VkFormat format) {
+VkImageView VkRenderingContext::CreateImageView(VkImage &image, VkFormat format, VkImageAspectFlagBits aspect_mask) {
   VkImageViewCreateInfo view_info = {};
   view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   view_info.image = image;
   view_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
   view_info.format = format;
-  view_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  view_info.subresourceRange.aspectMask = aspect_mask;
   view_info.subresourceRange.baseMipLevel = 0;
   view_info.subresourceRange.levelCount = 1;
   view_info.subresourceRange.baseArrayLayer = 0;
@@ -242,8 +270,15 @@ RenderingPipeline *VkRenderingContext::CreateGraphicsPipeline(const VertexBindin
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
                                                               const Shader *fragment_shader,
-                                                              const RenderingPipelineLayout *pipeline_layout) {
-  return new VkRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout);
+                                                              const RenderingPipelineLayout *pipeline_layout,
+                                                              const RenderingPipelineLayoutConfig &config) {
+  return new VkRenderingPipeline(this,
+                                 vertex_binding,
+                                 index_buffer,
+                                 vertex_shader,
+                                 fragment_shader,
+                                 pipeline_layout,
+                                 config);
 }
 void VkRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
   delete pipeline;
@@ -294,6 +329,8 @@ void VkRenderingContext::SetViewportSize(int width, int height) {
   float new_width = 4.0f;
   float new_height = ((float) width*new_width)/(float) height;
   ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
+  prespective_projection_ = glm::perspective(glm::radians(45.0f), (float) width/(float) height, 0.1f, 10.0f);
+  prespective_projection_[1][1] *= -1;
 }
 void VkRenderingContext::WaitForGpuIdle() const {
   vkDeviceWaitIdle(*device_);
@@ -303,5 +340,73 @@ RenderingPipelineLayout *VkRenderingContext::CreateRenderingPipelineLayout(const
 }
 void VkRenderingContext::FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) {
   delete pipeline_layout;
+}
+
+VkFormat VkRenderingContext::FindDepthFormat() const {
+  return FindSupportedFormat(
+      {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+      VK_IMAGE_TILING_OPTIMAL,
+      VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+  );
+}
+VkFormat VkRenderingContext::FindSupportedFormat(const std::vector<VkFormat> &candidates,
+                                                 VkImageTiling tiling,
+                                                 VkFormatFeatureFlags features) const {
+  for (VkFormat format : candidates) {
+    VkFormatProperties props;
+    vkGetPhysicalDeviceFormatProperties(*physical_device_, format, &props);
+    if (tiling==VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features)==features) {
+      return format;
+    } else if (tiling==VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features)==features) {
+      return format;
+    }
+  }
+  throw std::runtime_error("failed to find supported format!");
+}
+void VkRenderingContext::CreateImage(uint32_t width,
+                                     uint32_t height,
+                                     VkSampleCountFlagBits num_samples,
+                                     VkFormat format,
+                                     VkImageTiling tiling,
+                                     VkImageUsageFlags usage,
+                                     VkMemoryPropertyFlags properties,
+                                     VkImage &image,
+                                     VkDeviceMemory &image_memory) const {
+  VkImageCreateInfo image_info = {};
+  image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+  image_info.imageType = VK_IMAGE_TYPE_2D;
+  image_info.extent.width = width;
+  image_info.extent.height = height;
+  image_info.extent.depth = 1;
+  image_info.mipLevels = 1;
+  image_info.arrayLayers = 1;
+  image_info.format = format;
+  image_info.tiling = tiling;
+  image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  image_info.usage = usage;
+  image_info.samples = num_samples;
+  image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+  if (vkCreateImage(*device_, &image_info, nullptr, &image)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to create image!");
+  }
+
+  VkMemoryRequirements mem_requirements;
+  vkGetImageMemoryRequirements(*device_, image, &mem_requirements);
+
+  VkMemoryAllocateInfo alloc_info = {};
+  alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  alloc_info.allocationSize = mem_requirements.size;
+  alloc_info.memoryTypeIndex = FindMemoryType(mem_requirements.memoryTypeBits, properties);
+
+  if (vkAllocateMemory((*device_), &alloc_info, nullptr, &image_memory)!=VK_SUCCESS) {
+    throw std::runtime_error("failed to allocate image memory!");
+  }
+
+  vkBindImageMemory(*device_, image, image_memory, 0);
+
+}
+VkSampleCountFlagBits VkRenderingContext::GetMsaaSamples() const {
+  return msaa_samples_;
 }
 }

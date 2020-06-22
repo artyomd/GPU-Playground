@@ -9,9 +9,9 @@
 
 namespace test {
 struct UniformBufferObjectMvp {
-  alignas(16) glm::mat4 model_;
-  alignas(16) glm::mat4 view_;
-  alignas(16) glm::mat4 proj_;
+  alignas(16) glm::mat4 model_ = glm::mat4(1.0f);
+  alignas(16) glm::mat4 view_ = glm::mat4(1.0f);
+  alignas(16) glm::mat4 proj_ = glm::mat4(1.0f);
 };
 
 class TestModel : public Test {

@@ -10,7 +10,6 @@
 api::GlTexture2D::GlTexture2D(const std::string &image_path, int binding_point, api::ShaderType shader_stage)
     : Texture2D(image_path, binding_point, shader_stage) {
 
-  stbi_set_flip_vertically_on_load(1);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load(image_path_.c_str(), &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
   if (!pixels) {
@@ -24,7 +23,7 @@ api::GlTexture2D::GlTexture2D(const std::string &image_path, int binding_point, 
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
+  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
   GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
   stbi_image_free(pixels);

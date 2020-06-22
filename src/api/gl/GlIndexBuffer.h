@@ -6,7 +6,6 @@
 
 #include "IndexBuffer.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 
 namespace api {
 class GlIndexBuffer : public IndexBuffer {

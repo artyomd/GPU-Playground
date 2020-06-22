@@ -9,6 +9,7 @@
 #include "GlfwApplication.h"
 #include "api/vulkan/VkRenderingContext.h"
 #include <vulkan/vulkan.h>
+#include <optional>
 
 namespace application {
 class VulkanApplication : public GlfwApplication {
@@ -50,6 +51,14 @@ class VulkanApplication : public GlfwApplication {
   std::vector<VkImage> swap_chain_images_;
   std::vector<VkImageView> swap_chain_image_views_;
   std::vector<VkFramebuffer> swap_chain_frame_buffers_;
+
+  VkImage color_image_;
+  VkDeviceMemory color_image_memory_;
+  VkImageView color_image_view_;
+
+  VkImage depth_image_;
+  VkDeviceMemory depth_image_memory_;
+  VkImageView depth_image_view_;
 
   VkDescriptorPool descriptor_pool_;
 
@@ -115,6 +124,10 @@ class VulkanApplication : public GlfwApplication {
   VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
   void CreateImageViews();
+
+  void CreateColorResources();
+
+  void CreateDepthResources();
 
   void CreateRenderPass();
 

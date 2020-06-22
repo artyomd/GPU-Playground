@@ -47,8 +47,15 @@ RenderingPipeline *GlRenderingContext::CreateGraphicsPipeline(const VertexBindin
                                                               const IndexBuffer *index_buffer,
                                                               const Shader *vertex_shader,
                                                               const Shader *fragment_shader,
-                                                              const RenderingPipelineLayout *pipeline_layout) {
-  return new GlRenderingPipeline(this, vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout);
+                                                              const RenderingPipelineLayout *pipeline_layout,
+                                                              const RenderingPipelineLayoutConfig &config) {
+  return new GlRenderingPipeline(this,
+                                 vertex_binding,
+                                 index_buffer,
+                                 vertex_shader,
+                                 fragment_shader,
+                                 pipeline_layout,
+                                 config);
 }
 
 void GlRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
@@ -86,6 +93,8 @@ void GlRenderingContext::SetViewportSize(int width, int height) {
   float new_width = 4.0f;
   float new_height = ((float) width*new_width)/(float) height;
   ortho_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
+  prespective_projection_ =
+      glm::perspective(glm::radians(45.0f), (float) viewport_width_/(float) viewport_height_, 0.1f, 10.0f);
 }
 int GlRenderingContext::GetViewportWidth() const {
   return viewport_width_;
