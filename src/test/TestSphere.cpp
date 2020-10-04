@@ -4,6 +4,7 @@
 
 #include <geometry/StackedSphere.h>
 #include <geometry/SpiralSphere.h>
+#include <vendor/glm/ext/matrix_transform.hpp>
 #include "TestSphere.h"
 
 test::TestSphere::TestSphere(api::Renderer *renderer) : TestModel(renderer) {
@@ -16,7 +17,7 @@ test::TestSphere::TestSphere(api::Renderer *renderer) : TestModel(renderer) {
   uniforms.push_back(uniform_buffer_);
   pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
-  sphere_ = new geometry::StackedSphere(context, 1.0f);
+  sphere_ = new geometry::SpiralSphere(context, 1.0f);
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
                                          "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
@@ -26,7 +27,11 @@ test::TestSphere::TestSphere(api::Renderer *renderer) : TestModel(renderer) {
                                            "main",
                                            api::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(sphere_->GetVertexBinding(), sphere_->GetIndexBuffer(),
-                                              vertex_shader_, fragment_shader_, pipeline_layout_);
+                                              vertex_shader_, fragment_shader_, pipeline_layout_,
+                                              {api::CullMode::NONE,
+                                               api::FrontFace::CCW,
+                                               true,
+                                               api::DepthFunction::LESS});
 }
 void test::TestSphere::OnClear() {
   renderer_->SetClearColor(0.0f, 0.0f, 0.0f, 1.0f);

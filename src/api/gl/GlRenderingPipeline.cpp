@@ -25,8 +25,9 @@ static inline void GetProgramInfoLog(int id) {
 GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
                                          const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
                                          const Shader *vertex_shader, const Shader *fragment_shader,
-                                         const RenderingPipelineLayout *pipeline_layout)
-    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout),
+                                         const RenderingPipelineLayout *pipeline_layout,
+                                         const RenderingPipelineLayoutConfig &config)
+    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout, config),
       context_(context) {
   DataType type = index_buffer->GetType();
   if (type!=DATA_TYPE_BYTE &&
@@ -52,10 +53,42 @@ GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
   GetProgramInfoLog(program_id_);
   dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
   dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);
+
+  if (config.enable_depth_test_) {
+    GL_CALL(glEnable(GL_DEPTH_TEST));
+    switch (config.depth_function_) {
+      case DepthFunction::LESS:GL_CALL(glDepthFunc(GL_LESS));
+        break;
+      default: throw std::runtime_error("not implemented");
+    }
+  } else {
+    glDisable(GL_DEPTH_TEST);
+  }
+  GL_CALL(glEnable(GL_CULL_FACE));
+  switch (config.cull_mode_) {
+    case CullMode::BACK: GL_CALL(glCullFace(GL_BACK));
+      break;
+    case CullMode::FRONT: GL_CALL(glCullFace(GL_FRONT));
+      break;
+    case CullMode::FRONT_AND_BACK: GL_CALL(glCullFace(GL_FRONT_AND_BACK));
+      break;
+    case CullMode::NONE: GL_CALL(glDisable(GL_CULL_FACE));
+      break;
+    default: throw std::runtime_error("not implemented");
+  }
+  switch (config.front_face_) {
+    case FrontFace::CW:GL_CALL(glFrontFace(GL_CW));
+      break;
+    case FrontFace::CCW:GL_CALL(glFrontFace(GL_CCW));
+      break;
+    default: throw std::runtime_error("not implemented");
+  }
 }
 
 GlRenderingPipeline::~GlRenderingPipeline() {
   GL_CALL(glDeleteProgram(program_id_));
+  GL_CALL(glDisable(GL_DEPTH_TEST));
+  GL_CALL(glDisable(GL_CULL_FACE));
 }
 
 void GlRenderingPipeline::Render() {
@@ -64,7 +97,7 @@ void GlRenderingPipeline::Render() {
   index_buffer_->Bind();
   pipeline_layout_->Bind();
 
-  GL_CALL(glDrawElements(GL_TRIANGLE_STRIP, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
+  GL_CALL(glDrawElements(GL_TRIANGLES, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
 
   dynamic_cast<const GlRenderingPipelineLayout *>(pipeline_layout_)->UnBind();
 

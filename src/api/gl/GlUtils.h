@@ -5,6 +5,11 @@
 #pragma once
 
 #include <cassert>
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
 
 #define GL_CALL(x) GlClearError;\
     x;\

@@ -6,7 +6,6 @@
 
 #include <api/VertexBuffer.h>
 #include <GL/glew.h>
-#include <GL/gl.h>
 
 namespace api {
 class GlVertexBuffer : public VertexBuffer {

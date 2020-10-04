@@ -4,7 +4,6 @@
 
 #include "Shader.h"
 #include <GL/glew.h>
-#include <GL/gl.h>
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 

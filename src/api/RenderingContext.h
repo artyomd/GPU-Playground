@@ -13,6 +13,7 @@ namespace api {
 class RenderingContext {
  protected:
   glm::mat4x4 ortho_projection_{};
+  glm::mat4x4 prespective_projection_{};
  public:
   RenderingContext() = default;
 
@@ -48,7 +49,8 @@ class RenderingContext {
                                                          const IndexBuffer *index_buffer,
                                                          const Shader *vertex_shader,
                                                          const Shader *fragment_shader,
-                                                         const RenderingPipelineLayout *pipeline_layout) = 0;
+                                                         const RenderingPipelineLayout *pipeline_layout,
+                                                         const RenderingPipelineLayoutConfig &config = {}) = 0;
 
   virtual void FreeGraphicsPipeline(RenderingPipeline *pipeline) = 0;
 
@@ -62,6 +64,9 @@ class RenderingContext {
 
   [[nodiscard]] const glm::mat4x4 &GetOrthoProjection() const {
     return ortho_projection_;
+  }
+  [[nodiscard]] const glm::mat4x4 &GetPrespectiveProjection() const {
+    return prespective_projection_;
   }
 
   virtual ~RenderingContext() = default;
