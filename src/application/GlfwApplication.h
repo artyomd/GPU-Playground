@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "TestApplication.h"
 #include <GLFW/glfw3.h>
+
+#include "src/application/TestApplication.h"
 
 namespace application {
 class GlfwApplication : public TestApplication {
@@ -18,7 +19,7 @@ class GlfwApplication : public TestApplication {
 
   virtual void SetupWindowHints() = 0;
 
-  virtual void OnWindowSizeChanged(){};
+  virtual void OnWindowSizeChanged() {};
 
   virtual bool PrepareFrame() = 0;
 

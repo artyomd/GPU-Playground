@@ -2,10 +2,11 @@
 // Created by Artyom Dangizyan on 10/21/18.
 //
 
-#include "GlVertexBinding.h"
-#include "GlVertexBuffer.h"
-#include "DataType.h"
-#include "GlUtils.h"
+#include "src/api/gl/GlVertexBinding.h"
+
+#include "src/api/DataType.h"
+#include "src/api/gl/GlUtils.h"
+#include "src/api/gl/GlVertexBuffer.h"
 
 namespace api {
 GlVertexBinding::GlVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout) :
@@ -20,7 +21,7 @@ GlVertexBinding::GlVertexBinding(const VertexBuffer *vb, const VertexBufferLayou
     GL_CALL(glEnableVertexAttribArray(i));
     GL_CALL(glVertexAttribPointer(i, element.count_, GetGlType(element.type_), GL_FALSE, layout->GetStride(),
                                   reinterpret_cast<void *> (offset)));
-    offset += element.count_*GetDataTypeSizeInBytes(element.type_);
+    offset += element.count_ * GetDataTypeSizeInBytes(element.type_);
   }
   vb->Unbind();
   GL_CALL(glBindVertexArray(0));

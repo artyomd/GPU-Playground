@@ -5,7 +5,8 @@
 
 #include <vector>
 #include <utility>
-#include "Uniform.h"
+
+#include "src/api/Uniform.h"
 
 namespace api {
 class RenderingPipelineLayout {

@@ -3,11 +3,12 @@
 //
 #pragma once
 
-#include "VertexBuffer.h"
-#include "VertexBinding.h"
-#include "VertexBufferLayout.h"
 #include <GL/glew.h>
-#include "GlUtils.h"
+
+#include "src/api/gl/GlUtils.h"
+#include "src/api/VertexBinding.h"
+#include "src/api/VertexBuffer.h"
+#include "src/api/VertexBufferLayout.h"
 
 namespace api {
 class GlVertexBinding : public VertexBinding {

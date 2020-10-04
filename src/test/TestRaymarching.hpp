@@ -2,7 +2,8 @@
 // Created by artyomd on 3/22/20.
 //
 #pragma once
-#include "TestShader.h"
+
+#include "src/test/TestShader.h"
 
 namespace test {
 class TestRaymarching : public TestShader {

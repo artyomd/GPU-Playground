@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <api/RenderingPipeline.h>
 #include <vector>
-#include "VkRenderingContext.h"
-#include "VkRenderingPipelineLayout.h"
+
+#include "src/api/RenderingPipeline.h"
+#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VkRenderingPipelineLayout.h"
 
 namespace api {
 class VkRenderingPipeline : public RenderingPipeline {

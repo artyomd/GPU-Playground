@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "RenderingPipeline.h"
-#include "GlRenderingContext.h"
 #include <GL/glew.h>
-#include <api/RenderingContext.h>
+
+#include "src/api/gl/GlRenderingContext.h"
+#include "src/api/RenderingContext.h"
+#include "src/api/RenderingPipeline.h"
 
 namespace api {
 class GlRenderingPipeline : public RenderingPipeline {

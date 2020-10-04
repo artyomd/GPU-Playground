@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "GeometryItem.h"
-#include "Point.hpp"
+#include "src/geometry/GeometryItem.h"
+#include "src/geometry/Point.hpp"
 
 namespace geometry {
 class Quad : public GeometryItem {

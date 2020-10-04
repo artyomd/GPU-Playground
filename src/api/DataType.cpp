@@ -2,7 +2,7 @@
 // Created by artyomd on 1/6/20.
 //
 
-#include "DataType.h"
+#include "src/api/DataType.h"
 #include <GL/glew.h>
 #include <stdexcept>
 

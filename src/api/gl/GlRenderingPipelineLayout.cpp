@@ -2,8 +2,9 @@
 // Created by artyomd on 3/30/20.
 //
 
-#include "GlRenderingPipelineLayout.h"
-#include "GlUniform.h"
+#include "src/api/gl/GlRenderingPipelineLayout.h"
+
+#include "src/api/gl/GlUniform.h"
 
 api::GlRenderingPipelineLayout::GlRenderingPipelineLayout(const std::vector<Uniform *> &bindings)
     : RenderingPipelineLayout(bindings) {}

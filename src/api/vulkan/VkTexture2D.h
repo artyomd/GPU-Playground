@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <api/Texture2D.h>
-#include "VkUniform.h"
-#include "VkRenderingContext.h"
+#include "src/api/Texture2D.h"
+#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VkUniform.h"
 
 namespace api {
 class VkTexture2D : public Texture2D, public VkUniform {

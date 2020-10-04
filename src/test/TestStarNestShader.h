@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "TestShader.h"
+#include "src/test/TestShader.h"
 
 namespace test {
 class TestStarNestShader : public TestShader {

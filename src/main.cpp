@@ -1,21 +1,21 @@
-#include <test/TestRaymarching.hpp>
-#include <test/TestSeascapeShader.h>
-#include <test/TestColorShader.h>
-#include <test/TestShapingFunctionShader.h>
-#include <test/TestSquaresShader.h>
-#include <test/TestStarNestShader.h>
-#include <test/TestSphere.h>
-#include <test/TestTexture2D.h>
-#include <test/TestObj.h>
-#include <test/TestCube.h>
-#include "application/OpenGlApplication.h"
-#include "application/VulkanApplication.h"
-#include "test/TestTriangle.h"
-#include "test/TestClearColor.h"
+#include "src/application/OpenGlApplication.h"
+#include "src/application/VulkanApplication.h"
+#include "src/test/TestRaymarching.hpp"
+#include "src/test/TestSeascapeShader.h"
+#include "src/test/TestColorShader.h"
+#include "src/test/TestShapingFunctionShader.h"
+#include "src/test/TestSquaresShader.h"
+#include "src/test/TestStarNestShader.h"
+#include "src/test/TestSphere.h"
+#include "src/test/TestTexture2D.h"
+#include "src/test/TestObj.h"
+#include "src/test/TestCube.h"
+#include "src/test/TestTriangle.h"
+#include "src/test/TestClearColor.h"
 
 int main() {
   try {
-    application::VulkanApplication test_application{};
+    application::OpenGlApplication test_application{};
     test_application.InitWindow();
     test_application.InitContext();
     test_application.InitImGui();

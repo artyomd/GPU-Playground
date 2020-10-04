@@ -3,13 +3,12 @@
 //
 #pragma once
 
-#include "test/Test.h"
-#include "test/TestMenu.h"
-#include "Application.h"
+#include "src/application/Application.h"
+#include "src/test/Test.h"
+#include "src/test/TestMenu.h"
 
 namespace application {
 class TestApplication : public Application {
- private:
   test::TestMenu *test_menu_ = nullptr;
   bool return_pressed_ = false;
  protected:
@@ -26,7 +25,7 @@ class TestApplication : public Application {
 
   template<typename T>
   void RegisterTest(const std::string &name) {
-    if (test_menu_!=nullptr) {
+    if (test_menu_ != nullptr) {
       test_menu_->RegisterTest<T>(name);
     }
   }

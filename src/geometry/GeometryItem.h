@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <api/VertexBinding.h>
-#include <api/IndexBuffer.h>
-#include <api/RenderingContext.h>
+#include <src/api/IndexBuffer.h>
+#include <src/api/RenderingContext.h>
+#include <src/api/VertexBinding.h>
 
 namespace geometry {
 class GeometryItem {

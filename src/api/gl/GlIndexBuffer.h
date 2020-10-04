@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "IndexBuffer.h"
 #include <GL/glew.h>
+
+#include "src/api/IndexBuffer.h"
 
 namespace api {
 class GlIndexBuffer : public IndexBuffer {

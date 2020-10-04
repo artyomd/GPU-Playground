@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <api/Texture2D.h>
-#include "GlUniform.h"
+#include "src/api/Texture2D.h"
+#include "src/api/gl/GlUniform.h"
 
 namespace api {
 class GlTexture2D : public Texture2D, public GlUniform {

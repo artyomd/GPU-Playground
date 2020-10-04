@@ -3,12 +3,15 @@
 //
 
 #include <GL/glew.h>
-#include <vendor/imgui/imgui.h>
-#include <vendor/imgui/imgui_impl_opengl3.h>
-#include <vendor/imgui/imgui_impl_glfw.h>
-#include <api/gl/GlUtils.h>
-#include <api/gl/GlRenderingContext.h>
-#include "OpenGlApplication.h"
+
+#include "src/application/OpenGlApplication.h"
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_impl_glfw.h>
+
+#include "src/api/gl/GlUtils.h"
+#include "src/api/gl/GlRenderingContext.h"
 
 void GLAPIENTRY
 MessageCallback(GLenum source,
@@ -85,7 +88,7 @@ void OpenGlApplication::SetupWindowHints() {
 void OpenGlApplication::InitContext() {
   glfwMakeContextCurrent(window_);
   glfwSwapInterval(1);
-  if (glewInit()!=GLEW_OK) {
+  if (glewInit() != GLEW_OK) {
     getchar();
     glfwTerminate();
     throw std::runtime_error("can not init glew");

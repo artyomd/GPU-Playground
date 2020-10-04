@@ -2,8 +2,9 @@
 // Created by artyomd on 3/8/20.
 //
 
+#include "src/api/vulkan/VkUniformBuffer.h"
+
 #include <cstring>
-#include "VkUniformBuffer.h"
 
 api::VkUniformBuffer::VkUniformBuffer(VkRenderingContext *context,
                                       int length, int binding_point, api::ShaderType shader_stage)

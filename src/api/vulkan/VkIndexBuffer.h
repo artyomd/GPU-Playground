@@ -3,8 +3,9 @@
 //
 
 #include <vulkan/vulkan.h>
-#include "IndexBuffer.h"
-#include "VkRenderingContext.h"
+
+#include "src/api/IndexBuffer.h"
+#include "src/api/vulkan/VkRenderingContext.h"
 
 namespace api {
 class VkIndexBuffer : public IndexBuffer {

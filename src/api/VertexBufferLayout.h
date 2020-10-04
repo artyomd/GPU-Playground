@@ -3,9 +3,10 @@
 //
 #pragma once
 
-#include <vector>
 #include <stdexcept>
-#include "DataType.h"
+#include <vector>
+
+#include "src/api/DataType.h"
 
 namespace api {
 struct VertexAttribute {

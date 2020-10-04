@@ -1,11 +1,10 @@
 //
 // Created by artyomd on 3/23/20.
 //
+#include "src/test/TestSphere.h"
 
-#include <geometry/StackedSphere.h>
-#include <geometry/SpiralSphere.h>
-#include <vendor/glm/ext/matrix_transform.hpp>
-#include "TestSphere.h"
+#include "src/geometry/StackedSphere.h"
+#include "src/geometry/SpiralSphere.h"
 
 test::TestSphere::TestSphere(api::Renderer *renderer) : TestModel(renderer) {
   auto *context = renderer->GetRenderingContext();

@@ -2,9 +2,9 @@
 // Created by artyomd on 3/4/20.
 //
 
-#include <vulkan/vulkan_core.h>
-#include <api/Utils.h>
-#include "VkShader.h"
+#include "src/api/vulkan/VkShader.h"
+
+#include "src/api/Utils.h"
 
 api::VkShader::VkShader(VkRenderingContext *context,
                         std::string sipr_v_shader_location,
@@ -20,7 +20,7 @@ api::VkShader::VkShader(VkRenderingContext *context,
   create_info.codeSize = code.size();
   create_info.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-  if (vkCreateShaderModule(*device_, &create_info, nullptr, &shader_module_)!=VK_SUCCESS) {
+  if (vkCreateShaderModule(*device_, &create_info, nullptr, &shader_module_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
   }
 
@@ -34,6 +34,6 @@ api::VkShader::~VkShader() {
   vkDestroyShaderModule(*device_, shader_module_, nullptr);
   delete shader_stage_info_;
 }
-const VkPipelineShaderStageCreateInfo* api::VkShader::GetShaderStageInfo() const {
+const VkPipelineShaderStageCreateInfo *api::VkShader::GetShaderStageInfo() const {
   return shader_stage_info_;
 }

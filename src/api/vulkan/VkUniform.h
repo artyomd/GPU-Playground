@@ -2,8 +2,10 @@
 // Created by artyomd on 3/30/20.
 //
 #pragma once
-#include <api/Uniform.h>
+
 #include <vulkan/vulkan.h>
+#include "src/api/Uniform.h"
+
 namespace api {
 class VkUniform {
  public:

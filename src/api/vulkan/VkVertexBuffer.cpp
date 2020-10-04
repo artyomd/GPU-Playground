@@ -2,8 +2,9 @@
 // Created by artyomd on 12/30/19.
 //
 
+#include "src/api/vulkan/VkVertexBuffer.h"
+
 #include <cstring>
-#include "VkVertexBuffer.h"
 
 namespace api {
 VkVertexBuffer::VkVertexBuffer(VkRenderingContext *context, const void *vertices_data, VkDeviceSize buffer_size)

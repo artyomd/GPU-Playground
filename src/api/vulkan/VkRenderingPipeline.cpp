@@ -2,9 +2,10 @@
 // Created by artyomd on 3/4/20.
 //
 
-#include "VkRenderingPipeline.h"
-#include "VkShader.h"
-#include "VkVertexBinding.h"
+#include "src/api/vulkan/VkRenderingPipeline.h"
+
+#include "src/api/vulkan/VkShader.h"
+#include "src/api/vulkan/VkVertexBinding.h"
 
 api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
                                               const api::VertexBinding *vertex_binding,
@@ -161,7 +162,7 @@ void api::VkRenderingPipeline::CreatePipeline() {
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-  if (vkCreateGraphicsPipelines(*device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_)!=VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(*device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create graphics pipeline!");
   }
 }

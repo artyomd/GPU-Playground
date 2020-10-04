@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "api/Renderer.hpp"
-#include "geometry/Triangle.h"
-#include "Test.h"
-#include "TestModel.h"
+#include "src/api/Renderer.hpp"
+#include "src/geometry/Triangle.h"
+#include "src/test/Test.h"
+#include "src/test/TestModel.h"
 
 namespace test {
 class TestObj : public TestModel {

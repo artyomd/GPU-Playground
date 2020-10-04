@@ -3,8 +3,9 @@
 //
 #pragma once
 
-#include "Shader.h"
 #include <GL/glew.h>
+
+#include "src/api/Shader.h"
 
 namespace api {
 class GlShader : public Shader {

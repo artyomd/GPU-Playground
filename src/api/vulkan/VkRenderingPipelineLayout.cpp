@@ -4,8 +4,10 @@
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
-#include "VkRenderingPipelineLayout.h"
-#include "VkUniform.h"
+
+#include "src/api/vulkan/VkRenderingPipelineLayout.h"
+#include "src/api/vulkan/VkUniform.h"
+
 api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *context,
                                                           const std::vector<Uniform *> &bindings) :
     RenderingPipelineLayout(bindings),
@@ -23,7 +25,7 @@ api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *co
   layout_info.bindingCount = p_bindings.size();
   layout_info.pBindings = p_bindings.data();
 
-  if (vkCreateDescriptorSetLayout(*device_, &layout_info, nullptr, &descriptor_set_layout_)!=VK_SUCCESS) {
+  if (vkCreateDescriptorSetLayout(*device_, &layout_info, nullptr, &descriptor_set_layout_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create descriptor set layout!");
   }
 
@@ -31,7 +33,7 @@ api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *co
   pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipeline_layout_info.setLayoutCount = 1;
   pipeline_layout_info.pSetLayouts = &descriptor_set_layout_;
-  if (vkCreatePipelineLayout(*device_, &pipeline_layout_info, nullptr, pipeline_layout_)!=VK_SUCCESS) {
+  if (vkCreatePipelineLayout(*device_, &pipeline_layout_info, nullptr, pipeline_layout_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create pipeline layout!");
   }
 
@@ -42,7 +44,7 @@ api::VkRenderingPipelineLayout::VkRenderingPipelineLayout(VkRenderingContext *co
   alloc_info.descriptorSetCount = static_cast<uint32_t>(image_count_);
   alloc_info.pSetLayouts = layouts.data();
   descriptor_sets_.resize(image_count_);
-  if (vkAllocateDescriptorSets(*device_, &alloc_info, descriptor_sets_.data())!=VK_SUCCESS) {
+  if (vkAllocateDescriptorSets(*device_, &alloc_info, descriptor_sets_.data()) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate descriptor sets!");
   }
 

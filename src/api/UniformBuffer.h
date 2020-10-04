@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Uniform.h"
+#include "src/api/Uniform.h"
+
 namespace api {
 class UniformBuffer : public Uniform {
  public:

@@ -2,10 +2,11 @@
 // Created by artyomd on 1/6/20.
 //
 
-#include "Shader.h"
 #include <GL/glew.h>
 #include <vulkan/vulkan.h>
 #include <stdexcept>
+
+#include "src/api/Shader.h"
 
 int api::GetShaderGlType(ShaderType shader_type) {
   switch (shader_type) {

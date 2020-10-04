@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "Test.h"
+#include "src/test/Test.h"
 
 namespace test {
 class TestClearColor : public Test {

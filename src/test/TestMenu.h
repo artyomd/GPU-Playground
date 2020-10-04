@@ -3,11 +3,12 @@
 //
 #pragma once
 
-#include <vector>
 #include <functional>
 #include <iostream>
 #include <string>
-#include "Test.h"
+#include <vector>
+
+#include "src/test/Test.h"
 
 namespace test {
 class TestMenu : public Test {

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "RenderingContext.h"
-#include "RenderingPipeline.h"
+#include "src/api/RenderingContext.h"
+#include "src/api/RenderingPipeline.h"
 
 namespace api {
 struct Size {
@@ -38,7 +38,7 @@ class Renderer {
   }
 
   void SetContext(RenderingContext *context) {
-    if (context_!=nullptr) {
+    if (context_ != nullptr) {
       throw std::runtime_error("SetContext must only be called once");
     }
     context_ = context;
@@ -47,7 +47,7 @@ class Renderer {
 
   void SetViewport(int width, int height) {
     viewport_size_ = {width, height};
-    if (context_!=nullptr) {
+    if (context_ != nullptr) {
       context_->SetViewportSize(viewport_size_.width_, viewport_size_.height_);
     }
   }

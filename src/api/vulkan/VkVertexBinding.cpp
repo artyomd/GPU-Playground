@@ -2,8 +2,7 @@
 // Created by artyomd on 1/1/20.
 //
 
-#include <array>
-#include "VkVertexBinding.h"
+#include "src/api/vulkan/VkVertexBinding.h"
 
 api::VkVertexBinding::VkVertexBinding(const api::VertexBuffer *vb, const api::VertexBufferLayout *layout)
     : VertexBinding(vb, layout) {
@@ -26,13 +25,13 @@ api::VkVertexBinding::VkVertexBinding(const api::VertexBuffer *vb, const api::Ve
     description.offset = offset;
     attribute_descriptions_->push_back(description);
 
-    offset += element.count_*GetDataTypeSizeInBytes(element.type_);
+    offset += element.count_ * GetDataTypeSizeInBytes(element.type_);
   }
 }
-const VkVertexInputBindingDescription* api::VkVertexBinding::GetVertexInputBindingDescription() const {
+const VkVertexInputBindingDescription *api::VkVertexBinding::GetVertexInputBindingDescription() const {
   return vertex_input_binding_description_;
 }
-const std::vector<VkVertexInputAttributeDescription>* api::VkVertexBinding::GetAttributeDescriptions() const {
+const std::vector<VkVertexInputAttributeDescription> *api::VkVertexBinding::GetAttributeDescriptions() const {
   return attribute_descriptions_;
 }
 void api::VkVertexBinding::Bind() const {
@@ -41,7 +40,7 @@ void api::VkVertexBinding::Bind() const {
 void api::VkVertexBinding::Unbind() const {
   buffer_->Unbind();
 }
-api::VkVertexBinding::~VkVertexBinding(){
+api::VkVertexBinding::~VkVertexBinding() {
   delete vertex_input_binding_description_;
   delete attribute_descriptions_;
 }

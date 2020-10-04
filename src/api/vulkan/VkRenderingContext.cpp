@@ -4,15 +4,16 @@
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
-#include <vendor/glm/ext.hpp>
-#include "VkRenderingContext.h"
-#include "VkVertexBuffer.h"
-#include "VkIndexBuffer.h"
-#include "VkVertexBinding.h"
-#include "VkShader.h"
-#include "VkRenderingPipeline.h"
-#include "VkUniformBuffer.h"
-#include "VkTexture2D.h"
+#include <glm/ext.hpp>
+
+#include "src/api/vulkan/VkIndexBuffer.h"
+#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VkRenderingPipeline.h"
+#include "src/api/vulkan/VkShader.h"
+#include "src/api/vulkan/VkTexture2D.h"
+#include "src/api/vulkan/VkUniformBuffer.h"
+#include "src/api/vulkan/VkVertexBuffer.h"
+#include "src/api/vulkan/VkVertexBinding.h"
 
 namespace api {
 VkRenderingContext::VkRenderingContext(
@@ -127,18 +128,18 @@ void VkRenderingContext::TransitionImageLayout(VkImage image,
   barrier.subresourceRange.layerCount = 1;
   VkPipelineStageFlags source_stage;
   VkPipelineStageFlags destination_stage;
-  if (old_layout==VK_IMAGE_LAYOUT_UNDEFINED && new_layout==VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+  if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     destination_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-  } else if (old_layout==VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
-      new_layout==VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+  } else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+      new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
     source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     destination_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-  } else if (old_layout==VK_IMAGE_LAYOUT_UNDEFINED && new_layout==
+  } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout ==
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
@@ -171,7 +172,7 @@ void VkRenderingContext::CreateBuffer(VkDeviceSize size,
   buffer_info.size = size;
   buffer_info.usage = usage;
   buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-  if (vkCreateBuffer(*device_, &buffer_info, nullptr, &buffer)!=VK_SUCCESS) {
+  if (vkCreateBuffer(*device_, &buffer_info, nullptr, &buffer) != VK_SUCCESS) {
     throw std::runtime_error("failed to create buffer!");
   }
   VkMemoryRequirements mem_requirements;
@@ -180,7 +181,7 @@ void VkRenderingContext::CreateBuffer(VkDeviceSize size,
   alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   alloc_info.allocationSize = mem_requirements.size;
   alloc_info.memoryTypeIndex = FindMemoryType(mem_requirements.memoryTypeBits, properties);
-  if (vkAllocateMemory(*device_, &alloc_info, nullptr, &buffer_memory)!=VK_SUCCESS) {
+  if (vkAllocateMemory(*device_, &alloc_info, nullptr, &buffer_memory) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate buffer memory!");
   }
   vkBindBufferMemory(*device_, buffer, buffer_memory, 0);
@@ -207,7 +208,7 @@ uint32_t VkRenderingContext::FindMemoryType(uint32_t type_filter, VkMemoryProper
 
   for (uint32_t i = 0; i < mem_properties.memoryTypeCount; i++) {
     if (type_filter & (1u << i)
-        && (mem_properties.memoryTypes[i].propertyFlags & properties)==properties) {
+        && (mem_properties.memoryTypes[i].propertyFlags & properties) == properties) {
       return i;
     }
   }
@@ -226,7 +227,7 @@ VkImageView VkRenderingContext::CreateImageView(VkImage &image, VkFormat format,
   view_info.subresourceRange.baseArrayLayer = 0;
   view_info.subresourceRange.layerCount = 1;
   VkImageView image_view;
-  if (vkCreateImageView(*device_, &view_info, nullptr, &image_view)!=VK_SUCCESS) {
+  if (vkCreateImageView(*device_, &view_info, nullptr, &image_view) != VK_SUCCESS) {
     throw std::runtime_error("failed to create texture image view!");
   }
   return image_view;
@@ -327,9 +328,9 @@ void VkRenderingContext::SetCurrentImageIndex(int current_image_index) {
 void VkRenderingContext::SetViewportSize(int width, int height) {
   swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
   float new_width = 4.0f;
-  float new_height = ((float) width*new_width)/(float) height;
+  float new_height = ((float) width * new_width) / (float) height;
   ortho_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
-  prespective_projection_ = glm::perspective(glm::radians(45.0f), (float) width/(float) height, 0.1f, 10.0f);
+  prespective_projection_ = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10.0f);
   prespective_projection_[1][1] *= -1;
 }
 void VkRenderingContext::WaitForGpuIdle() const {
@@ -355,9 +356,9 @@ VkFormat VkRenderingContext::FindSupportedFormat(const std::vector<VkFormat> &ca
   for (VkFormat format : candidates) {
     VkFormatProperties props;
     vkGetPhysicalDeviceFormatProperties(*physical_device_, format, &props);
-    if (tiling==VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features)==features) {
+    if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
       return format;
-    } else if (tiling==VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features)==features) {
+    } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
       return format;
     }
   }
@@ -387,7 +388,7 @@ void VkRenderingContext::CreateImage(uint32_t width,
   image_info.samples = num_samples;
   image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  if (vkCreateImage(*device_, &image_info, nullptr, &image)!=VK_SUCCESS) {
+  if (vkCreateImage(*device_, &image_info, nullptr, &image) != VK_SUCCESS) {
     throw std::runtime_error("failed to create image!");
   }
 
@@ -399,7 +400,7 @@ void VkRenderingContext::CreateImage(uint32_t width,
   alloc_info.allocationSize = mem_requirements.size;
   alloc_info.memoryTypeIndex = FindMemoryType(mem_requirements.memoryTypeBits, properties);
 
-  if (vkAllocateMemory((*device_), &alloc_info, nullptr, &image_memory)!=VK_SUCCESS) {
+  if (vkAllocateMemory((*device_), &alloc_info, nullptr, &image_memory) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate image memory!");
   }
 

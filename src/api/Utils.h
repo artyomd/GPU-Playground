@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <ios>
 #include <fstream>
+#include <ios>
+#include <string>
 #include <sstream>
+#include <vector>
 
 static std::vector<char> ReadFile(const std::string &filename) {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);

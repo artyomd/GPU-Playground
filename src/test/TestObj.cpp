@@ -1,17 +1,17 @@
 //
 // Created by artyomd on 5/1/20.
 //
-#include <vendor/tinyobjloader/tiny_obj_loader.h>
-#include <unordered_map>
-#include "TestObj.h"
+#include "src/test/TestObj.h"
+
 #include <glm/gtx/hash.hpp>
-#include <GL/glew.h>
+#include <tinyobjloader/tiny_obj_loader.h>
+#include <unordered_map>
 
 struct Vertex {
   glm::vec3 position_;
   glm::vec2 tex_coord_;
   bool operator==(const Vertex &other) const {
-    return position_==other.position_ && tex_coord_==other.tex_coord_;
+    return position_ == other.position_ && tex_coord_ == other.tex_coord_;
   }
 };
 
@@ -44,15 +44,15 @@ test::TestObj::TestObj(api::Renderer *renderer) : TestModel(renderer) {
     for (const auto &index : shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position_ = {
-          attrib.vertices[3*index.vertex_index + 0],
-          attrib.vertices[3*index.vertex_index + 1],
-          attrib.vertices[3*index.vertex_index + 2]
+          attrib.vertices[3 * index.vertex_index + 0],
+          attrib.vertices[3 * index.vertex_index + 1],
+          attrib.vertices[3 * index.vertex_index + 2]
       };
       vertex.tex_coord_ = {
-          attrib.texcoords[2*index.texcoord_index + 0],
-          1.0f - attrib.texcoords[2*index.texcoord_index + 1]
+          attrib.texcoords[2 * index.texcoord_index + 0],
+          1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
       };
-      if (unique_vertices.count(vertex)==0) {
+      if (unique_vertices.count(vertex) == 0) {
         unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
         vertices.push_back(vertex);
       }
@@ -62,7 +62,7 @@ test::TestObj::TestObj(api::Renderer *renderer) : TestModel(renderer) {
 
   auto *context = renderer->GetRenderingContext();
 
-  vertex_buffer_ = context->CreateVertexBuffer(vertices.data(), 5*vertices.size()*sizeof(float));
+  vertex_buffer_ = context->CreateVertexBuffer(vertices.data(), 5 * vertices.size() * sizeof(float));
   vertex_buffer_layout_ = new api::VertexBufferLayout();
   vertex_buffer_layout_->Push<float>(3);
   vertex_buffer_layout_->Push<float>(2);

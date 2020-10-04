@@ -2,9 +2,10 @@
 // Created by artyomd on 3/8/20.
 //
 
-#include <vendor/glm/ext.hpp>
-#include <vendor/imgui/imgui.h>
-#include "TestModel.h"
+#include "src/test/TestModel.h"
+
+#include <glm/ext.hpp>
+#include <imgui/imgui.h>
 
 void test::TestModel::OnImGuiRender() {
   ImGui::SliderFloat2("translation", &translation_.x, -max_side_, max_side_);

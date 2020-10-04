@@ -2,10 +2,11 @@
 // Created by artyomd on 3/10/20.
 //
 
+#include "src/api/gl/GlUniformBuffer.h"
+
 #include <GL/glew.h>
-#include "GlUniformBuffer.h"
+
 #include "GlUtils.h"
-#include "GlRenderingPipeline.h"
 
 api::GlUniformBuffer::GlUniformBuffer(int length, int binding_point, api::ShaderType shader_stage)
     : UniformBuffer(binding_point, shader_stage),

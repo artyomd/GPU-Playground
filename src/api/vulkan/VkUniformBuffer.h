@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <api/UniformBuffer.h>
-#include "VkRenderingContext.h"
-#include "VkUniform.h"
+#include "src/api/UniformBuffer.h"
+#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VkUniform.h"
 
 namespace api {
 class VkUniformBuffer : public UniformBuffer, public VkUniform {

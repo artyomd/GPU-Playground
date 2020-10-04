@@ -1,7 +1,7 @@
 #pragma once
 
-#include "VertexBufferLayout.cpp"
-#include "VertexBuffer.h"
+#include "src/api/VertexBuffer.h"
+#include "src/api/VertexBufferLayout.cpp"
 
 namespace api {
 class VertexBinding {

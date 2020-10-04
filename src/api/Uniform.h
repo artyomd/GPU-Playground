@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Shader.h"
+#include "src/api/Shader.h"
+
 namespace api {
 class Uniform {
  protected:

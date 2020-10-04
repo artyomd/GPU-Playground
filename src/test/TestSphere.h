@@ -3,8 +3,9 @@
 //
 #pragma once
 
-#include <geometry/GeometryItem.h>
-#include "TestModel.h"
+#include "src/geometry/GeometryItem.h"
+#include "src/test/TestModel.h"
+
 namespace test {
 class TestSphere : public TestModel {
  private:

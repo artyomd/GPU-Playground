@@ -5,8 +5,9 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
-#include "VertexBuffer.h"
-#include "VkRenderingContext.h"
+
+#include "src/api/VertexBuffer.h"
+#include "src/api/vulkan/VkRenderingContext.h"
 
 namespace api {
 class VkVertexBuffer : public VertexBuffer {

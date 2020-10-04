@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "GlfwApplication.h"
-#include "api/gl/GlRenderingContext.h"
+#include "src/application/GlfwApplication.h"
+#include "src/api/gl/GlRenderingContext.h"
 
 namespace application {
 class OpenGlApplication : public GlfwApplication {
  private:
-  api::GlRenderingContext *context_;
+  api::GlRenderingContext *context_{};
  protected:
   void SetupWindowHints() final;
 
@@ -23,7 +23,6 @@ class OpenGlApplication : public GlfwApplication {
   void DrawFrame() final;
 
   void PrepareForShutdown() final;
-
  public:
   void InitContext() final;
 

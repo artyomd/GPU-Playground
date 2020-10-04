@@ -2,7 +2,7 @@
 // Created by artyomd on 3/31/20.
 //
 
-#include "TestTexture2D.h"
+#include "src/test/TestTexture2D.h"
 
 namespace test {
 TestTexture2D::TestTexture2D(api::Renderer *renderer) : TestModel(renderer) {

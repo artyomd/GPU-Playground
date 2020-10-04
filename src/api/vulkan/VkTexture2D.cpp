@@ -2,11 +2,12 @@
 // Created by artyomd on 3/30/20.
 //
 
+#include "src/api/vulkan/VkTexture2D.h"
+
+#include <cstring>
+#include <stb_image/stb_image.h>
 #include <stdexcept>
 #include <utility>
-#include <vendor/stb_image/stb_image.h>
-#include <cstring>
-#include "VkTexture2D.h"
 api::VkTexture2D::VkTexture2D(VkRenderingContext *context,
                               std::string image_path,
                               int binding_point,
@@ -20,7 +21,7 @@ api::VkTexture2D::VkTexture2D(VkRenderingContext *context,
     throw std::runtime_error("failed to load texture image!");
   }
 
-  VkDeviceSize image_size = tex_width*tex_height*4;
+  VkDeviceSize image_size = tex_width * tex_height * 4;
   VkBuffer staging_buffer;
   VkDeviceMemory staging_buffer_memory;
   context->CreateBuffer(image_size,
@@ -84,7 +85,7 @@ void api::VkTexture2D::CreateTextureSampler() {
   sampler_info.compareOp = VK_COMPARE_OP_ALWAYS;
   sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-  if (vkCreateSampler(*device_, &sampler_info, nullptr, &sampler_)!=VK_SUCCESS) {
+  if (vkCreateSampler(*device_, &sampler_info, nullptr, &sampler_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create texture sampler!");
   }
 }

@@ -3,9 +3,10 @@
 //
 #pragma once
 
-#include <api/Shader.h>
-#include <api/UniformBuffer.h>
-#include "GlUniform.h"
+#include "src/api/Shader.h"
+#include "src/api/gl/GlUniform.h"
+#include "src/api/UniformBuffer.h"
+
 namespace api {
 class GlUniformBuffer : public UniformBuffer, public GlUniform {
  private:

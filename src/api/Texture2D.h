@@ -6,7 +6,8 @@
 
 #include <utility>
 
-#include "Uniform.h"
+#include "src/api/Uniform.h"
+
 namespace api {
 class Texture2D : public Uniform {
  protected:

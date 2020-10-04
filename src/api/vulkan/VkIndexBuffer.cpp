@@ -3,7 +3,9 @@
 //
 
 #include <cstring>
-#include "VkIndexBuffer.h"
+#include <stdexcept>
+
+#include "src/api/vulkan/VkIndexBuffer.h"
 
 namespace api {
 VkIndexBuffer::VkIndexBuffer(VkRenderingContext *context,

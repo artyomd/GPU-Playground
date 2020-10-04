@@ -2,18 +2,19 @@
 // Created by artyomd on 12/31/19.
 //
 
-#include <iostream>
-#include <vendor/glm/ext.hpp>
-#include "GlRenderingContext.h"
-#include "GlVertexBuffer.h"
-#include "GlVertexBinding.h"
-#include "GlIndexBuffer.h"
-#include "GlRenderingPipeline.h"
-#include "GlShader.h"
-#include "GlUniformBuffer.h"
-#include "GlUtils.h"
-#include "GlRenderingPipelineLayout.h"
-#include "GlTexture2D.h"
+#include "src/api/gl/GlRenderingContext.h"
+
+#include <glm/ext.hpp>
+
+#include "src/api/gl/GlIndexBuffer.h"
+#include "src/api/gl/GlRenderingPipeline.h"
+#include "src/api/gl/GlRenderingPipelineLayout.h"
+#include "src/api/gl/GlShader.h"
+#include "src/api/gl/GlTexture2D.h"
+#include "src/api/gl/GlUniformBuffer.h"
+#include "src/api/gl/GlUtils.h"
+#include "src/api/gl/GlVertexBinding.h"
+#include "src/api/gl/GlVertexBuffer.h"
 
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
@@ -91,10 +92,10 @@ void GlRenderingContext::SetViewportSize(int width, int height) {
   viewport_width_ = width;
   viewport_height_ = height;
   float new_width = 4.0f;
-  float new_height = ((float) width*new_width)/(float) height;
+  float new_height = ((float) width * new_width) / (float) height;
   ortho_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
   prespective_projection_ =
-      glm::perspective(glm::radians(45.0f), (float) viewport_width_/(float) viewport_height_, 0.1f, 10.0f);
+      glm::perspective(glm::radians(45.0f), (float) viewport_width_ / (float) viewport_height_, 0.1f, 10.0f);
 }
 int GlRenderingContext::GetViewportWidth() const {
   return viewport_width_;

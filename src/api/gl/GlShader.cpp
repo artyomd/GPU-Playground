@@ -2,10 +2,12 @@
 // Created by artyomd on 1/5/20.
 //
 
+#include "src/api/gl/GlShader.h"
+
 #include <iostream>
-#include "GlShader.h"
-#include "Utils.h"
-#include "GlUtils.h"
+
+#include "src/api/gl/GlUtils.h"
+#include "src/api/Utils.h"
 
 api::GlShader::GlShader(std::string sipr_v_shader_location,
                         std::string glsl_shader_location,
@@ -15,7 +17,7 @@ api::GlShader::GlShader(std::string sipr_v_shader_location,
                                                        std::move(entry_point_name),
                                                        type) {
   GL_CALL(renderer_id_ = glCreateShader(GetShaderGlType(type)));
-  assert(renderer_id_!=0);
+  assert(renderer_id_ != 0);
 
   auto data = ParseFile(this->glsl_shader_location_);
   const char *src = data.c_str();
@@ -25,10 +27,10 @@ api::GlShader::GlShader(std::string sipr_v_shader_location,
   GLint result;
   GL_CALL(glGetShaderiv(renderer_id_, GL_COMPILE_STATUS, &result));
 
-  if (result==GL_FALSE) {
+  if (result == GL_FALSE) {
     GLint length;
     GL_CALL(glGetShaderiv(renderer_id_, GL_INFO_LOG_LENGTH, &length));
-    char *message = (char *) alloca(length*sizeof(char));
+    char *message = (char *) alloca(length * sizeof(char));
     GL_CALL(glGetShaderInfoLog(renderer_id_, length, &length, message));
     std::cout << "Failed to compile shader of type:" << type << std::endl;
     GL_CALL(glDeleteShader(renderer_id_));

@@ -2,12 +2,12 @@
 // Created by artyomd on 1/6/20.
 //
 
-#include <GL/glew.h>
+#include "src/api/gl/GlUtils.h"
+
 #include <iostream>
-#include "GlUtils.h"
 
 void GlClearError() {
-  while (glGetError()!=GL_NO_ERROR);
+  while (glGetError() != GL_NO_ERROR);
 }
 
 bool GlLogCall(const char *function, const char *file, int line) {

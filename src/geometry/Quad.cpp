@@ -2,7 +2,7 @@
 // Created by artyomd on 1/6/20.
 //
 
-#include "Quad.h"
+#include "src/geometry/Quad.h"
 
 geometry::Quad::Quad(api::RenderingContext *context, geometry::Point &top_left, geometry::Point &top_right,
                      geometry::Point &bottom_right, geometry::Point &bottom_left) : GeometryItem(context) {

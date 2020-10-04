@@ -2,10 +2,12 @@
 // Created by artyomd on 3/31/20.
 //
 
-#include <vendor/stb_image/stb_image.h>
+#include "src/api/gl/GlTexture2D.h"
+
+#include <stb_image/stb_image.h>
 #include <stdexcept>
-#include "GlTexture2D.h"
-#include "GlUtils.h"
+
+#include "src/api/gl/GlUtils.h"
 
 api::GlTexture2D::GlTexture2D(const std::string &image_path, int binding_point, api::ShaderType shader_stage)
     : Texture2D(image_path, binding_point, shader_stage) {

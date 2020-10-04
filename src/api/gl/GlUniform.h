@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <api/Uniform.h>
-#include "GlUtils.h"
+#include "src/api/Uniform.h"
+#include "src/api/gl/GlUtils.h"
 
 namespace api {
 class GlUniform {

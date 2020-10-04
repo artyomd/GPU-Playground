@@ -1,13 +1,14 @@
 #pragma once
 
-#include <vendor/glm/glm.hpp>
-#include "VertexBuffer.h"
-#include "VertexBinding.h"
-#include "Shader.h"
-#include "IndexBuffer.h"
-#include "RenderingPipeline.h"
-#include "UniformBuffer.h"
-#include "Texture2D.h"
+#include <glm/glm.hpp>
+
+#include "src/api/IndexBuffer.h"
+#include "src/api/RenderingPipeline.h"
+#include "src/api/Shader.h"
+#include "src/api/Texture2D.h"
+#include "src/api/UniformBuffer.h"
+#include "src/api/VertexBuffer.h"
+#include "src/api/VertexBinding.h"
 
 namespace api {
 class RenderingContext {

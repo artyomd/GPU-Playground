@@ -2,9 +2,9 @@
 // Created by artyomd on 5/23/20.
 //
 
-#include <vendor/glm/ext/matrix_transform.hpp>
-#include <vendor/glm/gtc/matrix_transform.hpp>
-#include "TestCube.h"
+#include "src/test/TestCube.h"
+
+#include <glm/ext/matrix_transform.hpp>
 
 test::TestCube::TestCube(api::Renderer *renderer) : TestModel(renderer) {
 
@@ -35,7 +35,7 @@ test::TestCube::TestCube(api::Renderer *renderer) : TestModel(renderer) {
 
   auto *context = renderer->GetRenderingContext();
 
-  vertex_buffer_ = context->CreateVertexBuffer(positions.data(), positions.size()*sizeof(float));
+  vertex_buffer_ = context->CreateVertexBuffer(positions.data(), positions.size() * sizeof(float));
   vertex_buffer_layout_ = new api::VertexBufferLayout();
   vertex_buffer_layout_->Push<float>(3);
   vertex_buffer_layout_->Push<float>(3);

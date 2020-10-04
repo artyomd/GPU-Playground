@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "TestShader.h"
+#include "src/test/TestShader.h"
 
 namespace test {
 class TestShapingFunctionShader : public TestShader {

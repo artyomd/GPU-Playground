@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "GeometryItem.h"
-#include "Point.hpp"
-#include "RenderingContext.h"
+#include "src/api/RenderingContext.h"
+#include "src/geometry/GeometryItem.h"
+#include "src/geometry/Point.hpp"
 
 namespace geometry {
 class Triangle : public GeometryItem {
@@ -14,7 +14,7 @@ class Triangle : public GeometryItem {
   api::VertexBuffer *vertex_buffer_ = nullptr;
   api::VertexBufferLayout *layout_ = nullptr;
  public:
-  explicit  Triangle(api::RenderingContext *context,
+  explicit Triangle(api::RenderingContext *context,
                     Point &point_0,
                     Point &point_1,
                     Point &point_2);

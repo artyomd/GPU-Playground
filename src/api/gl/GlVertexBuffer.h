@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <api/VertexBuffer.h>
 #include <GL/glew.h>
+
+#include "src/api/VertexBuffer.h"
 
 namespace api {
 class GlVertexBuffer : public VertexBuffer {

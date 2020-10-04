@@ -3,7 +3,8 @@
 //
 #pragma once
 
-#include "GeometryItem.h"
+#include "src/geometry/GeometryItem.h"
+
 namespace geometry {
 class SpiralSphere : public GeometryItem {
  private:

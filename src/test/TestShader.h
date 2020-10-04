@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "Test.h"
-#include "Quad.h"
+#include "src/geometry/Quad.h"
+#include "src/test/Test.h"
 
 namespace test {
 struct UniformBufferObjectShader {

@@ -3,9 +3,10 @@
 //
 #pragma once
 
-#include <api/Shader.h>
 #include <vulkan/vulkan.h>
-#include "VkRenderingContext.h"
+
+#include "src/api/Shader.h"
+#include "src/api/vulkan/VkRenderingContext.h"
 
 namespace api {
 class VkShader : public Shader {
@@ -23,7 +24,7 @@ class VkShader : public Shader {
            ShaderType type
   );
 
-  [[nodiscard]] const VkPipelineShaderStageCreateInfo* GetShaderStageInfo() const;
+  [[nodiscard]] const VkPipelineShaderStageCreateInfo *GetShaderStageInfo() const;
 
   ~VkShader() override;
 };

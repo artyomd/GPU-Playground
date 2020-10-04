@@ -3,10 +3,10 @@
 //
 #pragma once
 
-#include "VertexBinding.h"
-#include "IndexBuffer.h"
-#include "Shader.h"
-#include "RenderingPipelineLayout.h"
+#include "src/api/IndexBuffer.h"
+#include "src/api/RenderingPipelineLayout.h"
+#include "src/api/Shader.h"
+#include "src/api/VertexBinding.h"
 
 namespace api {
 enum DepthFunction {

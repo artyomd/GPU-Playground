@@ -6,10 +6,8 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-#include "GlfwApplication.h"
-#include "api/vulkan/VkRenderingContext.h"
-#include <vulkan/vulkan.h>
-#include <optional>
+#include "src/application/GlfwApplication.h"
+#include "src/api/vulkan/VkRenderingContext.h"
 
 namespace application {
 class VulkanApplication : public GlfwApplication {

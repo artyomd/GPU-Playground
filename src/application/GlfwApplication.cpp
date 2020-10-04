@@ -1,9 +1,11 @@
 //
 // Created by artyomd on 12/6/19.
 //
-#include "GlfwApplication.h"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
+
+#include "src/application/GlfwApplication.h"
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
 
 namespace application {
 void GlfwApplication::InitWindow() {
@@ -18,7 +20,7 @@ void GlfwApplication::InitWindow() {
   SetupWindowHints();
 
   window_ = glfwCreateWindow(window_width_, window_height_, "GPU Playground", nullptr, nullptr);
-  if (window_==nullptr) {
+  if (window_ == nullptr) {
     getchar();
     glfwTerminate();
     throw std::runtime_error("could not create window");
@@ -52,7 +54,7 @@ void GlfwApplication::Run() {
     ImGui::Begin("Test");
     current_test_->OnImGuiRender();
     RenderMenu();
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f/ImGui::GetIO().Framerate,
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                 ImGui::GetIO().Framerate);
     ImGui::End();
 

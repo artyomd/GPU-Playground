@@ -2,20 +2,22 @@
 // Created by artyomd on 1/1/20.
 //
 
+#include "src/api/gl/GlRenderingPipeline.h"
+
 #include <iostream>
-#include "GlRenderingPipeline.h"
-#include "GlIndexBuffer.h"
-#include "GlVertexBinding.h"
-#include "GlShader.h"
-#include "GlUtils.h"
-#include "GlRenderingPipelineLayout.h"
+
+#include "src/api/gl/GlIndexBuffer.h"
+#include "src/api/gl/GlRenderingPipelineLayout.h"
+#include "src/api/gl/GlShader.h"
+#include "src/api/gl/GlVertexBinding.h"
+#include "src/api/gl/GlUtils.h"
 
 namespace api {
 static inline void GetProgramInfoLog(int id) {
   int length;
   GL_CALL(glGetProgramiv(id, GL_INFO_LOG_LENGTH, &length));
-  if (length!=0) {
-    char *message = (char *) malloc(length*sizeof(char));
+  if (length != 0) {
+    char *message = (char *) malloc(length * sizeof(char));
     GL_CALL(glGetProgramInfoLog(id, length, &length, message));
     std::cout << "Program creation info message:" << message;
     free(message);
@@ -30,9 +32,9 @@ GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
     : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout, config),
       context_(context) {
   DataType type = index_buffer->GetType();
-  if (type!=DATA_TYPE_BYTE &&
-      type!=DATA_TYPE_UINT_16 &&
-      type!=DATA_TYPE_UINT_32) {
+  if (type != DATA_TYPE_BYTE &&
+      type != DATA_TYPE_UINT_16 &&
+      type != DATA_TYPE_UINT_32) {
     throw std::runtime_error("unsupported data type");
   }
   GL_CALL(program_id_ = glCreateProgram());
@@ -42,7 +44,7 @@ GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
 
   GLint link_status;
   glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &link_status);
-  if (link_status==GL_FALSE) {
+  if (link_status == GL_FALSE) {
     GetProgramInfoLog(program_id_);
     dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
     dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);

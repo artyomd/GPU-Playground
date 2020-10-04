@@ -2,7 +2,7 @@
 // Created by artyomd on 1/6/20.
 //
 
-#include "Triangle.h"
+#include "src/geometry/Triangle.h"
 
 geometry::Triangle::Triangle(api::RenderingContext *context, geometry::Point &point_0, geometry::Point &point_1,
                              geometry::Point &point_2) : GeometryItem(context) {
@@ -16,7 +16,7 @@ geometry::Triangle::Triangle(api::RenderingContext *context, geometry::Point &po
       0, 1, 2
   };
 
-  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 3*7*sizeof(float));
+  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 3 * 7 * sizeof(float));
   layout_ = new api::VertexBufferLayout();
   layout_->Push<float>(3);
   layout_->Push<float>(4);

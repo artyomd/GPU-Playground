@@ -1,11 +1,10 @@
 //
 // Created by Artyom Dangizyan on 2018-11-29.
 //
+#include "src/test/TestTriangle.h"
 
-#include <iostream>
-#include "geometry/Point.hpp"
-#include "geometry/Triangle.h"
-#include "TestTriangle.h"
+#include "src/geometry/Point.hpp"
+#include "src/geometry/Triangle.h"
 
 namespace test {
 

@@ -2,8 +2,9 @@
 // Created by Artyom Dangizyan on 11/17/18.
 //
 
-#include "TestClearColor.h"
-#include "imgui/imgui.h"
+#include "src/test/TestClearColor.h"
+
+#include <imgui/imgui.h>
 
 test::TestClearColor::TestClearColor(api::Renderer *renderer) : Test(renderer) {
 

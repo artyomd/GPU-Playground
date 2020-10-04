@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <iostream>
-#include "Test.h"
+#include "src/test/Test.h"
 
 namespace test {
 struct UniformBufferObjectMvp {

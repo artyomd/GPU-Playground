@@ -3,8 +3,9 @@
 //
 #pragma once
 
-#include <api/Shader.h>
-#include "TestModel.h"
+#include "src/api/Shader.h"
+#include "src/test/TestModel.h"
+
 namespace test {
 class TestCube : public TestModel {
  private:

@@ -2,9 +2,10 @@
 // Created by artyomd on 3/21/20.
 //
 
-#include <geometry/Quad.h>
-#include "TestShader.h"
-#include "geometry/Point.hpp"
+#include "src/test/TestShader.h"
+
+#include "src/geometry/Point.hpp"
+#include "src/geometry/Quad.h"
 
 test::TestShader::TestShader(api::Renderer *renderer, api::Shader *fragment_shader)
     : Test(renderer), fragment_shader_(fragment_shader) {

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <api/RenderingPipelineLayout.h>
-#include "VkRenderingContext.h"
+#include "src/api/RenderingPipelineLayout.h"
+#include "src/api/vulkan/VkRenderingContext.h"
+
 namespace api {
 class VkRenderingPipelineLayout : public RenderingPipelineLayout {
  private:
