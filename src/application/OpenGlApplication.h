@@ -10,7 +10,7 @@
 namespace application {
 class OpenGlApplication : public GlfwApplication {
  private:
-  api::GlRenderingContext *context_{};
+  std::shared_ptr<api::GlRenderingContext> context_ = std::make_shared<api::GlRenderingContext>();
  protected:
   void SetupWindowHints() final;
 

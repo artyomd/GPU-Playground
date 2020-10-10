@@ -15,7 +15,7 @@
 
 int main() {
   try {
-    application::OpenGlApplication test_application{};
+    application::VulkanApplication test_application{};
     test_application.InitWindow();
     test_application.InitContext();
     test_application.InitImGui();

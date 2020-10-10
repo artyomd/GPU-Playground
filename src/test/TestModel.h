@@ -6,11 +6,13 @@
 
 #include "src/test/Test.h"
 
+#include <utility>
+
 namespace test {
 struct UniformBufferObjectMvp {
-  alignas(16) glm::mat4 model_ = glm::mat4(1.0f);
-  alignas(16) glm::mat4 view_ = glm::mat4(1.0f);
-  alignas(16) glm::mat4 proj_ = glm::mat4(1.0f);
+  alignas(16) glm::mat4 model = glm::mat4(1.0f);
+  alignas(16) glm::mat4 view = glm::mat4(1.0f);
+  alignas(16) glm::mat4 proj = glm::mat4(1.0f);
 };
 
 class TestModel : public Test {
@@ -24,7 +26,7 @@ class TestModel : public Test {
   glm::mat4 ComputeModelMatrix();
 
  public:
-  explicit TestModel(api::Renderer *renderer) : Test(renderer) {};
+  explicit TestModel(std::shared_ptr<api::Renderer> renderer) : Test(std::move(renderer)) {};
 
   void OnImGuiRender() override;
 

@@ -11,7 +11,7 @@
 namespace application {
 class Application {
  protected:
-  api::Renderer *renderer_ = new api::Renderer();
+  std::shared_ptr<api::Renderer> renderer_ = std::make_shared<api::Renderer>();
  public:
   Application() = default;
   virtual void InitWindow() = 0;
@@ -27,9 +27,5 @@ class Application {
   virtual void DestroyContext() = 0;
 
   virtual void DestroyWindow() = 0;
-
-  virtual ~Application() {
-    delete renderer_;
-  };
 };
 }

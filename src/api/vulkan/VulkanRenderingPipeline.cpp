@@ -2,50 +2,56 @@
 // Created by artyomd on 3/4/20.
 //
 
-#include "src/api/vulkan/VkRenderingPipeline.h"
+#include "src/api/vulkan/VulkanRenderingPipeline.h"
 
-#include "src/api/vulkan/VkShader.h"
-#include "src/api/vulkan/VkVertexBinding.h"
+#include <utility>
 
-api::VkRenderingPipeline::VkRenderingPipeline(VkRenderingContext *context,
-                                              const api::VertexBinding *vertex_binding,
-                                              const api::IndexBuffer *index_buffer,
-                                              const api::Shader *vertex_shader,
-                                              const api::Shader *fragment_shader,
-                                              const RenderingPipelineLayout *pipeline_layout,
-                                              const RenderingPipelineLayoutConfig &config) :
-    RenderingPipeline(vertex_binding,
-                      index_buffer,
-                      vertex_shader,
-                      fragment_shader,
-                      pipeline_layout,
-                      config), device_(context->GetDevice()), context_(context) {
+#include "src/api/vulkan/VulkanShader.h"
+#include "src/api/vulkan/VulkanVertexBinding.h"
+
+api::VulkanRenderingPipeline::VulkanRenderingPipeline(std::shared_ptr<VulkanRenderingContext> context,
+                                                      std::shared_ptr<VertexBinding> vertex_binding,
+                                                      std::shared_ptr<IndexBuffer> index_buffer,
+                                                      std::shared_ptr<Shader> vertex_shader,
+                                                      std::shared_ptr<Shader> fragment_shader,
+                                                      std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
+                                                      api::RenderingPipelineLayoutConfig config) :
+    RenderingPipeline(
+        std::move(vertex_binding),
+        std::move(index_buffer),
+        std::move(vertex_shader),
+        std::move(fragment_shader),
+        std::move(pipeline_layout),
+        config),
+    context_(std::move(context)),
+    device_(context_->GetDevice()) {
   CreatePipeline();
 }
 
-void api::VkRenderingPipeline::Render() {
-  vkCmdBindPipeline(*context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+void api::VulkanRenderingPipeline::Render() {
+  vkCmdBindPipeline(context_->GetCurrentCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   vertex_binding_->Bind();
   index_buffer_->Bind();
   pipeline_layout_->Bind();
-  vkCmdDrawIndexed(*context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
+  vkCmdDrawIndexed(context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
 }
 
-void api::VkRenderingPipeline::ViewportChanged() {
+void api::VulkanRenderingPipeline::ViewportChanged() {
   context_->WaitForGpuIdle();
   DestroyPipeline();
   CreatePipeline();
 }
 
-void api::VkRenderingPipeline::CreatePipeline() {
+void api::VulkanRenderingPipeline::CreatePipeline() {
   VkPipelineShaderStageCreateInfo shader_stages[] = {
-      *dynamic_cast<const VkShader *>(vertex_shader_)->GetShaderStageInfo(),
-      *dynamic_cast<const VkShader *>(fragment_shader_)->GetShaderStageInfo()
+      std::dynamic_pointer_cast<VulkanShader>(vertex_shader_)->GetShaderStageInfo(),
+      std::dynamic_pointer_cast<VulkanShader>(fragment_shader_)->GetShaderStageInfo()
   };
 
-  auto attribute_descriptions = dynamic_cast<const VkVertexBinding *>(vertex_binding_)->GetAttributeDescriptions();
+  auto attribute_descriptions =
+      std::dynamic_pointer_cast<VulkanVertexBinding>(vertex_binding_)->GetAttributeDescriptions();
   auto input_binding_description =
-      dynamic_cast<const VkVertexBinding *>(vertex_binding_)->GetVertexInputBindingDescription();
+      std::dynamic_pointer_cast<VulkanVertexBinding>(vertex_binding_)->GetVertexInputBindingDescription();
 
   VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
   vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -81,7 +87,7 @@ void api::VkRenderingPipeline::CreatePipeline() {
 
   VkCullModeFlags cull_mode;
   VkFrontFace front_face;
-  switch (config_.cull_mode_) {
+  switch (config_.cull_mode) {
     case CullMode::BACK: cull_mode = VK_CULL_MODE_BACK_BIT;
       break;
     case CullMode::FRONT: cull_mode = VK_CULL_MODE_FRONT_BIT;
@@ -92,7 +98,7 @@ void api::VkRenderingPipeline::CreatePipeline() {
       break;
     default: throw std::runtime_error("not implemented");
   }
-  switch (config_.front_face_) {
+  switch (config_.front_face) {
     case FrontFace::CW: front_face = VK_FRONT_FACE_CLOCKWISE;
       break;
     case FrontFace::CCW: front_face = VK_FRONT_FACE_COUNTER_CLOCKWISE;
@@ -132,14 +138,14 @@ void api::VkRenderingPipeline::CreatePipeline() {
   color_blending.blendConstants[3] = 0.0f;
 
   VkCompareOp compare_op;
-  switch (config_.depth_function_) {
+  switch (config_.depth_function) {
     case DepthFunction::LESS: compare_op = VK_COMPARE_OP_LESS;
       break;
     default: throw std::runtime_error("not implemented");
   }
   VkPipelineDepthStencilStateCreateInfo depth_stencil = {};
   depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-  depth_stencil.depthTestEnable = config_.enable_depth_test_;
+  depth_stencil.depthTestEnable = config_.enable_depth_test;
   depth_stencil.depthWriteEnable = VK_TRUE;
   depth_stencil.depthCompareOp = compare_op;
   depth_stencil.depthBoundsTestEnable = VK_FALSE;
@@ -157,21 +163,21 @@ void api::VkRenderingPipeline::CreatePipeline() {
   pipeline_info.pRasterizationState = &rasterizer;
   pipeline_info.pMultisampleState = &multisampling;
   pipeline_info.pColorBlendState = &color_blending;
-  pipeline_info.layout = *dynamic_cast<const VkRenderingPipelineLayout *>(pipeline_layout_)->GetPipelineLayout();
-  pipeline_info.renderPass = *context_->GetVkRenderPass();
+  pipeline_info.layout =
+      std::dynamic_pointer_cast<VulkanRenderingPipelineLayout>(pipeline_layout_)->GetPipelineLayout();
+  pipeline_info.renderPass = context_->GetVkRenderPass();
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-  if (vkCreateGraphicsPipelines(*device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_) != VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(device_, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create graphics pipeline!");
   }
 }
 
-void api::VkRenderingPipeline::DestroyPipeline() {
-  vkDestroyPipeline(*device_, pipeline_, nullptr);
+void api::VulkanRenderingPipeline::DestroyPipeline() {
+  vkDestroyPipeline(device_, pipeline_, nullptr);
 }
 
-api::VkRenderingPipeline::~VkRenderingPipeline() {
+api::VulkanRenderingPipeline::~VulkanRenderingPipeline() {
   DestroyPipeline();
 }
-

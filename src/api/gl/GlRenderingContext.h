@@ -3,59 +3,50 @@
 //
 #pragma once
 
+#include <memory>
 #include "src/api/RenderingContext.h"
 
 namespace api {
-class GlRenderingContext : public RenderingContext {
+class GlRenderingContext : public RenderingContext, public std::enable_shared_from_this<GlRenderingContext> {
  private:
   int viewport_width_ = 0;
   int viewport_height_ = 0;
  public:
   GlRenderingContext();
-  IndexBuffer *CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
+  std::shared_ptr<IndexBuffer> CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
 
-  void FreeIndexBuffer(IndexBuffer *buffer) override;
+  std::shared_ptr<VertexBuffer> CreateVertexBuffer(const void *data, unsigned int size) override;
 
-  VertexBuffer *CreateVertexBuffer(const void *data, unsigned int size) override;
+  std::shared_ptr<VertexBinding> CreateVertexBinding(std::shared_ptr<VertexBuffer> buffer,
+                                                     std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) override;
 
-  void FreeVertexBuffer(VertexBuffer *buffer) override;
+  std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
+                                       std::string glsl_location,
+                                       std::string entry_point_name,
+                                       api::ShaderType type) override;
 
-  VertexBinding *CreateVertexBinding(const VertexBuffer *buffer,
-                                     const VertexBufferLayout *vertex_buffer_layout) override;
+  std::shared_ptr<UniformBuffer> CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
 
-  void FreeVertexBiding(VertexBinding *vertex_binding) override;
+  std::shared_ptr<Texture2D> CreateTexture2D(std::string image_path,
+                                             int binding_point,
+                                             ShaderType shader_stage) override;
 
-  RenderingPipeline *CreateGraphicsPipeline(const VertexBinding *vertex_binding,
-                                            const IndexBuffer *index_buffer,
-                                            const Shader *vertex_shader,
-                                            const Shader *fragment_shader,
-                                            const RenderingPipelineLayout *rendering_pipeline_layout,
-                                            const RenderingPipelineLayoutConfig &config = {}) override;
+  std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(std::shared_ptr<VertexBinding> vertex_binding,
+                                                                 std::shared_ptr<IndexBuffer> index_buffer,
+                                                                 std::shared_ptr<Shader> vertex_shader,
+                                                                 std::shared_ptr<Shader> fragment_shader,
+                                                                 std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
+                                                                 RenderingPipelineLayoutConfig config) override;
 
-  void FreeGraphicsPipeline(RenderingPipeline *pipeline) override;
+  std::shared_ptr<RenderingPipelineLayout> CreateRenderingPipelineLayout(const std::vector<std::shared_ptr<Uniform>> &bindings) override;
 
   void SetViewportSize(int width, int height) override;
-  Shader *CreateShader(std::string sipr_v_shader_location,
-                       std::string glsl_location,
-                       std::string entry_point_name,
-                       api::ShaderType type) override;
 
-  void DeleteShader(Shader *vertex_binding) override;
-
-  RenderingPipelineLayout *CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) override;
-  void FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) override;
-
-  UniformBuffer *CreateUniformBuffer(int length, int binding_point, ShaderType shader_stage) override;
-
-  void DeleteUniformBuffer(UniformBuffer *uniform_buffer) override;
+  void WaitForGpuIdle() const override;
 
   [[nodiscard]] int GetViewportWidth() const;
 
   [[nodiscard]] int GetViewportHeight() const;
 
-  void WaitForGpuIdle() const override;
-  ~GlRenderingContext() override = default;
-  Texture2D *CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) override;
-  void DeleteTexture2D(Texture2D *texture_2_d) override;
 };
 }

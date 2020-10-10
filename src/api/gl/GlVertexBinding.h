@@ -15,7 +15,7 @@ class GlVertexBinding : public VertexBinding {
  private:
   GLuint renderer_id_ = -1;
  public:
-  GlVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout);
+  GlVertexBinding(std::shared_ptr<VertexBuffer> vb, std::shared_ptr<VertexBufferLayout> layout);
 
   void Bind() const override;
   void Unbind() const override;

@@ -1,20 +1,20 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
-
 namespace api {
-enum DataType {
+enum class DataType {
   DATA_TYPE_BYTE,
   DATA_TYPE_UINT_16,//SHORT
   DATA_TYPE_UINT_32,
-  DATA_TYPE_FLOAT
+  DATA_TYPE_FLOAT,
+  COUNT,
 };
 
-int GetGlType(DataType type);
-
-VkIndexType GetVkType(DataType type);
-
-VkFormat GetVkFormat(DataType type, unsigned int count);
-
+struct Pixel_RGBA {
+  float r, g, b, a;
+};
+struct Size {
+  int width = 0;
+  int height = 0;
+};
 int GetDataTypeSizeInBytes(DataType type);
 }

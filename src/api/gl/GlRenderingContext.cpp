@@ -19,82 +19,62 @@
 namespace api {
 GlRenderingContext::GlRenderingContext() : RenderingContext() {}
 
-IndexBuffer *GlRenderingContext::CreateIndexBuffer(const void *data, unsigned int size, DataType type) {
-  return new GlIndexBuffer(data, size, type);
+std::shared_ptr<IndexBuffer> GlRenderingContext::CreateIndexBuffer(const void *data, unsigned int size, DataType type) {
+  return std::make_shared<GlIndexBuffer>(data, size, type);
 }
 
-void GlRenderingContext::FreeIndexBuffer(IndexBuffer *buffer) {
-  delete buffer;
+std::shared_ptr<VertexBuffer> GlRenderingContext::CreateVertexBuffer(const void *data, unsigned int size) {
+  return std::make_shared<GlVertexBuffer>(data, size);
 }
 
-VertexBuffer *GlRenderingContext::CreateVertexBuffer(const void *data, unsigned int size) {
-  return new GlVertexBuffer(data, size);
+std::shared_ptr<VertexBinding>
+GlRenderingContext::CreateVertexBinding(std::shared_ptr<VertexBuffer> buffer,
+                                        std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) {
+  return std::make_shared<GlVertexBinding>(buffer, vertex_buffer_layout);
 }
 
-void GlRenderingContext::FreeVertexBuffer(VertexBuffer *buffer) {
-  delete buffer;
+std::shared_ptr<RenderingPipeline> GlRenderingContext::CreateGraphicsPipeline(
+    std::shared_ptr<VertexBinding> vertex_binding,
+    std::shared_ptr<IndexBuffer> index_buffer,
+    std::shared_ptr<Shader> vertex_shader,
+    std::shared_ptr<Shader> fragment_shader,
+    std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
+    RenderingPipelineLayoutConfig config) {
+  return std::make_shared<GlRenderingPipeline>(shared_from_this(),
+                                               vertex_binding,
+                                               index_buffer,
+                                               vertex_shader,
+                                               fragment_shader,
+                                               pipeline_layout,
+                                               config);
 }
 
-VertexBinding *
-GlRenderingContext::CreateVertexBinding(const VertexBuffer *buffer, const VertexBufferLayout *vertex_buffer_layout) {
-  return new GlVertexBinding(buffer, vertex_buffer_layout);
+std::shared_ptr<Shader> GlRenderingContext::CreateShader(std::string sipr_v_shader_location,
+                                                         std::string glsl_location,
+                                                         std::string entry_point_name,
+                                                         api::ShaderType type) {
+  return std::make_shared<GlShader>(sipr_v_shader_location, glsl_location, entry_point_name, type);
 }
 
-void GlRenderingContext::FreeVertexBiding(VertexBinding *vertex_binding) {
-  delete vertex_binding;
+std::shared_ptr<UniformBuffer> GlRenderingContext::CreateUniformBuffer(int length,
+                                                                       int binding_point,
+                                                                       ShaderType shader_stage) {
+  return std::make_shared<GlUniformBuffer>(length, binding_point, shader_stage);
 }
 
-RenderingPipeline *GlRenderingContext::CreateGraphicsPipeline(const VertexBinding *vertex_binding,
-                                                              const IndexBuffer *index_buffer,
-                                                              const Shader *vertex_shader,
-                                                              const Shader *fragment_shader,
-                                                              const RenderingPipelineLayout *pipeline_layout,
-                                                              const RenderingPipelineLayoutConfig &config) {
-  return new GlRenderingPipeline(this,
-                                 vertex_binding,
-                                 index_buffer,
-                                 vertex_shader,
-                                 fragment_shader,
-                                 pipeline_layout,
-                                 config);
+std::shared_ptr<Texture2D> GlRenderingContext::CreateTexture2D(std::string image_path,
+                                                               int binding_point,
+                                                               ShaderType shader_stage) {
+  return std::make_shared<GlTexture2D>(image_path, binding_point, shader_stage);
 }
 
-void GlRenderingContext::FreeGraphicsPipeline(RenderingPipeline *pipeline) {
-  delete pipeline;
-}
-
-Shader *GlRenderingContext::CreateShader(std::string sipr_v_shader_location, std::string glsl_location,
-                                         std::string entry_point_name,
-                                         api::ShaderType type) {
-  return new GlShader(sipr_v_shader_location, glsl_location, entry_point_name, type);
-}
-
-void GlRenderingContext::DeleteShader(Shader *vertex_binding) {
-  delete vertex_binding;
-}
-
-UniformBuffer *GlRenderingContext::CreateUniformBuffer(int length,
-                                                       int binding_point,
-                                                       ShaderType shader_stage) {
-  return new GlUniformBuffer(length, binding_point, shader_stage);
-}
-
-void GlRenderingContext::DeleteUniformBuffer(UniformBuffer *uniform_buffer) {
-  delete uniform_buffer;
-}
-Texture2D *GlRenderingContext::CreateTexture2D(std::string image_path, int binding_point, ShaderType shader_stage) {
-  return new GlTexture2D(image_path, binding_point, shader_stage);
-}
-void GlRenderingContext::DeleteTexture2D(Texture2D *texture_2_d) {
-  delete texture_2_d;
-}
 void GlRenderingContext::SetViewportSize(int width, int height) {
   viewport_width_ = width;
   viewport_height_ = height;
   float new_width = 4.0f;
   float new_height = ((float) width * new_width) / (float) height;
-  ortho_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
-  prespective_projection_ =
+  orthographic_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
+  perspective_projection_ =
       glm::perspective(glm::radians(45.0f), (float) viewport_width_ / (float) viewport_height_, 0.1f, 10.0f);
 }
 int GlRenderingContext::GetViewportWidth() const {
@@ -106,10 +86,8 @@ int GlRenderingContext::GetViewportHeight() const {
 void GlRenderingContext::WaitForGpuIdle() const {
   GL_CALL(glFinish());
 }
-RenderingPipelineLayout *GlRenderingContext::CreateRenderingPipelineLayout(const std::vector<Uniform *> &bindings) {
-  return new GlRenderingPipelineLayout(bindings);
-}
-void GlRenderingContext::FreeRenderingPipelineLayout(RenderingPipelineLayout *pipeline_layout) {
-  delete pipeline_layout;
+std::shared_ptr<RenderingPipelineLayout> GlRenderingContext::CreateRenderingPipelineLayout(
+    const std::vector<std::shared_ptr<Uniform>> &bindings) {
+  return std::make_shared<GlRenderingPipelineLayout>(bindings);
 }
 }

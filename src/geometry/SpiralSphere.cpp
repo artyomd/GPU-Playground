@@ -8,10 +8,11 @@
 
 #include "src/geometry/Point.hpp"
 
-geometry::SpiralSphere::SpiralSphere(api::RenderingContext *context,
-                                     float radius,
-                                     unsigned int loops,
-                                     unsigned int segments_per_loop)
+geometry::SpiralSphere::SpiralSphere(
+    std::shared_ptr<api::RenderingContext> context,
+    float radius,
+    unsigned int loops,
+    unsigned int segments_per_loop)
     : GeometryItem(context) {
 
   std::vector<Point> geometry_data;
@@ -61,16 +62,10 @@ geometry::SpiralSphere::SpiralSphere(api::RenderingContext *context,
   }
 
   vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 7 * geometry_data.size() * sizeof(float));
-  layout_ = new api::VertexBufferLayout();
+  layout_ = std::make_shared<api::VertexBufferLayout>();
   layout_->Push<float>(3);
   layout_->Push<float>(4);
 
   vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(index_data.data(), index_data.size(), api::DATA_TYPE_UINT_16);
-}
-geometry::SpiralSphere::~SpiralSphere() {
-  context_->FreeIndexBuffer(index_buffer_);
-  context_->FreeVertexBiding(vertex_binding_);
-  delete (layout_);
-  context_->FreeVertexBuffer(vertex_buffer_);
+  index_buffer_ = context->CreateIndexBuffer(index_data.data(), index_data.size(), api::DataType::DATA_TYPE_UINT_16);
 }

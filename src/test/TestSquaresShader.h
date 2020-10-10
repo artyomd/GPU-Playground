@@ -4,17 +4,19 @@
 
 #pragma once
 
+#include <utility>
+
 #include "src/test/TestShader.h"
 
 namespace test {
 class TestSquaresShader : public TestShader {
  public:
-  explicit TestSquaresShader(api::Renderer *renderer) :
-      TestShader(renderer,
-                 renderer->GetRenderingContext()->
+  explicit TestSquaresShader(std::shared_ptr<api::Renderer> renderer) :
+      TestShader(std::move(renderer),
+                 renderer_->GetContext()->
                      CreateShader("../res/shader/compiled/squares_fragment_shader.spv",
                                   "../res/shader/squares_fragment_shader.glsl",
                                   "main",
-                                  api::SHADER_TYPE_FRAGMENT)) {}
+                                  api::ShaderType::SHADER_TYPE_FRAGMENT)) {}
 };
 }

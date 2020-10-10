@@ -10,23 +10,21 @@
 namespace test {
 class TestTriangle : public TestModel {
  private:
-  api::Shader *vertex_shader_ = nullptr;
-  api::Shader *fragment_shader_ = nullptr;
-  api::UniformBuffer *uniform_buffer_ = nullptr;
-  api::RenderingPipelineLayout *pipeline_layout_ = nullptr;
-  api::RenderingPipeline *pipeline_ = nullptr;
-  geometry::Triangle *triangle_ = nullptr;
-  UniformBufferObjectMvp *ubo_ = new UniformBufferObjectMvp();
+  std::shared_ptr<api::Shader> vertex_shader_ = nullptr;
+  std::shared_ptr<api::Shader> fragment_shader_ = nullptr;
+  std::shared_ptr<api::UniformBuffer> uniform_buffer_ = nullptr;
+  std::shared_ptr<api::RenderingPipelineLayout> pipeline_layout_ = nullptr;
+  std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
+  std::shared_ptr<geometry::Triangle> triangle_ = nullptr;
+  std::shared_ptr<UniformBufferObjectMvp> ubo_ = std::make_shared<UniformBufferObjectMvp>();
 
  public:
-  explicit TestTriangle(api::Renderer *renderer);
+  explicit TestTriangle(std::shared_ptr<api::Renderer> renderer);
 
   void OnClear() override;
 
   void OnRender() override;
 
   void OnViewportChange() override;
-
-  ~TestTriangle() override;
 };
 }

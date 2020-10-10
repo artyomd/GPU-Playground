@@ -9,7 +9,7 @@
 namespace api {
 class GlRenderingPipelineLayout : public RenderingPipelineLayout {
  public:
-  GlRenderingPipelineLayout(const std::vector<Uniform *> &bindings);
+  explicit GlRenderingPipelineLayout(std::vector<std::shared_ptr<Uniform>> bindings);
   void Bind() const override;
   void UnBind() const;
 };

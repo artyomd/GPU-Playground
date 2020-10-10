@@ -8,19 +8,16 @@
 
 namespace api {
 class IndexBuffer {
- private:
   unsigned int count_;
   DataType data_type_;
  public:
-  IndexBuffer(unsigned int item_count, enum DataType type) : count_(item_count), data_type_(type) {
+  IndexBuffer(unsigned int item_count, enum DataType type) : count_(item_count), data_type_(type) {}
 
-  }
-
-  inline unsigned int GetCount() const {
+  [[nodiscard]] inline unsigned int GetCount() const {
     return count_;
   }
 
-  inline enum DataType GetType() const {
+  [[nodiscard]] inline enum DataType GetType() const {
     return data_type_;
   }
 

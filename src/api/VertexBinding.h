@@ -1,16 +1,20 @@
 #pragma once
 
+#include <utility>
+#include <memory>
+
 #include "src/api/VertexBuffer.h"
 #include "src/api/VertexBufferLayout.cpp"
 
 namespace api {
 class VertexBinding {
  protected:
-  const VertexBuffer *buffer_;
-  const VertexBufferLayout *buffer_description_;
+  std::shared_ptr<VertexBuffer> buffer_;
+  std::shared_ptr<VertexBufferLayout> buffer_description_;
  public:
-  VertexBinding(const VertexBuffer *buffer, const VertexBufferLayout *description) :
-      buffer_(buffer), buffer_description_(description) {};
+  VertexBinding(std::shared_ptr<VertexBuffer> buffer,
+                std::shared_ptr<VertexBufferLayout> buffer_description)
+      : buffer_(std::move(buffer)), buffer_description_(std::move(buffer_description)) {}
 
   virtual void Bind() const = 0;
 

@@ -3,17 +3,19 @@
 //
 #pragma once
 
+#include <utility>
 #include <vector>
 #include <utility>
+#include <memory>
 
 #include "src/api/Uniform.h"
 
 namespace api {
 class RenderingPipelineLayout {
  protected:
-  std::vector<Uniform *> bindings_;
+  std::vector<std::shared_ptr<Uniform>> bindings_;
  public:
-  explicit RenderingPipelineLayout(std::vector<Uniform *> bindings) : bindings_(std::move(bindings)) {}
+  explicit RenderingPipelineLayout(std::vector<std::shared_ptr<Uniform>> bindings) : bindings_(std::move(bindings)) {}
   virtual void Bind() const = 0;
   virtual ~RenderingPipelineLayout() = default;
 };

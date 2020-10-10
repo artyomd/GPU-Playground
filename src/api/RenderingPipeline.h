@@ -3,52 +3,55 @@
 //
 #pragma once
 
+#include <utility>
+#include <memory>
+
 #include "src/api/IndexBuffer.h"
 #include "src/api/RenderingPipelineLayout.h"
 #include "src/api/Shader.h"
 #include "src/api/VertexBinding.h"
 
 namespace api {
-enum DepthFunction {
+enum class DepthFunction {
   LESS
 };
-enum CullMode {
+enum class CullMode {
   NONE,
   FRONT,
   BACK,
   FRONT_AND_BACK
 };
-enum FrontFace {
+enum class FrontFace {
   CW,
   CCW
 };
 struct RenderingPipelineLayoutConfig {
-  CullMode cull_mode_ = NONE;
-  FrontFace front_face_ = FrontFace::CW;
-  bool enable_depth_test_ = false;
-  DepthFunction depth_function_ = DepthFunction::LESS;
+  CullMode cull_mode = CullMode::NONE;
+  FrontFace front_face = FrontFace::CW;
+  bool enable_depth_test = false;
+  DepthFunction depth_function = DepthFunction::LESS;
 };
 class RenderingPipeline {
  protected:
-  const VertexBinding *vertex_binding_;
-  const IndexBuffer *index_buffer_;
-  const Shader *vertex_shader_;
-  const Shader *fragment_shader_;
-  const api::RenderingPipelineLayout *pipeline_layout_;
+  std::shared_ptr<VertexBinding> vertex_binding_;
+  std::shared_ptr<IndexBuffer> index_buffer_;
+  std::shared_ptr<Shader> vertex_shader_;
+  std::shared_ptr<Shader> fragment_shader_;
+  std::shared_ptr<api::RenderingPipelineLayout> pipeline_layout_;
   const api::RenderingPipelineLayoutConfig config_;
  public:
-  RenderingPipeline(const VertexBinding *vertex_binding,
-                    const IndexBuffer *index_buffer,
-                    const Shader *vertex_shader,
-                    const Shader *fragment_shader,
-                    const RenderingPipelineLayout *pipeline_layout,
-                    const RenderingPipelineLayoutConfig &rendering_pipeline_layout_config)
-      : vertex_binding_(vertex_binding),
-        index_buffer_(index_buffer),
-        vertex_shader_(vertex_shader),
-        fragment_shader_(fragment_shader),
-        pipeline_layout_(pipeline_layout),
-        config_(rendering_pipeline_layout_config) {}
+  RenderingPipeline(std::shared_ptr<VertexBinding> vertex_binding,
+                    std::shared_ptr<IndexBuffer> index_buffer,
+                    std::shared_ptr<Shader> vertex_shader,
+                    std::shared_ptr<Shader> fragment_shader,
+                    std::shared_ptr<api::RenderingPipelineLayout> pipeline_layout,
+                    RenderingPipelineLayoutConfig config)
+      : vertex_binding_(std::move(vertex_binding)),
+        index_buffer_(std::move(index_buffer)),
+        vertex_shader_(std::move(vertex_shader)),
+        fragment_shader_(std::move(fragment_shader)),
+        pipeline_layout_(std::move(pipeline_layout)),
+        config_(config) {}
 
   virtual void Render() = 0;
 

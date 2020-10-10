@@ -3,17 +3,19 @@
 //
 #pragma once
 
+#include <utility>
+
 #include "src/test/TestShader.h"
 
 namespace test {
 class TestRaymarching : public TestShader {
  public:
-  explicit TestRaymarching(api::Renderer *renderer) :
-      TestShader(renderer,
-                 renderer->GetRenderingContext()->
+  explicit TestRaymarching(std::shared_ptr<api::Renderer> renderer) :
+      TestShader(std::move(renderer),
+                 renderer_->GetContext()->
                      CreateShader("../res/shader/compiled/raymarched_reflections.spv",
                                   "../res/shader/raymarched_reflections.glsl",
                                   "main",
-                                  api::SHADER_TYPE_FRAGMENT)) {}
+                                  api::ShaderType::SHADER_TYPE_FRAGMENT)) {}
 };
 }

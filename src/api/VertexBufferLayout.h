@@ -10,8 +10,8 @@
 
 namespace api {
 struct VertexAttribute {
-  DataType type_;
-  unsigned int count_;
+  DataType type;
+  unsigned int count;
 };
 
 class VertexBufferLayout {
@@ -23,7 +23,7 @@ class VertexBufferLayout {
   VertexBufferLayout() : stride_(0) {}
 
   template<typename T>
-  inline void Push(unsigned int count) {
+  inline void Push(unsigned int) {
     throw std::runtime_error("not implemented");
   }
 

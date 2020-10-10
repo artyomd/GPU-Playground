@@ -5,14 +5,14 @@
 #pragma once
 
 #include "src/api/Texture2D.h"
-#include "src/api/vulkan/VkRenderingContext.h"
-#include "src/api/vulkan/VkUniform.h"
+#include "src/api/vulkan/VulkanRenderingContext.h"
+#include "src/api/vulkan/VulkanUniform.h"
 
 namespace api {
-class VkTexture2D : public Texture2D, public VkUniform {
+class VulkanTexture2D : public Texture2D, public VulkanUniform {
  private:
-  VkRenderingContext *context_;
-  VkDevice *device_;
+  std::shared_ptr<VulkanRenderingContext> context_;
+  VkDevice device_;
   VkDescriptorImageInfo image_info_{};
   VkSampler sampler_{};
   VkImageView image_view_{};
@@ -22,8 +22,11 @@ class VkTexture2D : public Texture2D, public VkUniform {
   void CreateTextureSampler();
 
  public:
-  VkTexture2D(VkRenderingContext *context, std::string image_path, int binding_point, ShaderType shader_stage);
-  ~VkTexture2D() override;
+  VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
+                  std::string image_path,
+                  int binding_point,
+                  ShaderType shader_stage);
+  ~VulkanTexture2D() override;
   [[nodiscard]] VkDescriptorSetLayoutBinding GetLayoutBinding() const override;
   [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(int image_index) const override;
 };

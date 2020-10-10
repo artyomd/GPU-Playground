@@ -16,14 +16,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #        FORCE)
 #
 # AddressSanitize
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=address"
-#        CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=address"
-#        CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
-#        FORCE)
+set(CMAKE_C_FLAGS
+        "-fsanitize=address"
+        CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
+        FORCE)
+set(CMAKE_CXX_FLAGS
+        "-fsanitize=address"
+        CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
+        FORCE)
 
 # LeakSanitizer
 #set(CMAKE_C_FLAGS

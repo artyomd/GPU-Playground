@@ -6,16 +6,16 @@
 
 #include "src/api/gl/GlUniform.h"
 
-api::GlRenderingPipelineLayout::GlRenderingPipelineLayout(const std::vector<Uniform *> &bindings)
-    : RenderingPipelineLayout(bindings) {}
+api::GlRenderingPipelineLayout::GlRenderingPipelineLayout(std::vector<std::shared_ptr<Uniform>> bindings)
+    : RenderingPipelineLayout(std::move(bindings)) {}
 
 void api::GlRenderingPipelineLayout::Bind() const {
-  for (auto value: bindings_) {
-    dynamic_cast<GlUniform *>(value)->Bind();
+  for (const auto &value: bindings_) {
+    std::dynamic_pointer_cast<GlUniform>(value)->Bind();
   }
 }
 void api::GlRenderingPipelineLayout::UnBind() const {
-  for (auto value: bindings_) {
-    dynamic_cast<GlUniform *>(value)->Unbind();
+  for (const auto &value: bindings_) {
+    std::dynamic_pointer_cast<GlUniform>(value)->Unbind();
   }
 }

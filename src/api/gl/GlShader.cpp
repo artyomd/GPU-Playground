@@ -32,7 +32,7 @@ api::GlShader::GlShader(std::string sipr_v_shader_location,
     GL_CALL(glGetShaderiv(renderer_id_, GL_INFO_LOG_LENGTH, &length));
     char *message = (char *) alloca(length * sizeof(char));
     GL_CALL(glGetShaderInfoLog(renderer_id_, length, &length, message));
-    std::cout << "Failed to compile shader of type:" << type << std::endl;
+    std::cout << "Failed to compile shader" << std::endl;
     GL_CALL(glDeleteShader(renderer_id_));
     throw std::runtime_error(message);
   }

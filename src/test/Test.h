@@ -3,14 +3,16 @@
 //
 #pragma once
 
+#include <utility>
+
 #include "src/api/Renderer.hpp"
 
 namespace test {
 class Test {
  protected:
-  api::Renderer *renderer_;
+  std::shared_ptr<api::Renderer> renderer_;
  public:
-  explicit Test(api::Renderer *renderer) : renderer_(renderer) {};
+  explicit Test(std::shared_ptr<api::Renderer> renderer) : renderer_(std::move(renderer)) {};
 
   virtual void OnClear() {}
 

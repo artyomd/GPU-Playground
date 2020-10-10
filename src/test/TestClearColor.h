@@ -5,10 +5,11 @@
 
 #include "src/test/Test.h"
 
+#include "src/api/DataType.h"
 namespace test {
 class TestClearColor : public Test {
  public:
-  explicit TestClearColor(api::Renderer *renderer);
+  explicit TestClearColor(std::shared_ptr<api::Renderer> renderer);
 
   void OnClear() override;
 
@@ -16,6 +17,6 @@ class TestClearColor : public Test {
 
   ~TestClearColor() override;
  private:
-  float color_[4] = {0.2f, 0.3f, 0.8f, 1.0f};
+  api::Pixel_RGBA color_ = {0.2f, 0.3f, 0.8f, 1.0f};
 };
 }

@@ -11,7 +11,7 @@ void GlClearError() {
 }
 
 bool GlLogCall(const char *function, const char *file, int line) {
-  while (GLenum error = glGetError()) {
+  if (GLenum error = glGetError()) {
     std::cout << "[OpenGL error] (" << error << "): "
               << function << ""
               << file << ":"
@@ -19,4 +19,22 @@ bool GlLogCall(const char *function, const char *file, int line) {
     return false;
   }
   return true;
+}
+
+GLint GetGlType(api::DataType type) {
+  switch (type) {
+    case api::DataType::DATA_TYPE_BYTE:return GL_UNSIGNED_BYTE;
+    case api::DataType::DATA_TYPE_UINT_16:return GL_UNSIGNED_SHORT;
+    case api::DataType::DATA_TYPE_UINT_32:return GL_UNSIGNED_INT;
+    case api::DataType::DATA_TYPE_FLOAT:return GL_FLOAT;
+    default:throw std::runtime_error("unsupported enum");
+  }
+}
+
+int GetShaderGlType(api::ShaderType shader_type) {
+  switch (shader_type) {
+    case api::ShaderType::SHADER_TYPE_VERTEX:return GL_VERTEX_SHADER;
+    case api::ShaderType::SHADER_TYPE_FRAGMENT:return GL_FRAGMENT_SHADER;
+    default:throw std::runtime_error("invalid shader type");
+  }
 }

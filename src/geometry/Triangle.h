@@ -11,14 +11,12 @@
 namespace geometry {
 class Triangle : public GeometryItem {
  private:
-  api::VertexBuffer *vertex_buffer_ = nullptr;
-  api::VertexBufferLayout *layout_ = nullptr;
+  std::shared_ptr<api::VertexBuffer> vertex_buffer_ = nullptr;
+  std::shared_ptr<api::VertexBufferLayout> layout_ = nullptr;
  public:
-  explicit Triangle(api::RenderingContext *context,
+  explicit Triangle(std::shared_ptr<api::RenderingContext> context,
                     Point &point_0,
                     Point &point_1,
                     Point &point_2);
-
-  ~Triangle() override;
 };
 }

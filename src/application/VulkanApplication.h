@@ -7,12 +7,12 @@
 #define GLFW_INCLUDE_VULKAN
 
 #include "src/application/GlfwApplication.h"
-#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VulkanRenderingContext.h"
 
 namespace application {
 class VulkanApplication : public GlfwApplication {
  private:
-  api::VkRenderingContext *context_ = nullptr;
+  std::shared_ptr<api::VulkanRenderingContext> context_ = nullptr;
 #ifdef NDEBUG
   const bool enable_validation_layers_ = false;
 #else
@@ -70,19 +70,19 @@ class VulkanApplication : public GlfwApplication {
   uint32_t current_image_ = 0;
 
   struct QueueFamilyIndices {
-    std::optional<uint32_t> graphics_family_;
-    std::optional<uint32_t> present_family_;
+    std::optional<uint32_t> graphics_family;
+    std::optional<uint32_t> present_family;
 
-    bool IsComplete() {
-      return graphics_family_.has_value() &&
-          present_family_.has_value();
+    [[nodiscard]] bool IsComplete() const {
+      return graphics_family.has_value() &&
+          present_family.has_value();
     }
   };
 
   struct SwapChainSupportDetails {
-    VkSurfaceCapabilitiesKHR capabilities_{};
-    std::vector<VkSurfaceFormatKHR> formats_;
-    std::vector<VkPresentModeKHR> present_modes_;
+    VkSurfaceCapabilitiesKHR capabilities{};
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> present_modes;
   };
 
   void CreateInstance();
@@ -91,7 +91,7 @@ class VulkanApplication : public GlfwApplication {
 
   bool CheckValidationLayerSupport();
 
-  std::vector<const char *> GetRequiredExtensions();
+  [[nodiscard]] std::vector<const char *> GetRequiredExtensions() const;
 
   void SetupDebugMessenger();
 

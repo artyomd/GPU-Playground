@@ -8,14 +8,12 @@
 namespace geometry {
 class StackedSphere : public GeometryItem {
  private:
-  api::VertexBuffer *vertex_buffer_ = nullptr;
-  api::VertexBufferLayout *layout_ = nullptr;
+  std::shared_ptr<api::VertexBuffer> vertex_buffer_ = nullptr;
+  std::shared_ptr<api::VertexBufferLayout> layout_ = nullptr;
  public:
-  explicit StackedSphere(api::RenderingContext *context,
+  explicit StackedSphere(const std::shared_ptr<api::RenderingContext>& context,
                          float radius = 1.0f,
                          unsigned int stacks = 8,
                          unsigned int slices = 16);
-
-  ~StackedSphere() override;
 };
 }

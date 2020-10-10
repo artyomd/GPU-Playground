@@ -5,16 +5,17 @@
 #include "src/test/TestClearColor.h"
 
 #include <imgui/imgui.h>
+#include <utility>
 
-test::TestClearColor::TestClearColor(api::Renderer *renderer) : Test(renderer) {
+test::TestClearColor::TestClearColor(std::shared_ptr<api::Renderer> renderer) : Test(std::move(renderer)) {
 
 }
 void test::TestClearColor::OnClear() {
-  renderer_->SetClearColor(color_[0], color_[1], color_[2], color_[3]);
+  renderer_->SetClearColor(color_);
 }
 void test::TestClearColor::OnImGuiRender() {
-  ImGui::ColorEdit4("Clear color", color_);
+  ImGui::ColorEdit4("Clear color", reinterpret_cast<float *>(&color_));
 }
 test::TestClearColor::~TestClearColor() {
-  renderer_->SetClearColor(0, 0, 0, 1);
+  renderer_->SetClearColor({0, 0, 0, 255});
 }

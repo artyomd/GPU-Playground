@@ -79,7 +79,6 @@ namespace application {
 void OpenGlApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DEPTH_BITS, GL_TRUE);
   glfwWindowHint(GLFW_SAMPLES, 16);
@@ -95,7 +94,6 @@ void OpenGlApplication::InitContext() {
   }
   GL_CALL(glEnable(GL_DEBUG_OUTPUT));
   GL_CALL(glDebugMessageCallback(MessageCallback, nullptr));
-  context_ = new api::GlRenderingContext();
   renderer_->SetContext(context_);
   PrepareTestMenu();
 }
@@ -110,8 +108,8 @@ void OpenGlApplication::InitImGui() {
 
 bool OpenGlApplication::PrepareFrame() {
   GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  float *color = renderer_->GetColor();
-  GL_CALL(glClearColor(color[0], color[1], color[2], color[3]));
+  auto color = renderer_->GetClearColor();
+  GL_CALL(glClearColor(color.r, color.g, color.b, color.a));
   return true;
 }
 
@@ -138,8 +136,6 @@ void OpenGlApplication::DestroyImGui() {
 }
 
 void OpenGlApplication::DestroyContext() {
-  DeleteTestMenu();
-  delete context_;
   glfwMakeContextCurrent(nullptr);
 }
 }

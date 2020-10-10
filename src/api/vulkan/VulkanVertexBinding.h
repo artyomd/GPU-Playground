@@ -9,12 +9,12 @@
 #include "src/api/VertexBinding.h"
 
 namespace api {
-class VkVertexBinding : public VertexBinding {
-  VkVertexInputBindingDescription *vertex_input_binding_description_;
-  std::vector<VkVertexInputAttributeDescription> *attribute_descriptions_;
+class VulkanVertexBinding : public VertexBinding {
+  VkVertexInputBindingDescription vertex_input_binding_description_{};
+  std::vector<VkVertexInputAttributeDescription> attribute_descriptions_{};
 
  public:
-  VkVertexBinding(const VertexBuffer *vb, const VertexBufferLayout *layout);
+  VulkanVertexBinding(std::shared_ptr<VertexBuffer> vb, std::shared_ptr<VertexBufferLayout> buffer_description);
 
   [[nodiscard]] const VkVertexInputBindingDescription *GetVertexInputBindingDescription() const;
 
@@ -22,6 +22,5 @@ class VkVertexBinding : public VertexBinding {
 
   void Bind() const override;
   void Unbind() const override;
-  ~VkVertexBinding() override;
 };
 }

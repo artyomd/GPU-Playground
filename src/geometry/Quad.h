@@ -9,15 +9,13 @@
 namespace geometry {
 class Quad : public GeometryItem {
  private:
-  api::VertexBuffer *vertex_buffer_ = nullptr;
-  api::VertexBufferLayout *layout_ = nullptr;
+  std::shared_ptr<api::VertexBuffer> vertex_buffer_ = nullptr;
+  std::shared_ptr<api::VertexBufferLayout> layout_ = nullptr;
  public:
-  explicit Quad(api::RenderingContext *context,
+  explicit Quad(const std::shared_ptr<api::RenderingContext>& context,
                 Point &top_left,
                 Point &top_right,
                 Point &bottom_right,
                 Point &bottom_left);
-
-  ~Quad() override;
 };
 }

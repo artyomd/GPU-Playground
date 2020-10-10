@@ -2,19 +2,12 @@
 
 #include <string>
 #include <utility>
-#include <vulkan/vulkan.h>
 
 namespace api {
-enum ShaderType {
+enum class ShaderType {
   SHADER_TYPE_VERTEX,
   SHADER_TYPE_FRAGMENT
 };
-
-VkShaderStageFlags GetVkShaderStageFlag(api::ShaderType shader_type);
-
-int GetShaderGlType(ShaderType shader_type);
-
-VkShaderStageFlagBits GetShaderVkType(ShaderType shader_type);
 
 class Shader {
 

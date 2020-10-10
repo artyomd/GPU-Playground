@@ -8,23 +8,23 @@
 #include <src/api/RenderingContext.h>
 #include <src/api/VertexBinding.h>
 
+#include <utility>
+
 namespace geometry {
 class GeometryItem {
  protected:
-  api::VertexBinding *vertex_binding_ = nullptr;
-  api::IndexBuffer *index_buffer_ = nullptr;
-  api::RenderingContext *context_;
+  std::shared_ptr<api::VertexBinding> vertex_binding_ = nullptr;
+  std::shared_ptr<api::IndexBuffer> index_buffer_ = nullptr;
+  std::shared_ptr<api::RenderingContext> context_;
  public:
-  explicit GeometryItem(api::RenderingContext *context) : context_(context) {}
+  explicit GeometryItem(std::shared_ptr<api::RenderingContext> context) : context_(std::move(context)) {}
 
-  [[nodiscard]] inline const api::VertexBinding *GetVertexBinding() const {
+  [[nodiscard]] inline std::shared_ptr<api::VertexBinding> GetVertexBinding() const {
     return vertex_binding_;
   }
 
-  [[nodiscard]] inline const api::IndexBuffer *GetIndexBuffer() const {
+  [[nodiscard]] inline std::shared_ptr<api::IndexBuffer> GetIndexBuffer() const {
     return index_buffer_;
   }
-
-  virtual ~GeometryItem() = default;
 };
 }

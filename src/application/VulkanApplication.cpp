@@ -9,7 +9,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_vulkan.h>
 
-#include "src/api/vulkan/VkRenderingContext.h"
+#include "src/api/vulkan/VulkanRenderingContext.h"
 
 namespace application {
 
@@ -60,15 +60,15 @@ void VulkanApplication::InitContext() {
   PickPhysicalDevice();
   CreateLogicalDevice();
   CreateDescriptorPool();
-  context_ = new api::VkRenderingContext(
-      &physical_device_,
-      &device_,
-      &graphics_command_pool_,
-      &graphics_queue_,
-      &descriptor_pool_,
+  CreateCommandPool();
+  context_ = std::make_shared<api::VulkanRenderingContext>(
+      physical_device_,
+      device_,
+      graphics_queue_,
+      graphics_command_pool_,
+      descriptor_pool_,
       max_frames_in_flight_);
   renderer_->SetContext(context_);
-  CreateCommandPool();
 
   CreateSwapChain();
   CreateImageViews();
@@ -111,7 +111,7 @@ void VulkanApplication::CreateInstance() {
   app_info.applicationVersion = 0U;
   app_info.pEngineName = "No Engine";
   app_info.engineVersion = 0U;
-  app_info.apiVersion = VK_API_VERSION_1_1;
+  app_info.apiVersion = VK_API_VERSION_1_2;
 
   VkInstanceCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -148,7 +148,7 @@ bool VulkanApplication::CheckValidationLayerSupport() {
   return false;
 }
 
-std::vector<const char *> VulkanApplication::GetRequiredExtensions() {
+std::vector<const char *> VulkanApplication::GetRequiredExtensions() const {
   uint32_t glfw_extension_count = 0;
   const char **glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
   std::vector<const char *> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
@@ -209,7 +209,7 @@ bool VulkanApplication::IsDeviceSuitable(VkPhysicalDevice device) {
   bool swap_chain_adequate = false;
   if (extensions_supported) {
     SwapChainSupportDetails swap_chain_support = QuerySwapChainSupport(device);
-    swap_chain_adequate = !swap_chain_support.formats_.empty() && !swap_chain_support.present_modes_.empty();
+    swap_chain_adequate = !swap_chain_support.formats.empty() && !swap_chain_support.present_modes.empty();
   }
   VkPhysicalDeviceFeatures supported_features;
   vkGetPhysicalDeviceFeatures(device, &supported_features);
@@ -226,12 +226,12 @@ VulkanApplication::QueueFamilyIndices VulkanApplication::FindQueueFamilies(VkPhy
   int i = 0;
   for (const auto &queue_family :queue_families) {
     if (queue_family.queueCount > 0 && queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      indices.graphics_family_ = i;
+      indices.graphics_family = i;
     }
     VkBool32 present_support = false;
     vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &present_support);
     if (queue_family.queueCount > 0 && present_support) {
-      indices.present_family_ = i;
+      indices.present_family = i;
     }
     if (indices.IsComplete()) {
       break;
@@ -255,18 +255,18 @@ bool VulkanApplication::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
 
 VulkanApplication::SwapChainSupportDetails VulkanApplication::QuerySwapChainSupport(VkPhysicalDevice device) {
   SwapChainSupportDetails details;
-  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities_);
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
   uint32_t format_count;
   vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &format_count, nullptr);
   if (format_count != 0) {
-    details.formats_.resize(format_count);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &format_count, details.formats_.data());
+    details.formats.resize(format_count);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &format_count, details.formats.data());
   }
   uint32_t present_mode_count;
   vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &present_mode_count, nullptr);
   if (present_mode_count != 0) {
-    details.present_modes_.resize(present_mode_count);
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &present_mode_count, details.present_modes_.data());
+    details.present_modes.resize(present_mode_count);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &present_mode_count, details.present_modes.data());
   }
   return details;
 }
@@ -275,8 +275,8 @@ void VulkanApplication::CreateLogicalDevice() {
   QueueFamilyIndices indices = FindQueueFamilies(physical_device_);
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
   std::set<uint32_t> unique_queue_families = {
-      indices.graphics_family_.value(),
-      indices.present_family_.value()
+      indices.graphics_family.value(),
+      indices.present_family.value()
   };
   float queue_priority = 1.0f;
   for (uint32_t queue_family : unique_queue_families) {
@@ -308,8 +308,8 @@ void VulkanApplication::CreateLogicalDevice() {
   if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create logical device!");
   }
-  vkGetDeviceQueue(device_, indices.present_family_.value(), 0, &present_queue_);
-  vkGetDeviceQueue(device_, indices.graphics_family_.value(), 0, &graphics_queue_);
+  vkGetDeviceQueue(device_, indices.present_family.value(), 0, &present_queue_);
+  vkGetDeviceQueue(device_, indices.graphics_family.value(), 0, &graphics_queue_);
 }
 
 void VulkanApplication::CreateDescriptorPool() {
@@ -343,7 +343,7 @@ void VulkanApplication::CreateCommandPool() {
   QueueFamilyIndices queue_family_indices = FindQueueFamilies(physical_device_);
   VkCommandPoolCreateInfo pool_info = {};
   pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  pool_info.queueFamilyIndex = queue_family_indices.graphics_family_.value();
+  pool_info.queueFamilyIndex = queue_family_indices.graphics_family.value();
   pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
   if (vkCreateCommandPool(device_, &pool_info, nullptr, &graphics_command_pool_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create command pool!");
@@ -352,14 +352,14 @@ void VulkanApplication::CreateCommandPool() {
 
 void VulkanApplication::CreateSwapChain() {
   SwapChainSupportDetails swap_chain_support = QuerySwapChainSupport(physical_device_);
-  VkSurfaceFormatKHR surface_format = ChooseSwapSurfaceFormat(swap_chain_support.formats_);
-  VkPresentModeKHR present_mode = ChooseSwapPresentMode(swap_chain_support.present_modes_);
-  swap_chain_extent_ = ChooseSwapExtent(swap_chain_support.capabilities_);
+  VkSurfaceFormatKHR surface_format = ChooseSwapSurfaceFormat(swap_chain_support.formats);
+  VkPresentModeKHR present_mode = ChooseSwapPresentMode(swap_chain_support.present_modes);
+  swap_chain_extent_ = ChooseSwapExtent(swap_chain_support.capabilities);
   swap_chain_image_format_ = surface_format.format;
-  uint32_t image_count = swap_chain_support.capabilities_.minImageCount + 1;
-  if (swap_chain_support.capabilities_.maxImageCount > 0 &&
-      image_count > swap_chain_support.capabilities_.maxImageCount) {
-    image_count = swap_chain_support.capabilities_.maxImageCount;
+  uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
+  if (swap_chain_support.capabilities.maxImageCount > 0 &&
+      image_count > swap_chain_support.capabilities.maxImageCount) {
+    image_count = swap_chain_support.capabilities.maxImageCount;
   }
   VkSwapchainCreateInfoKHR create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -372,9 +372,9 @@ void VulkanApplication::CreateSwapChain() {
   create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
   QueueFamilyIndices indices = FindQueueFamilies(physical_device_);
-  uint32_t queue_family_indices[] = {indices.graphics_family_.value(),
-                                     indices.present_family_.value()};
-  if (indices.graphics_family_ != indices.present_family_) {
+  uint32_t queue_family_indices[] = {indices.graphics_family.value(),
+                                     indices.present_family.value()};
+  if (indices.graphics_family != indices.present_family) {
     create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     create_info.queueFamilyIndexCount = 2;
     create_info.pQueueFamilyIndices = queue_family_indices;
@@ -383,7 +383,7 @@ void VulkanApplication::CreateSwapChain() {
     create_info.queueFamilyIndexCount = 0;
     create_info.pQueueFamilyIndices = nullptr;
   }
-  create_info.preTransform = swap_chain_support.capabilities_.currentTransform;
+  create_info.preTransform = swap_chain_support.capabilities.currentTransform;
   create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   create_info.presentMode = present_mode;
   create_info.clipped = VK_TRUE;
@@ -436,8 +436,11 @@ VkExtent2D VulkanApplication::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &c
 void VulkanApplication::CreateImageViews() {
   swap_chain_image_views_.resize(swap_chain_images_.size());
   for (size_t i = 0; i < swap_chain_images_.size(); i++) {
-    swap_chain_image_views_[i] =
-        context_->CreateImageView(swap_chain_images_[i], swap_chain_image_format_, VK_IMAGE_ASPECT_COLOR_BIT);
+    context_->CreateImageView(
+        swap_chain_images_[i],
+        swap_chain_image_format_,
+        VK_IMAGE_ASPECT_COLOR_BIT,
+        &swap_chain_image_views_[i]);
   }
 }
 
@@ -447,9 +450,10 @@ void VulkanApplication::CreateColorResources() {
                         context_->GetMsaaSamples(), color_format, VK_IMAGE_TILING_OPTIMAL,
                         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, color_image_,
-                        color_image_memory_);
-  color_image_view_ = context_->CreateImageView(color_image_, color_format, VK_IMAGE_ASPECT_COLOR_BIT);
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        &color_image_,
+                        &color_image_memory_);
+  context_->CreateImageView(color_image_, color_format, VK_IMAGE_ASPECT_COLOR_BIT, &color_image_view_);
   context_->TransitionImageLayout(color_image_,
                                   VK_IMAGE_LAYOUT_UNDEFINED,
                                   VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -461,9 +465,10 @@ void VulkanApplication::CreateDepthResources() {
                         context_->GetMsaaSamples(),
                         depth_format, VK_IMAGE_TILING_OPTIMAL,
                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depth_image_,
-                        depth_image_memory_);
-  depth_image_view_ = context_->CreateImageView(depth_image_, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT);
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        &depth_image_,
+                        &depth_image_memory_);
+  context_->CreateImageView(depth_image_, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT, &depth_image_view_);
 }
 
 void VulkanApplication::CreateRenderPass() {
@@ -528,7 +533,7 @@ void VulkanApplication::CreateRenderPass() {
 
   VkRenderPassCreateInfo render_pass_info = {};
   render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-  render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());;
+  render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());
   render_pass_info.pAttachments = attachments.data();
   render_pass_info.subpassCount = 1;
   render_pass_info.pSubpasses = &sub_pass;
@@ -538,7 +543,7 @@ void VulkanApplication::CreateRenderPass() {
   if (vkCreateRenderPass(device_, &render_pass_info, nullptr, &render_pass_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create render pass!");
   }
-  context_->SetVkRenderPass(&render_pass_);
+  context_->SetVkRenderPass(render_pass_);
 }
 
 void VulkanApplication::CreateFrameBuffers() {
@@ -654,14 +659,14 @@ bool VulkanApplication::PrepareFrame() {
   render_pass_info.renderArea.offset = {0, 0};
   render_pass_info.renderArea.extent = swap_chain_extent_;
 
-  float *color = renderer_->GetColor();
+  auto color = renderer_->GetClearColor();
   std::array<VkClearValue, 2> clear_values = {};
-  clear_values[0].color = {color[0], color[1], color[2], color[3]};
+  clear_values[0].color = {color.r, color.g, color.b, color.a};
   clear_values[1].depthStencil = {1.0f, 0};
   render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
   render_pass_info.pClearValues = clear_values.data();
   vkCmdBeginRenderPass(graphics_command_buffers_[current_frame_], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-  context_->SetCurrentCommandBuffer(&graphics_command_buffers_[current_frame_]);
+  context_->SetCurrentCommandBuffer(graphics_command_buffers_[current_frame_]);
   return true;
 }
 
@@ -747,9 +752,8 @@ void VulkanApplication::CleanupSwapChain() {
 }
 
 void VulkanApplication::DestroyContext() {
-  DeleteTestMenu();
+  this->ResetMenu();
   CleanupSwapChain();
-  delete context_;
   for (size_t i = 0; i < max_frames_in_flight_; i++) {
     vkDestroySemaphore(device_, render_finished_semaphores_[i], nullptr);
     vkDestroySemaphore(device_, image_available_semaphores_[i], nullptr);

@@ -5,6 +5,7 @@
 #include "src/api/gl/GlRenderingPipeline.h"
 
 #include <iostream>
+#include <utility>
 
 #include "src/api/gl/GlIndexBuffer.h"
 #include "src/api/gl/GlRenderingPipelineLayout.h"
@@ -24,41 +25,48 @@ static inline void GetProgramInfoLog(int id) {
   }
 }
 
-GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
-                                         const VertexBinding *vertex_binding, const IndexBuffer *index_buffer,
-                                         const Shader *vertex_shader, const Shader *fragment_shader,
-                                         const RenderingPipelineLayout *pipeline_layout,
-                                         const RenderingPipelineLayoutConfig &config)
-    : RenderingPipeline(vertex_binding, index_buffer, vertex_shader, fragment_shader, pipeline_layout, config),
-      context_(context) {
-  DataType type = index_buffer->GetType();
-  if (type != DATA_TYPE_BYTE &&
-      type != DATA_TYPE_UINT_16 &&
-      type != DATA_TYPE_UINT_32) {
+GlRenderingPipeline::GlRenderingPipeline(std::shared_ptr<GlRenderingContext> context,
+                                         std::shared_ptr<VertexBinding> vertex_binding,
+                                         std::shared_ptr<IndexBuffer> index_buffer,
+                                         std::shared_ptr<Shader> vertex_shader,
+                                         std::shared_ptr<Shader> fragment_shader,
+                                         std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
+                                         RenderingPipelineLayoutConfig config) :
+    RenderingPipeline(std::move(vertex_binding),
+                      std::move(index_buffer),
+                      std::move(vertex_shader),
+                      std::move(fragment_shader),
+                      std::move(pipeline_layout),
+                      config),
+    context_(std::move(context)) {
+  DataType type = index_buffer_->GetType();
+  if (type != DataType::DATA_TYPE_BYTE &&
+      type != DataType::DATA_TYPE_UINT_16 &&
+      type != DataType::DATA_TYPE_UINT_32) {
     throw std::runtime_error("unsupported data type");
   }
   GL_CALL(program_id_ = glCreateProgram());
-  dynamic_cast<const GlShader *>(vertex_shader)->AttachShader(program_id_);
-  dynamic_cast<const GlShader *>(fragment_shader)->AttachShader(program_id_);
+  std::dynamic_pointer_cast<GlShader>(vertex_shader_)->AttachShader(program_id_);
+  std::dynamic_pointer_cast<GlShader>(fragment_shader_)->AttachShader(program_id_);
   GL_CALL(glLinkProgram(program_id_));
 
   GLint link_status;
   glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &link_status);
   if (link_status == GL_FALSE) {
     GetProgramInfoLog(program_id_);
-    dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
-    dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);
+    std::dynamic_pointer_cast<GlShader>(vertex_shader_)->DetachShader(program_id_);
+    std::dynamic_pointer_cast<GlShader>(fragment_shader_)->DetachShader(program_id_);
     throw std::runtime_error("unable to link Gl program");
   }
 
   GL_CALL(glValidateProgram(program_id_));
   GetProgramInfoLog(program_id_);
-  dynamic_cast<const GlShader *>(vertex_shader)->DetachShader(program_id_);
-  dynamic_cast<const GlShader *>(fragment_shader)->DetachShader(program_id_);
+  std::dynamic_pointer_cast<GlShader>(vertex_shader_)->DetachShader(program_id_);
+  std::dynamic_pointer_cast<GlShader>(fragment_shader_)->DetachShader(program_id_);
 
-  if (config.enable_depth_test_) {
+  if (config.enable_depth_test) {
     GL_CALL(glEnable(GL_DEPTH_TEST));
-    switch (config.depth_function_) {
+    switch (config.depth_function) {
       case DepthFunction::LESS:GL_CALL(glDepthFunc(GL_LESS));
         break;
       default: throw std::runtime_error("not implemented");
@@ -67,7 +75,7 @@ GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
     glDisable(GL_DEPTH_TEST);
   }
   GL_CALL(glEnable(GL_CULL_FACE));
-  switch (config.cull_mode_) {
+  switch (config.cull_mode) {
     case CullMode::BACK: GL_CALL(glCullFace(GL_BACK));
       break;
     case CullMode::FRONT: GL_CALL(glCullFace(GL_FRONT));
@@ -78,7 +86,7 @@ GlRenderingPipeline::GlRenderingPipeline(const GlRenderingContext *context,
       break;
     default: throw std::runtime_error("not implemented");
   }
-  switch (config.front_face_) {
+  switch (config.front_face) {
     case FrontFace::CW:GL_CALL(glFrontFace(GL_CW));
       break;
     case FrontFace::CCW:GL_CALL(glFrontFace(GL_CCW));
@@ -95,16 +103,16 @@ GlRenderingPipeline::~GlRenderingPipeline() {
 
 void GlRenderingPipeline::Render() {
   GL_CALL(glUseProgram(program_id_));
-  dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Bind();
+  std::dynamic_pointer_cast<GlVertexBinding>(vertex_binding_)->Bind();
   index_buffer_->Bind();
   pipeline_layout_->Bind();
 
   GL_CALL(glDrawElements(GL_TRIANGLES, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
 
-  dynamic_cast<const GlRenderingPipelineLayout *>(pipeline_layout_)->UnBind();
+  std::dynamic_pointer_cast<GlRenderingPipelineLayout>(pipeline_layout_)->UnBind();
 
   index_buffer_->Unbind();
-  dynamic_cast<const GlVertexBinding *>(vertex_binding_)->Unbind();
+  std::dynamic_pointer_cast<GlVertexBinding>(vertex_binding_)->Unbind();
   GL_CALL(glUseProgram(0));
 }
 void GlRenderingPipeline::ViewportChanged() {

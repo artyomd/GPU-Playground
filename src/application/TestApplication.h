@@ -9,10 +9,12 @@
 
 namespace application {
 class TestApplication : public Application {
-  test::TestMenu *test_menu_ = nullptr;
+
+  std::shared_ptr<test::TestMenu> test_menu_ = nullptr;
   bool return_pressed_ = false;
+
  protected:
-  test::Test *current_test_ = nullptr;
+  std::shared_ptr<test::Test> current_test_ = nullptr;
 
   void PrepareTestMenu();
 
@@ -20,9 +22,9 @@ class TestApplication : public Application {
 
   void PostRender();
 
-  void DeleteTestMenu();
- public:
+  void ResetMenu();
 
+ public:
   template<typename T>
   void RegisterTest(const std::string &name) {
     if (test_menu_ != nullptr) {
