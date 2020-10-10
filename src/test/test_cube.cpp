@@ -50,11 +50,9 @@ test::TestCube::TestCube(std::shared_ptr<api::Renderer> renderer) : TestModel(st
   uniforms.push_back(uniform_buffer_);
   pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
-                                         "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
                                          api::ShaderType::SHADER_TYPE_VERTEX);
   fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
-                                           "../res/shader/default_color_fragment_shader.glsl",
                                            "main",
                                            api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(vertex_binding_, index_buffer_,

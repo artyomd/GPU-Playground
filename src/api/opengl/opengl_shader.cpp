@@ -10,20 +10,18 @@
 #include "src/api/utils.hpp"
 
 api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
-                                        std::string glsl_shader_location,
                                         std::string entry_point_name,
                                         api::ShaderType type) :
     Shader(std::move(sipr_v_shader_location),
-           std::move(glsl_shader_location),
            std::move(entry_point_name),
            type) {
   GL_CALL(renderer_id_ = glCreateShader(GetShaderGlType(type)));
   assert(renderer_id_ != 0);
 
-  auto data = ParseFile(this->glsl_shader_location_);
-  const char *src = data.c_str();
-  GL_CALL(glShaderSource(renderer_id_, 1, &src, nullptr));
-  GL_CALL(glCompileShader(renderer_id_));
+  auto code = ReadFile(this->sipr_v_shader_location_);
+  GL_CALL(glShaderBinary(1, &renderer_id_, GL_SHADER_BINARY_FORMAT_SPIR_V, code.data(), code.size()));
+
+  GL_CALL(glSpecializeShader(renderer_id_, (const GLchar *) entry_point_name_.c_str(), 0, nullptr, nullptr));
 
   GLint result;
   GL_CALL(glGetShaderiv(renderer_id_, GL_COMPILE_STATUS, &result));

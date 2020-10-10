@@ -20,11 +20,9 @@ test::TestSphere::TestSphere(std::shared_ptr<api::Renderer> renderer) : TestMode
 
   sphere_ = std::make_shared<geometry::SpiralSphere>(context, 1.0f);
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
-                                         "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
                                          api::ShaderType::SHADER_TYPE_VERTEX);
   fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
-                                           "../res/shader/default_color_fragment_shader.glsl",
                                            "main",
                                            api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(sphere_->GetVertexBinding(), sphere_->GetIndexBuffer(),

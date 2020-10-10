@@ -62,5 +62,4 @@ void main()
     }
     v=mix(vec3(length(v)), v, saturation);//color adjust
     out_color = vec4(v*.01, 1.);
-
 }

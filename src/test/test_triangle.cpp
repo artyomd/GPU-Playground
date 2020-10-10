@@ -25,11 +25,9 @@ test::TestTriangle::TestTriangle(std::shared_ptr<api::Renderer> renderer) : Test
 
   triangle_ = std::make_shared<geometry::Triangle>(context, point_0, point_1, point_2);
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
-                                         "../res/shader/default_mvp_color_vertex_shader.glsl",
                                          "main",
                                          api::ShaderType::SHADER_TYPE_VERTEX);
   fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
-                                           "../res/shader/default_color_fragment_shader.glsl",
                                            "main",
                                            api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(triangle_->GetVertexBinding(), triangle_->GetIndexBuffer(),

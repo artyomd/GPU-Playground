@@ -53,7 +53,6 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
       const std::vector<std::shared_ptr<Uniform>> &bindings) override;
 
   std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
-                                       std::string glsl_location,
                                        std::string entry_point_name,
                                        api::ShaderType type) override;
 

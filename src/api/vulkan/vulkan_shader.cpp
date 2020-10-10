@@ -9,13 +9,12 @@
 
 api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingContext> &context,
                                         std::string sipr_v_shader_location,
-                                        std::string glsl_shader_location,
                                         std::string entry_point_name,
                                         api::ShaderType type)
     : Shader(std::move(sipr_v_shader_location),
-             std::move(glsl_shader_location),
              std::move(entry_point_name),
-             type), device_(context->GetDevice()) {
+             type),
+      device_(context->GetDevice()) {
   auto code = ReadFile(this->sipr_v_shader_location_);
   VkShaderModuleCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

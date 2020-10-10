@@ -13,7 +13,6 @@ class OpenGlShader : public Shader {
   GLuint renderer_id_;
  public:
   OpenGlShader(std::string sipr_v_shader_location,
-               std::string glsl_shader_location,
                std::string entry_point_name,
                ShaderType type);
 

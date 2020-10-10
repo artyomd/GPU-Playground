@@ -17,7 +17,6 @@ class VulkanShader : public Shader {
  public:
   VulkanShader(const std::shared_ptr<VulkanRenderingContext> &context,
                std::string sipr_v_shader_location,
-               std::string glsl_shader_location,
                std::string entry_point_name,
                ShaderType type
   );

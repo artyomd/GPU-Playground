@@ -137,7 +137,7 @@ IF (USE_OPENGL)
     add_compile_definitions(GLEW_STATIC)
 ELSE (USE_OPENGL)
     MESSAGE("gl disabled")
-    list(FILTER SOURCE_FILES EXCLUDE REGEX "(/gl)|opengl|OpenGL|OpenGl")
+    list(FILTER SOURCE_FILES EXCLUDE REGEX "opengl")
 ENDIF (USE_OPENGL)
 
 include_directories("${PROJECT_SOURCE_DIR}")

@@ -79,11 +79,9 @@ test::TestObj::TestObj(std::shared_ptr<api::Renderer> renderer) : TestModel(std:
   pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
 
   vertex_shader_ = context->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
-                                         "../res/shader/texture2d_vertex.glsl",
                                          "main",
                                          api::ShaderType::SHADER_TYPE_VERTEX);
   fragment_shader_ = context->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
-                                           "../res/shader/texture2d_fragment.glsl",
                                            "main",
                                            api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = context->CreateGraphicsPipeline(vertex_binding_, index_buffer_,

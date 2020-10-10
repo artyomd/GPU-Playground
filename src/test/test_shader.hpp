@@ -24,7 +24,7 @@ class TestShader : public Test {
 
   void UpdateUniformBufferScreenSize();
  public:
-  explicit TestShader(std::shared_ptr<api::Renderer> renderer, std::shared_ptr<api::Shader> fragment_shader);
+  explicit TestShader(std::shared_ptr<api::Renderer> renderer, std::string fragment_shader);
 
   void OnUpdate(float delta_time) override;
 

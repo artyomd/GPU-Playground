@@ -11,11 +11,6 @@ namespace test {
 class TestRaymarching : public TestShader {
  public:
   explicit TestRaymarching(std::shared_ptr<api::Renderer> renderer) :
-      TestShader(std::move(renderer),
-                 renderer_->GetContext()->
-                     CreateShader("../res/shader/compiled/raymarched_reflections.spv",
-                                  "../res/shader/raymarched_reflections.glsl",
-                                  "main",
-                                  api::ShaderType::SHADER_TYPE_FRAGMENT)) {}
+      TestShader(std::move(renderer), "../res/shader/compiled/raymarched_reflections.spv") {}
 };
 }

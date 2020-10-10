@@ -52,10 +52,9 @@ std::shared_ptr<api::RenderingPipeline> api::opengl::OpenGlRenderingContext::Cre
 }
 
 std::shared_ptr<api::Shader> api::opengl::OpenGlRenderingContext::CreateShader(std::string sipr_v_shader_location,
-                                                                               std::string glsl_location,
                                                                                std::string entry_point_name,
                                                                                api::ShaderType type) {
-  return std::make_shared<OpenGlShader>(sipr_v_shader_location, glsl_location, entry_point_name, type);
+  return std::make_shared<OpenGlShader>(sipr_v_shader_location, entry_point_name, type);
 }
 
 std::shared_ptr<api::UniformBuffer> api::opengl::OpenGlRenderingContext::CreateUniformBuffer(int length,

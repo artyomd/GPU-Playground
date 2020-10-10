@@ -21,7 +21,6 @@ class OpenGlRenderingContext : public RenderingContext, public std::enable_share
                                                      std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) override;
 
   std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
-                                       std::string glsl_location,
                                        std::string entry_point_name,
                                        api::ShaderType type) override;
 

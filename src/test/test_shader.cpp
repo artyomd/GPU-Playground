@@ -10,8 +10,8 @@
 #include "src/geometry/quad.hpp"
 
 test::TestShader::TestShader(std::shared_ptr<api::Renderer> renderer,
-                             std::shared_ptr<api::Shader> fragment_shader)
-    : Test(std::move(renderer)), fragment_shader_(std::move(fragment_shader)) {
+                             std::string fragment_shader)
+    : Test(std::move(renderer)) {
   geometry::Point point_0 = {-1.0f, 1.0f, 0.0f};
   geometry::Point point_1 = {1.0f, 1.0f, 0.0f};
   geometry::Point point_2 = {1.0f, -1.0f, 0.0f};
@@ -29,9 +29,12 @@ test::TestShader::TestShader(std::shared_ptr<api::Renderer> renderer,
   quad_ = std::make_shared<geometry::Quad>(context, point_0, point_1, point_2, point_3);
 
   vertex_shader_ = context->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
-                                         "../res/shader/default_empty_vertex_shader.glsl",
                                          "main",
                                          api::ShaderType::SHADER_TYPE_VERTEX);
+
+  fragment_shader_ = context->CreateShader(std::move(fragment_shader),
+                                           "main",
+                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
   pipeline_ = context->CreateGraphicsPipeline(quad_->GetVertexBinding(),
                                               quad_->GetIndexBuffer(),

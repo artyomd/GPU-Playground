@@ -97,12 +97,10 @@ std::shared_ptr<api::RenderingPipeline> api::vulkan::VulkanRenderingContext::Cre
 }
 
 std::shared_ptr<api::Shader> api::vulkan::VulkanRenderingContext::CreateShader(std::string sipr_v_shader_location,
-                                                                               std::string glsl_location,
                                                                                std::string entry_point_name,
                                                                                api::ShaderType type) {
   return std::make_shared<VulkanShader>(shared_from_this(),
                                         sipr_v_shader_location,
-                                        glsl_location,
                                         entry_point_name,
                                         type);
 }
