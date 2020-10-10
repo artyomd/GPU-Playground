@@ -1,0 +1,36 @@
+//
+// Created by artyomd on 12/6/19.
+//
+
+#pragma once
+
+#include "src/application/glfw_application.hpp"
+#include "src/api/opengl/opengl_rendering_context.hpp"
+
+namespace application {
+class OpenGlApplication : public GlfwApplication {
+ private:
+  std::shared_ptr<api::opengl::OpenGlRenderingContext>
+      context_ = std::make_shared<api::opengl::OpenGlRenderingContext>();
+ protected:
+  void SetupWindowHints() final;
+
+  bool PrepareFrame() final;
+
+  void CreateImGuiFrame() final;
+
+  void RenderImGui() final;
+
+  void DrawFrame() final;
+
+  void PrepareForShutdown() final;
+ public:
+  void InitContext() final;
+
+  void InitImGui() final;
+
+  void DestroyImGui() final;
+
+  void DestroyContext() override;
+};
+}
