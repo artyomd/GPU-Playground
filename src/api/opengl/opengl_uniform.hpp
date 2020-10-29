@@ -10,7 +10,7 @@
 namespace api::opengl {
 class OpenGlUniform {
  protected:
-  GLuint render_id_ = -1;
+  GLuint uniform_id_ = -1;
  public:
   virtual void Bind() const = 0;
   virtual void Unbind() const = 0;

@@ -17,21 +17,17 @@ class TestShader : public Test {
   std::shared_ptr<api::Shader> vertex_shader_ = nullptr;
   std::shared_ptr<api::Shader> fragment_shader_ = nullptr;
   std::shared_ptr<api::UniformBuffer> uniform_buffer_ = nullptr;
-  std::shared_ptr<api::RenderingPipelineLayout> pipeline_layout_ = nullptr;
-  std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
   std::shared_ptr<geometry::Quad> quad_ = nullptr;
   std::shared_ptr<UniformBufferObjectShader> ubo_ = std::make_shared<UniformBufferObjectShader>();
 
-  void UpdateUniformBufferScreenSize();
  public:
-  explicit TestShader(std::shared_ptr<api::Renderer> renderer, std::string fragment_shader);
+  explicit TestShader(std::shared_ptr<api::RenderingContext> rendering_context, std::string fragment_shader);
 
   void OnUpdate(float delta_time) override;
 
   void OnRender() override;
 
   void OnImGuiRender() override;
-
-  void OnViewportChange() override;
+  void OnViewportChange(size_t width, size_t height) override;
 };
 }

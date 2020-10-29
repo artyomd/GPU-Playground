@@ -11,14 +11,16 @@
 namespace api::opengl {
 class OpenGlIndexBuffer : public IndexBuffer {
  private:
-  GLuint renderer_id_ = -1;
+  GLuint buffer_id_ = 0;
+  GLint index_type_ = 0;
+
  public:
-  OpenGlIndexBuffer(const void *data, unsigned int item_count, enum DataType type);
+  OpenGlIndexBuffer(unsigned int item_count, enum DataType type);
+
+  void Update(void *data) override;
+  [[nodiscard]] GLuint GetBufferId() const;
+  [[nodiscard]] GLint GetIndexType() const;
 
   ~OpenGlIndexBuffer() override;
-
-  void Bind() const override;
-
-  void Unbind() const override;
 };
 }

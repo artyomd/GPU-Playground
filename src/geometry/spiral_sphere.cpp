@@ -14,7 +14,6 @@ geometry::SpiralSphere::SpiralSphere(
     unsigned int loops,
     unsigned int segments_per_loop)
     : GeometryItem(context) {
-
   std::vector<Point> geometry_data;
   std::vector<unsigned short> index_data;
 
@@ -61,11 +60,13 @@ geometry::SpiralSphere::SpiralSphere(
     }
   }
 
-  vertex_buffer_ = context->CreateVertexBuffer(geometry_data.data(), 7 * geometry_data.size() * sizeof(float));
-  layout_ = std::make_shared<api::VertexBufferLayout>();
-  layout_->Push<float>(3);
-  layout_->Push<float>(4);
+  api::VertexBufferLayout layout;
+  layout.Push<float>(3);
+  layout.Push<float>(4);
+  vertex_buffer_ = context->CreateVertexBuffer(7 * geometry_data.size() * sizeof(float), layout);
+  vertex_buffer_->Update(geometry_data.data());
 
-  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(index_data.data(), index_data.size(), api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_ = context->CreateIndexBuffer(index_data.size(), api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_->Update(index_data.data());
+
 }

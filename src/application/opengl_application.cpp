@@ -75,12 +75,16 @@ MessageCallback(GLenum source,
 
 }
 
+application::OpenGlApplication::OpenGlApplication()
+    : GlfwApplication(std::make_shared<api::opengl::OpenGlRenderingContext>()) {
+
+}
 void application::OpenGlApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DEPTH_BITS, GL_TRUE);
-  glfwWindowHint(GLFW_SAMPLES, 16);
+  glfwWindowHint(GLFW_SAMPLES, 4);
 }
 
 void application::OpenGlApplication::InitContext() {
@@ -93,7 +97,7 @@ void application::OpenGlApplication::InitContext() {
   }
   GL_CALL(glEnable(GL_DEBUG_OUTPUT));
   GL_CALL(glDebugMessageCallback(MessageCallback, nullptr));
-  renderer_->SetContext(context_);
+  GL_CALL(glEnable(GL_MULTISAMPLE));
   PrepareTestMenu();
 }
 
@@ -106,9 +110,8 @@ void application::OpenGlApplication::InitImGui() {
 }
 
 bool application::OpenGlApplication::PrepareFrame() {
+  GL_CALL(glClearColor(0.0, 0.0, 0.0, 1.0));
   GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-  auto color = renderer_->GetClearColor();
-  GL_CALL(glClearColor(color.r, color.g, color.b, color.a));
   return true;
 }
 

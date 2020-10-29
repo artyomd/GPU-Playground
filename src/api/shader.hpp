@@ -6,16 +6,16 @@
 namespace api {
 enum class ShaderType {
   SHADER_TYPE_VERTEX,
-  SHADER_TYPE_FRAGMENT
+  SHADER_TYPE_FRAGMENT,
+  COUNT,
 };
 
 class Shader {
-
  protected:
   const std::string sipr_v_shader_location_;
   const std::string entry_point_name_;
   ShaderType type_;
- public:
+
   Shader(std::string sipr_v_shader_location,
          std::string entry_point_name,
          ShaderType type)
@@ -23,6 +23,7 @@ class Shader {
         entry_point_name_(std::move(entry_point_name)),
         type_(type) {}
 
+ public:
   virtual ~Shader() = default;
 };
 }

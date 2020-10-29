@@ -11,13 +11,14 @@
 namespace api::opengl {
 class OpenGlVertexBuffer : public VertexBuffer {
  private:
-  GLuint renderer_id_ = -1;
+  GLuint buffer_id_ = 0;
+  GLuint vertex_array_id_ = 0;
  public:
-  OpenGlVertexBuffer(const void *data, unsigned int size);
+  OpenGlVertexBuffer(size_t size_in_bytes, const VertexBufferLayout& layout);
 
-  void Bind() const override;
-
-  void Unbind() const override;
+  void Update(void *data) override;
+  [[nodiscard]] GLuint GetBufferId() const;
+  [[nodiscard]] GLuint GetVertexArrayId() const;
 
   ~OpenGlVertexBuffer() override;
 };

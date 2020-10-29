@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace api {
 enum class DataType {
   DATA_TYPE_BYTE,
@@ -16,5 +18,5 @@ struct Size {
   int width = 0;
   int height = 0;
 };
-int GetDataTypeSizeInBytes(DataType type);
+size_t GetDataTypeSizeInBytes(DataType type);
 }

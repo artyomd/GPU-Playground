@@ -10,7 +10,7 @@
 namespace test {
 class TestRaymarching : public TestShader {
  public:
-  explicit TestRaymarching(std::shared_ptr<api::Renderer> renderer) :
-      TestShader(std::move(renderer), "../res/shader/compiled/raymarched_reflections.spv") {}
+  explicit TestRaymarching(std::shared_ptr<api::RenderingContext> rendering_context) :
+      TestShader(std::move(rendering_context), "../res/shader/compiled/raymarched_reflections.spv") {}
 };
 }

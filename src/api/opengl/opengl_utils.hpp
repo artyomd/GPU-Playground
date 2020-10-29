@@ -8,6 +8,8 @@
 #include <GL/glew.h>
 
 #include "src/api/data_type.hpp"
+#include "src/api/redering_pipeline_config.hpp"
+#include "src/api/sampler.hpp"
 #include "src/api/shader.hpp"
 
 #define GL_CALL(x) api::opengl::GlClearError;\
@@ -21,5 +23,18 @@ bool GlLogCall(const char *function, const char *file, int line);
 
 GLint GetGlType(api::DataType type);
 
-int GetShaderGlType(api::ShaderType shader_type);
+GLint GetGlFilter(api::Filter filter);
+
+GLint GetGlAddressMode(api::AddressMode address_mode);
+
+GLint GetShaderGlType(api::ShaderType shader_type);
+
+GLenum GetGlDrawMode(api::DrawMode draw_mode);
+
+GLenum GetGlCullMode(api::CullMode cull_mode);
+
+GLenum GetGlFrontFace(api::FrontFace front_face);
+
+GLenum GetGlCompareOp(api::CompareOp compare_op);
+
 }

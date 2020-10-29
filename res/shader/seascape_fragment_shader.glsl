@@ -166,7 +166,7 @@ float heightMapTracing(vec3 ori, vec3 dir, out vec3 p) {
 
 // main
 void main() {
-    vec2 uv = gl_FragCoord.xy / u_screenSize.xy;
+    vec2 uv = vec2(1-gl_FragCoord.x, gl_FragCoord.y) / u_screenSize.xy;
     uv = uv * 2.0 - 1.0;
     uv.x *= u_screenSize.x / u_screenSize.y;
     float time = u_time * 0.3;//+ iMouse.x*0.01;

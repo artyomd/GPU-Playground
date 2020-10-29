@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 
-int api::GetDataTypeSizeInBytes(DataType type) {
+size_t api::GetDataTypeSizeInBytes(DataType type) {
   switch (type) {
     case DataType::DATA_TYPE_BYTE:return 1;
     case DataType::DATA_TYPE_UINT_16:return 2;

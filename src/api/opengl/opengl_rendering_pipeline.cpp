@@ -5,12 +5,7 @@
 #include "src/api/opengl/opengl_rendering_pipeline.hpp"
 
 #include <iostream>
-#include <utility>
 
-#include "src/api/opengl/opengl_index_buffer.hpp"
-#include "src/api/opengl/opengl_rendering_pipeline_layout.hpp"
-#include "src/api/opengl/opengl_shader.hpp"
-#include "src/api/opengl/opengl_vertex_binding.hpp"
 #include "src/api/opengl/opengl_utils.hpp"
 
 static inline void GetProgramInfoLog(int id) {
@@ -24,94 +19,77 @@ static inline void GetProgramInfoLog(int id) {
   }
 }
 
-api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(std::shared_ptr<OpenGlRenderingContext> context,
-                                                              std::shared_ptr<VertexBinding> vertex_binding,
-                                                              std::shared_ptr<IndexBuffer> index_buffer,
-                                                              std::shared_ptr<Shader> vertex_shader,
-                                                              std::shared_ptr<Shader> fragment_shader,
-                                                              std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
-                                                              RenderingPipelineLayoutConfig config) :
-    RenderingPipeline(std::move(vertex_binding),
-                      std::move(index_buffer),
-                      std::move(vertex_shader),
-                      std::move(fragment_shader),
-                      std::move(pipeline_layout),
-                      config),
-    context_(std::move(context)) {
-  DataType type = index_buffer_->GetType();
-  if (type != DataType::DATA_TYPE_BYTE &&
-      type != DataType::DATA_TYPE_UINT_16 &&
-      type != DataType::DATA_TYPE_UINT_32) {
-    throw std::runtime_error("unsupported data type");
-  }
+api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(const std::shared_ptr<VertexBuffer> &vertex_buffer,
+                                                              const std::shared_ptr<IndexBuffer> &index_buffer,
+                                                              const std::shared_ptr<Shader> &vertex_shader,
+                                                              const std::shared_ptr<Shader> &fragment_shader,
+                                                              api::RenderingPipelineConfig config) :
+    RenderingPipeline() {
+  vertex_buffer_ = std::dynamic_pointer_cast<OpenGlVertexBuffer>(vertex_buffer);
+  index_buffer_ = std::dynamic_pointer_cast<OpenGlIndexBuffer>(index_buffer);
+  vertex_shader_ = std::dynamic_pointer_cast<OpenGlShader>(vertex_shader);
+  fragment_shader_ = std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
+
   GL_CALL(program_id_ = glCreateProgram());
-  std::dynamic_pointer_cast<OpenGlShader>(vertex_shader_)->AttachShader(program_id_);
-  std::dynamic_pointer_cast<OpenGlShader>(fragment_shader_)->AttachShader(program_id_);
+  GL_CALL(glAttachShader(program_id_, vertex_shader_->GetShaderId()));
+  GL_CALL(glAttachShader(program_id_, fragment_shader_->GetShaderId()));
   GL_CALL(glLinkProgram(program_id_));
 
   GLint link_status;
   glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &link_status);
   if (link_status == GL_FALSE) {
     GetProgramInfoLog(program_id_);
-    std::dynamic_pointer_cast<OpenGlShader>(vertex_shader_)->DetachShader(program_id_);
-    std::dynamic_pointer_cast<OpenGlShader>(fragment_shader_)->DetachShader(program_id_);
+    GL_CALL(glDetachShader(program_id_, vertex_shader_->GetShaderId()));
+    GL_CALL(glDetachShader(program_id_, fragment_shader_->GetShaderId()));
     throw std::runtime_error("unable to link Gl program");
   }
 
   GL_CALL(glValidateProgram(program_id_));
   GetProgramInfoLog(program_id_);
-  std::dynamic_pointer_cast<OpenGlShader>(vertex_shader_)->DetachShader(program_id_);
-  std::dynamic_pointer_cast<OpenGlShader>(fragment_shader_)->DetachShader(program_id_);
+  GL_CALL(glDetachShader(program_id_, vertex_shader_->GetShaderId()));
+  GL_CALL(glDetachShader(program_id_, fragment_shader_->GetShaderId()));
 
   if (config.enable_depth_test) {
     GL_CALL(glEnable(GL_DEPTH_TEST));
-    switch (config.depth_function) {
-      case DepthFunction::LESS:GL_CALL(glDepthFunc(GL_LESS));
-        break;
-      default: throw std::runtime_error("not implemented");
-    }
-  } else {
-    glDisable(GL_DEPTH_TEST);
+    GL_CALL(glDepthFunc(GetGlCompareOp(config.depth_function)));
   }
-  GL_CALL(glEnable(GL_CULL_FACE));
-  switch (config.cull_mode) {
-    case CullMode::BACK: GL_CALL(glCullFace(GL_BACK));
-      break;
-    case CullMode::FRONT: GL_CALL(glCullFace(GL_FRONT));
-      break;
-    case CullMode::FRONT_AND_BACK: GL_CALL(glCullFace(GL_FRONT_AND_BACK));
-      break;
-    case CullMode::NONE: GL_CALL(glDisable(GL_CULL_FACE));
-      break;
-    default: throw std::runtime_error("not implemented");
+
+  if (config.cull_mode != CullMode::NONE) {
+    GL_CALL(glEnable(GL_CULL_FACE));
+    GL_CALL(glCullFace(GetGlCullMode(config.cull_mode)));
+    GL_CALL(glFrontFace(GetGlFrontFace(config.front_face)));
   }
-  switch (config.front_face) {
-    case FrontFace::CW:GL_CALL(glFrontFace(GL_CW));
-      break;
-    case FrontFace::CCW:GL_CALL(glFrontFace(GL_CCW));
-      break;
-    default: throw std::runtime_error("not implemented");
-  }
+
+  draw_mode_ = GetGlDrawMode(config.draw_mode);
 }
 
 void api::opengl::OpenGlRenderingPipeline::Render() {
+  GL_CALL(glViewport(0, 0, width_, height_));
+  GL_CALL(glScissor(0, 0, width_, height_));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_->GetBufferId()));
+  GL_CALL(glBindVertexArray(vertex_buffer_->GetVertexArrayId()));
+  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_->GetBufferId()));
   GL_CALL(glUseProgram(program_id_));
-  std::dynamic_pointer_cast<OpenGlVertexBinding>(vertex_binding_)->Bind();
-  index_buffer_->Bind();
-  pipeline_layout_->Bind();
-
-  GL_CALL(glDrawElements(GL_TRIANGLES, index_buffer_->GetCount(), GetGlType(index_buffer_->GetType()), nullptr));
-
-  std::dynamic_pointer_cast<OpenGlRenderingPipelineLayout>(pipeline_layout_)->UnBind();
-
-  index_buffer_->Unbind();
-  std::dynamic_pointer_cast<OpenGlVertexBinding>(vertex_binding_)->Unbind();
+  for (const auto &uniform : uniforms_) {
+    uniform->Bind();
+  }
+  GL_CALL(glDrawElements(draw_mode_, index_buffer_->GetCount(), index_buffer_->GetIndexType(), nullptr));
+  for (const auto &uniform : uniforms_) {
+    uniform->Unbind();
+  }
   GL_CALL(glUseProgram(0));
+  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  GL_CALL(glBindVertexArray(0));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-void api::opengl::OpenGlRenderingPipeline::ViewportChanged() {
-  context_->WaitForGpuIdle();
-  GL_CALL(glViewport(0, 0, context_->GetViewportWidth(), context_->GetViewportHeight()));
+void api::opengl::OpenGlRenderingPipeline::AddUniform(std::shared_ptr<api::Uniform> uniform) {
+  uniforms_.emplace_back(std::dynamic_pointer_cast<api::opengl::OpenGlUniform>(uniform));
+}
+
+void api::opengl::OpenGlRenderingPipeline::ViewportChanged(size_t width, size_t height) {
+  this->width_ = width;
+  this->height_ = height;
 }
 
 api::opengl::OpenGlRenderingPipeline::~OpenGlRenderingPipeline() {

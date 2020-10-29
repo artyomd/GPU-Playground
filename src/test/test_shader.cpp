@@ -9,45 +9,46 @@
 #include "src/geometry/point.hpp"
 #include "src/geometry/quad.hpp"
 
-test::TestShader::TestShader(std::shared_ptr<api::Renderer> renderer,
+test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_context,
                              std::string fragment_shader)
-    : Test(std::move(renderer)) {
+    : Test(std::move(rendering_context)) {
   geometry::Point point_0 = {-1.0f, 1.0f, 0.0f};
   geometry::Point point_1 = {1.0f, 1.0f, 0.0f};
   geometry::Point point_2 = {1.0f, -1.0f, 0.0f};
   geometry::Point point_3 = {-1.0f, -1.0f, 0.0f};
 
-  auto context = renderer_->GetContext();
+  quad_ = std::make_shared<geometry::Quad>(rendering_context_, point_0, point_1, point_2, point_3);
 
-  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectShader),
-                                                 0,
-                                                 api::ShaderType::SHADER_TYPE_FRAGMENT);
-  std::vector<std::shared_ptr<api::Uniform>> uniforms;
-  uniforms.push_back(uniform_buffer_);
-  pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
+  vertex_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
+                                                    "main",
+                                                    api::ShaderType::SHADER_TYPE_VERTEX);
 
-  quad_ = std::make_shared<geometry::Quad>(context, point_0, point_1, point_2, point_3);
+  fragment_shader_ = rendering_context_->CreateShader(std::move(fragment_shader),
+                                                      "main",
+                                                      api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  vertex_shader_ = context->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
-                                         "main",
-                                         api::ShaderType::SHADER_TYPE_VERTEX);
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(quad_->GetVertexBuffer(),
+                                                         quad_->GetIndexBuffer(),
+                                                         vertex_shader_,
+                                                         fragment_shader_,
+                                                         {
+                                                             api::DrawMode::TRIANGLE_STRIP,
+                                                             api::CullMode::NONE,
+                                                             api::FrontFace::CW,
+                                                             false,
+                                                             api::CompareOp::LESS
+                                                         });
 
-  fragment_shader_ = context->CreateShader(std::move(fragment_shader),
-                                           "main",
-                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
+  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectShader),
+                                                            0,
+                                                            api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  pipeline_ = context->CreateGraphicsPipeline(quad_->GetVertexBinding(),
-                                              quad_->GetIndexBuffer(),
-                                              vertex_shader_,
-                                              fragment_shader_,
-                                              pipeline_layout_,
-                                              {});
-  UpdateUniformBufferScreenSize();
+  pipeline_->AddUniform(uniform_buffer_);
 }
 
 void test::TestShader::OnRender() {
   uniform_buffer_->Update(ubo_.get());
-  api::Renderer::Render(pipeline_);
+  pipeline_->Render();
 }
 
 void test::TestShader::OnUpdate(float delta_time) {
@@ -60,14 +61,9 @@ void test::TestShader::OnImGuiRender() {
 //  }
 }
 
-void test::TestShader::OnViewportChange() {
-  pipeline_->ViewportChanged();
-  UpdateUniformBufferScreenSize();
-}
-
-void test::TestShader::UpdateUniformBufferScreenSize() {
-  auto size = renderer_->GetViewportSize();
-  ubo_->screen_height = (float) size.height;
-  ubo_->screen_width = (float) size.width;
+void test::TestShader::OnViewportChange(size_t width, size_t height) {
+  Test::OnViewportChange(width, height);
+  ubo_->screen_height = (float) height;
+  ubo_->screen_width = (float) width;
 }
 

@@ -14,8 +14,8 @@ class GlfwApplication : public TestApplication {
   const float delta_time_ = 0.03333333333f;
  protected:
   GLFWwindow *window_ = nullptr;
-  int window_width_ = 640;
-  int window_height_ = 480;
+
+  explicit GlfwApplication(const std::shared_ptr<api::RenderingContext> &context);
 
   virtual void SetupWindowHints() = 0;
 

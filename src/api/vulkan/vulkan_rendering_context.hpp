@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "src/api/rendering_context.hpp"
-
 #include <vulkan/vulkan.h>
+
+#include "src/api/rendering_context.hpp"
 
 namespace api::vulkan {
 class VulkanRenderingContext : public RenderingContext, public std::enable_shared_from_this<VulkanRenderingContext> {
@@ -34,29 +34,22 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] VkDevice GetDevice() const;
 
-  std::shared_ptr<IndexBuffer> CreateIndexBuffer(const void *data, unsigned int size, DataType type) override;
+  std::shared_ptr<IndexBuffer> CreateIndexBuffer(unsigned int count, DataType type) override;
 
-  std::shared_ptr<VertexBuffer> CreateVertexBuffer(const void *data, unsigned int size) override;
-
-  std::shared_ptr<VertexBinding> CreateVertexBinding(std::shared_ptr<VertexBuffer> buffer,
-                                                     std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) override;
+  std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) override;
 
   std::shared_ptr<RenderingPipeline> CreateGraphicsPipeline(
-      std::shared_ptr<VertexBinding> vertex_binding,
+      std::shared_ptr<VertexBuffer> vertex_binding,
       std::shared_ptr<IndexBuffer> index_buffer,
       std::shared_ptr<Shader> vertex_shader,
       std::shared_ptr<Shader> fragment_shader,
-      std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
-      RenderingPipelineLayoutConfig config) override;
+      RenderingPipelineConfig config) override;
 
-  std::shared_ptr<RenderingPipelineLayout> CreateRenderingPipelineLayout(
-      const std::vector<std::shared_ptr<Uniform>> &bindings) override;
-
-  std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
+  std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_path,
                                        std::string entry_point_name,
                                        api::ShaderType type) override;
 
-  std::shared_ptr<UniformBuffer> CreateUniformBuffer(int length,
+  std::shared_ptr<UniformBuffer> CreateUniformBuffer(size_t size_in_bytes,
                                                      int binding_point,
                                                      ShaderType shader_stage) override;
 
@@ -78,7 +71,6 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
                    uint32_t height,
                    VkSampleCountFlagBits num_samples,
                    VkFormat format,
-                   VkImageTiling tiling,
                    VkImageUsageFlags usage,
                    VkMemoryPropertyFlags properties,
                    VkImage *image,
@@ -86,7 +78,7 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   void CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
 
-  void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+  void CopyBufferToImage(VkBuffer buffer, VkImage image, size_t width, size_t height);
 
   void TransitionImageLayout(VkImage image,
                              VkImageLayout old_layout,
@@ -107,8 +99,6 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
   void SetCurrentCommandBuffer(VkCommandBuffer current_command_buffer);
 
   [[nodiscard]] VkCommandBuffer GetCurrentCommandBuffer() const;
-
-  void SetViewportSize(int width, int height) override;
 
   [[nodiscard]] VkExtent2D GetSwapChainExtent() const;
 

@@ -127,7 +127,7 @@ ELSE (LINUX)
     MESSAGE("XANA")
 ENDIF (LINUX)
 
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.hpp src/*.h)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.c src/*.hpp src/*.h)
 
 IF (USE_OPENGL)
     MESSAGE("gl enabled")

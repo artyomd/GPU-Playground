@@ -2,6 +2,8 @@
 // Created by artyomd on 2/25/20.
 //
 
+#pragma once
+
 #include <vulkan/vulkan.h>
 
 #include "src/api/index_buffer.hpp"
@@ -19,15 +21,13 @@ class VulkanIndexBuffer : public IndexBuffer {
 
  public:
   VulkanIndexBuffer(std::shared_ptr<VulkanRenderingContext> context,
-                    const void *indices_data,
                     unsigned int item_count,
-                    enum DataType type
-  );
+                    enum DataType type);
 
-  void Bind() const override;
-
-  void Unbind() const override;
-
+ public:
+  void Update(void *data) override;
+  [[nodiscard]] const VkBuffer *GetBuffer() const;
+  [[nodiscard]] VkIndexType GetIndexType() const;
   ~VulkanIndexBuffer() override;
 };
 }

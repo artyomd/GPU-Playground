@@ -23,7 +23,7 @@ class VulkanApplication : public GlfwApplication {
   };
 
   const std::vector<const char *> device_extensions_ = {
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_MAINTENANCE1_EXTENSION_NAME
   };
 
   const int max_frames_in_flight_ = 2;
@@ -153,6 +153,8 @@ class VulkanApplication : public GlfwApplication {
   void PrepareForShutdown() final;
 
  public:
+  VulkanApplication();
+
   void InitContext() final;
 
   void InitImGui() final;

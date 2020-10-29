@@ -6,6 +6,7 @@
 
 #include "src/test/test.h"
 
+#include <glm/glm.hpp>
 #include <utility>
 
 namespace test {
@@ -24,11 +25,15 @@ class TestModel : public Test {
 
  protected:
   glm::mat4 ComputeModelMatrix();
+  glm::mat4 orthographic_projection_{};
+  glm::mat4 perspective_projection_{};
 
  public:
-  explicit TestModel(std::shared_ptr<api::Renderer> renderer) : Test(std::move(renderer)) {};
+  explicit TestModel(std::shared_ptr<api::RenderingContext> rendering_context) : Test(std::move(rendering_context)) {};
 
   void OnImGuiRender() override;
+
+  void OnViewportChange(size_t width, size_t height) override;
 
   ~TestModel() override = default;
 };

@@ -4,6 +4,8 @@
 
 #include "src/geometry/stacked_sphere.hpp"
 
+#include <cmath>
+
 #include "src/geometry/point.hpp"
 
 geometry::StackedSphere::StackedSphere(const std::shared_ptr<api::RenderingContext> &context,
@@ -34,12 +36,14 @@ geometry::StackedSphere::StackedSphere(const std::shared_ptr<api::RenderingConte
       index_data.push_back(static_cast<unsigned short &&>(((stack_number + 1) * slices) + (slice_number % slices)));
     }
   }
-  vertex_buffer_ = context->CreateVertexBuffer(&geometry_data[0], 7 * geometry_data.size() * sizeof(float));
-  layout_ = std::make_shared<api::VertexBufferLayout>();
-  layout_->Push<float>(3);
-  layout_->Push<float>(4);
 
-  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(&index_data[0], index_data.size(), api::DataType::DATA_TYPE_UINT_16);
+  api::VertexBufferLayout layout;
+  layout.Push<float>(3);
+  layout.Push<float>(4);
+  vertex_buffer_ = context->CreateVertexBuffer(7 * geometry_data.size() * sizeof(float), layout);
+  vertex_buffer_->Update(&geometry_data[0]);
+
+  index_buffer_ = context->CreateIndexBuffer(index_data.size(), api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_->Update(&index_data[0]);
 
 }

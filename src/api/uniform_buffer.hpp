@@ -8,8 +8,9 @@
 
 namespace api {
 class UniformBuffer : public Uniform {
- public:
+ protected:
   UniformBuffer(int binding_point, ShaderType shader_stage) : Uniform(binding_point, shader_stage) {}
+ public:
   virtual void Update(const void *data) = 0;
 };
 }

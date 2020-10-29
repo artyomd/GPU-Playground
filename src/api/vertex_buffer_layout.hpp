@@ -15,7 +15,6 @@ struct VertexAttribute {
 };
 
 class VertexBufferLayout {
-
  private:
   std::vector<VertexAttribute> elements_;
   unsigned int stride_;
@@ -23,7 +22,7 @@ class VertexBufferLayout {
   VertexBufferLayout() : stride_(0) {}
 
   template<typename T>
-  inline void Push(unsigned int) {
+  void Push(unsigned int) {
     throw std::runtime_error("not implemented");
   }
 

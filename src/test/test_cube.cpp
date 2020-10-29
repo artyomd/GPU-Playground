@@ -7,7 +7,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <utility>
 
-test::TestCube::TestCube(std::shared_ptr<api::Renderer> renderer) : TestModel(std::move(renderer)) {
+test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_context)
+    : TestModel(std::move(rendering_context)) {
 
   std::vector<float> positions = {
       -0.5, -0.5, 0.5, 1.0, 0.0, 0.0,
@@ -34,46 +35,43 @@ test::TestCube::TestCube(std::shared_ptr<api::Renderer> renderer) : TestModel(st
       6, 7, 3
   };
 
-  auto context = renderer_->GetContext();
+  api::VertexBufferLayout vertex_buffer_layout;
+  vertex_buffer_layout.Push<float>(3);
+  vertex_buffer_layout.Push<float>(3);
+  vertex_buffer_ = rendering_context_->CreateVertexBuffer(positions.size() * sizeof(float), vertex_buffer_layout);
+  vertex_buffer_->Update(positions.data());
 
-  vertex_buffer_ = context->CreateVertexBuffer(positions.data(), positions.size() * sizeof(float));
-  vertex_buffer_layout_->Push<float>(3);
-  vertex_buffer_layout_->Push<float>(3);
+  index_buffer_ = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_->Update(indices.data());
 
-  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, vertex_buffer_layout_);
-  index_buffer_ = context->CreateIndexBuffer(indices.data(), indices.size(), api::DataType::DATA_TYPE_UINT_16);
+  vertex_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
+                                                    "main",
+                                                    api::ShaderType::SHADER_TYPE_VERTEX);
+  fragment_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
+                                                      "main",
+                                                      api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  uniform_buffer_ = context->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
-                                                 0,
-                                                 api::ShaderType::SHADER_TYPE_VERTEX);
-  std::vector<std::shared_ptr<api::Uniform>> uniforms;
-  uniforms.push_back(uniform_buffer_);
-  pipeline_layout_ = context->CreateRenderingPipelineLayout(uniforms);
-  vertex_shader_ = context->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
-                                         "main",
-                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  fragment_shader_ = context->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
-                                           "main",
-                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
-  pipeline_ = context->CreateGraphicsPipeline(vertex_binding_, index_buffer_,
-                                              vertex_shader_, fragment_shader_, pipeline_layout_,
-                                              {api::CullMode::BACK,
-                                               api::FrontFace::CCW,
-                                               true,
-                                               api::DepthFunction::LESS});
-}
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer_,
+                                                         index_buffer_,
+                                                         vertex_shader_,
+                                                         fragment_shader_,
+                                                         {
+                                                             api::DrawMode::TRIANGLE_LIST,
+                                                             api::CullMode::BACK,
+                                                             api::FrontFace::CCW,
+                                                             true,
+                                                             api::CompareOp::LESS});
+  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
+                                                            0,
+                                                            api::ShaderType::SHADER_TYPE_VERTEX);
+  pipeline_->AddUniform(uniform_buffer_);
 
-void test::TestCube::OnClear() {
-  renderer_->SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 void test::TestCube::OnRender() {
   ubo_->model = ComputeModelMatrix();
-  ubo_->proj = renderer_->GetContext()->GetPerspectiveProjection();
+  ubo_->proj = perspective_projection_;
   ubo_->view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
   uniform_buffer_->Update(ubo_.get());
-  api::Renderer::Render(pipeline_);
-}
-void test::TestCube::OnViewportChange() {
-  pipeline_->ViewportChanged();
+  pipeline_->Render();
 }

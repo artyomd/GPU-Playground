@@ -7,6 +7,7 @@
 
 #include "src/api/shader.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
+#include "src/api/vulkan/vulkan_utils.hpp"
 
 namespace api::vulkan {
 class VulkanShader : public Shader {
@@ -14,6 +15,9 @@ class VulkanShader : public Shader {
   VkDevice device_;
   VkShaderModule shader_module_ = nullptr;
   VkPipelineShaderStageCreateInfo shader_stage_info_{};
+
+  std::vector<VkDescriptorSetLayoutBinding> bindings_{};
+
  public:
   VulkanShader(const std::shared_ptr<VulkanRenderingContext> &context,
                std::string sipr_v_shader_location,
@@ -22,6 +26,8 @@ class VulkanShader : public Shader {
   );
 
   [[nodiscard]] VkPipelineShaderStageCreateInfo GetShaderStageInfo() const;
+
+  [[nodiscard]] std::vector<VkDescriptorSetLayoutBinding> GetBindings() const;
 
   ~VulkanShader() override;
 };

@@ -10,15 +10,13 @@
 namespace api::opengl {
 class OpenGlShader : public Shader {
  private:
-  GLuint renderer_id_;
+  GLuint shader_id_ = 0;
  public:
   OpenGlShader(std::string sipr_v_shader_location,
                std::string entry_point_name,
                ShaderType type);
 
-  void AttachShader(GLuint program_id) const;
-
-  void DetachShader(GLuint program_id) const;
+  [[nodiscard]] GLuint GetShaderId() const;
 
   ~OpenGlShader() override;
 };

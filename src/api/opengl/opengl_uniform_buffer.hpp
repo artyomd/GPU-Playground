@@ -10,9 +10,9 @@
 namespace api::opengl {
 class OpenGlUniformBuffer : public UniformBuffer, public OpenGlUniform {
  private:
-  int length_;
+  size_t size_in_bytes_;
  public:
-  OpenGlUniformBuffer(int length, int binding_point, api::ShaderType shader_stage);
+  OpenGlUniformBuffer(size_t size_in_bytes, int binding_point, api::ShaderType shader_stage);
   void Bind() const override;
   void Unbind() const override;
   void Update(const void *data) override;

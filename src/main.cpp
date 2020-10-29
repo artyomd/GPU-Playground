@@ -11,15 +11,13 @@
 #include "src/test/test_obj.hpp"
 #include "src/test/test_cube.hpp"
 #include "src/test/test_triangle.hpp"
-#include "src/test/test_clear_color.hpp"
 
 int main() {
   try {
-    application::OpenGlApplication test_application{};
+    application::OpenGlApplication test_application;
     test_application.InitWindow();
     test_application.InitContext();
     test_application.InitImGui();
-    test_application.RegisterTest<test::TestClearColor>("Clear Color");
     test_application.RegisterTest<test::TestTriangle>("Triangle");
     test_application.RegisterTest<test::TestRaymarching>("Reflections");
     test_application.RegisterTest<test::TestSeascapeShader>("Seascape");

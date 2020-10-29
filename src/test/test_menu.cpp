@@ -7,9 +7,9 @@
 #include <imgui/imgui.h>
 #include <utility>
 
-test::TestMenu::TestMenu(std::shared_ptr<api::Renderer> renderer,
+test::TestMenu::TestMenu(std::shared_ptr<api::RenderingContext> context,
                          std::function<void(std::shared_ptr<test::Test>)> test_change_listener)
-    : Test(std::move(renderer)), test_change_listener_(std::move(test_change_listener)) {
+    : Test(std::move(context)), test_change_listener_(std::move(test_change_listener)) {
 }
 void test::TestMenu::OnImGuiRender() {
   for (auto &test : m_tests_) {

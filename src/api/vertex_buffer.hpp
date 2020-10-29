@@ -3,14 +3,20 @@
 //
 #pragma once
 
+#include <utility>
+
+#include "src/api/vertex_buffer_layout.hpp"
+
 namespace api {
 class VertexBuffer {
+ protected:
+  size_t size_in_bytes_;
+
+  explicit VertexBuffer(size_t size_in_bytes)
+      : size_in_bytes_(size_in_bytes) {}
+
  public:
-  VertexBuffer() = default;
-
-  virtual void Bind() const = 0;
-
-  virtual void Unbind() const = 0;
+  virtual void Update(void *data) = 0;
 
   virtual ~VertexBuffer() = default;
 };

@@ -16,6 +16,10 @@ class TestApplication : public Application {
  protected:
   std::shared_ptr<test::Test> current_test_ = nullptr;
 
+  explicit TestApplication(const std::shared_ptr<api::RenderingContext> &context);
+
+ protected:
+
   void PrepareTestMenu();
 
   virtual void RenderMenu() final;

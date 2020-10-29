@@ -9,9 +9,6 @@
 
 namespace application {
 class OpenGlApplication : public GlfwApplication {
- private:
-  std::shared_ptr<api::opengl::OpenGlRenderingContext>
-      context_ = std::make_shared<api::opengl::OpenGlRenderingContext>();
  protected:
   void SetupWindowHints() final;
 
@@ -25,6 +22,8 @@ class OpenGlApplication : public GlfwApplication {
 
   void PrepareForShutdown() final;
  public:
+  OpenGlApplication();
+
   void InitContext() final;
 
   void InitImGui() final;

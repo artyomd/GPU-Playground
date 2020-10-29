@@ -5,7 +5,6 @@
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 
 #include <stdexcept>
-#include <glm/ext.hpp>
 
 #include "src/api/vulkan/vulkan_index_buffer.hpp"
 #include "src/api/vulkan/vulkan_rendering_pipeline.hpp"
@@ -13,7 +12,6 @@
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
 #include "src/api/vulkan/vulkan_uniform_buffer.hpp"
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
-#include "src/api/vulkan/vulkan_vertex_binding.hpp"
 
 api::vulkan::VulkanRenderingContext::VulkanRenderingContext(
     VkPhysicalDevice physical_device,
@@ -38,18 +36,18 @@ VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetMaxUsableSampleCou
                                 &physical_device_properties);
   VkSampleCountFlags counts = std::min(physical_device_properties.limits.framebufferColorSampleCounts,
                                        physical_device_properties.limits.framebufferDepthSampleCounts);
-  if (counts & VK_SAMPLE_COUNT_64_BIT) {
-    return VK_SAMPLE_COUNT_64_BIT;
-  }
-  if (counts & VK_SAMPLE_COUNT_32_BIT) {
-    return VK_SAMPLE_COUNT_32_BIT;
-  }
-  if (counts & VK_SAMPLE_COUNT_16_BIT) {
-    return VK_SAMPLE_COUNT_16_BIT;
-  }
-  if (counts & VK_SAMPLE_COUNT_8_BIT) {
-    return VK_SAMPLE_COUNT_8_BIT;
-  }
+//  if (counts & VK_SAMPLE_COUNT_64_BIT) {
+//    return VK_SAMPLE_COUNT_64_BIT;
+//  }
+//  if (counts & VK_SAMPLE_COUNT_32_BIT) {
+//    return VK_SAMPLE_COUNT_32_BIT;
+//  }
+//  if (counts & VK_SAMPLE_COUNT_16_BIT) {
+//    return VK_SAMPLE_COUNT_16_BIT;
+//  }
+//  if (counts & VK_SAMPLE_COUNT_8_BIT) {
+//    return VK_SAMPLE_COUNT_8_BIT;
+//  }
   if (counts & VK_SAMPLE_COUNT_4_BIT) {
     return VK_SAMPLE_COUNT_4_BIT;
   }
@@ -63,36 +61,27 @@ VkDevice api::vulkan::VulkanRenderingContext::GetDevice() const {
   return device_;
 }
 
-std::shared_ptr<api::IndexBuffer> api::vulkan::VulkanRenderingContext::CreateIndexBuffer(const void *data,
-                                                                                         unsigned int size,
-                                                                                         DataType type) {
-  return std::make_shared<VulkanIndexBuffer>(shared_from_this(), data, size, type);
+std::shared_ptr<api::IndexBuffer> api::vulkan::VulkanRenderingContext::CreateIndexBuffer(unsigned int count,
+                                                                                         api::DataType type) {
+  return std::make_shared<VulkanIndexBuffer>(shared_from_this(), count, type);
 }
 
-std::shared_ptr<api::VertexBuffer>
-api::vulkan::VulkanRenderingContext::CreateVertexBuffer(const void *data, unsigned int size) {
-  return std::make_shared<VulkanVertexBuffer>(shared_from_this(), data, size);
-}
-
-std::shared_ptr<api::VertexBinding> api::vulkan::VulkanRenderingContext::CreateVertexBinding(
-    std::shared_ptr<VertexBuffer> buffer,
-    std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) {
-  return std::make_shared<VulkanVertexBinding>(buffer, vertex_buffer_layout);
+std::shared_ptr<api::VertexBuffer> api::vulkan::VulkanRenderingContext::CreateVertexBuffer(size_t size_in_bytes,
+                                                                                           api::VertexBufferLayout layout) {
+  return std::make_shared<VulkanVertexBuffer>(shared_from_this(), size_in_bytes, layout);
 }
 
 std::shared_ptr<api::RenderingPipeline> api::vulkan::VulkanRenderingContext::CreateGraphicsPipeline(
-    std::shared_ptr<VertexBinding> vertex_binding,
+    std::shared_ptr<VertexBuffer> vertex_buffer,
     std::shared_ptr<IndexBuffer> index_buffer,
     std::shared_ptr<Shader> vertex_shader,
     std::shared_ptr<Shader> fragment_shader,
-    std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
-    RenderingPipelineLayoutConfig config) {
+    RenderingPipelineConfig config) {
   return std::make_shared<VulkanRenderingPipeline>(shared_from_this(),
-                                                   vertex_binding,
+                                                   vertex_buffer,
                                                    index_buffer,
                                                    vertex_shader,
                                                    fragment_shader,
-                                                   pipeline_layout,
                                                    config);
 }
 
@@ -106,10 +95,10 @@ std::shared_ptr<api::Shader> api::vulkan::VulkanRenderingContext::CreateShader(s
 }
 
 std::shared_ptr<api::UniformBuffer> api::vulkan::VulkanRenderingContext::CreateUniformBuffer(
-    int length,
+    size_t size_in_bytes,
     int binding_point,
     ShaderType shader_stage) {
-  return std::make_shared<VulkanUniformBuffer>(shared_from_this(), length, binding_point, shader_stage);
+  return std::make_shared<VulkanUniformBuffer>(shared_from_this(), size_in_bytes, binding_point, shader_stage);
 }
 
 std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(std::string image_path,
@@ -118,22 +107,17 @@ std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTextu
   return std::make_shared<VulkanTexture2D>(shared_from_this(), image_path, binding_point, shader_stage);
 }
 
-void api::vulkan::VulkanRenderingContext::SetViewportSize(int width, int height) {
-  swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-  float new_width = 4.0f;
-  float new_height = ((float) width * new_width) / (float) height;
-  orthographic_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
-  perspective_projection_ = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10.0f);
-  perspective_projection_[1][1] *= -1;
-}
+//void api::vulkan::VulkanRenderingContext::SetViewportSize(int width, int height) {
+//  swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+//  float new_width = 4.0f;
+//  float new_height = ((float) width * new_width) / (float) height;
+//  orthographic_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
+//  perspective_projection_ = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10.0f);
+//  perspective_projection_[1][1] *= -1;
+//}
 
 void api::vulkan::VulkanRenderingContext::WaitForGpuIdle() const {
   vkDeviceWaitIdle(device_);
-}
-
-std::shared_ptr<api::RenderingPipelineLayout> api::vulkan::VulkanRenderingContext::CreateRenderingPipelineLayout(
-    const std::vector<std::shared_ptr<Uniform>> &bindings) {
-  return std::make_shared<VulkanRenderingPipelineLayout>(shared_from_this(), bindings);
 }
 
 int api::vulkan::VulkanRenderingContext::GetCurrentImageIndex() const {
@@ -158,9 +142,8 @@ VkFormat api::vulkan::VulkanRenderingContext::FindSupportedFormat(
   for (VkFormat format : candidates) {
     VkFormatProperties props;
     vkGetPhysicalDeviceFormatProperties(physical_device_, format, &props);
-    if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
-      return format;
-    } else if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+    if ((tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+        || (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)) {
       return format;
     }
   }
@@ -170,7 +153,6 @@ void api::vulkan::VulkanRenderingContext::CreateImage(uint32_t width,
                                                       uint32_t height,
                                                       VkSampleCountFlagBits num_samples,
                                                       VkFormat format,
-                                                      VkImageTiling tiling,
                                                       VkImageUsageFlags usage,
                                                       VkMemoryPropertyFlags properties,
                                                       VkImage *image,
@@ -184,7 +166,7 @@ void api::vulkan::VulkanRenderingContext::CreateImage(uint32_t width,
   image_info.mipLevels = 1;
   image_info.arrayLayers = 1;
   image_info.format = format;
-  image_info.tiling = tiling;
+  image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
   image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   image_info.usage = usage;
   image_info.samples = num_samples;
@@ -220,8 +202,8 @@ VkExtent2D api::vulkan::VulkanRenderingContext::GetSwapChainExtent() const {
 }
 void api::vulkan::VulkanRenderingContext::CopyBufferToImage(VkBuffer buffer,
                                                             VkImage image,
-                                                            uint32_t width,
-                                                            uint32_t height) {
+                                                            size_t width,
+                                                            size_t height) {
   VkCommandBuffer command_buffer = BeginSingleTimeCommands(graphics_pool_);
 
   VkBufferImageCopy region = {};
@@ -233,7 +215,9 @@ void api::vulkan::VulkanRenderingContext::CopyBufferToImage(VkBuffer buffer,
   region.imageSubresource.baseArrayLayer = 0;
   region.imageSubresource.layerCount = 1;
   region.imageOffset = {0, 0, 0};
-  region.imageExtent = {width, height, 1};
+  region.imageExtent = {static_cast<uint32_t>(width),
+                        static_cast<uint32_t>(height),
+                        1};
 
   vkCmdCopyBufferToImage(
       command_buffer,

@@ -43,6 +43,8 @@ inline void CheckVkResult(VkResult result) {
   throw std::runtime_error("imgui vk error");
 }
 
+application::VulkanApplication::VulkanApplication()
+    : GlfwApplication(nullptr) {}
 void application::VulkanApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 }
@@ -66,8 +68,7 @@ void application::VulkanApplication::InitContext() {
       graphics_command_pool_,
       descriptor_pool_,
       max_frames_in_flight_);
-  renderer_->SetContext(context_);
-
+  Application::context_ = this->context_;
   CreateSwapChain();
   CreateImageViews();
   CreateRenderPass();
@@ -447,7 +448,7 @@ void application::VulkanApplication::CreateImageViews() {
 void application::VulkanApplication::CreateColorResources() {
   VkFormat color_format = swap_chain_image_format_;
   context_->CreateImage(swap_chain_extent_.width, swap_chain_extent_.height,
-                        context_->GetMsaaSamples(), color_format, VK_IMAGE_TILING_OPTIMAL,
+                        context_->GetMsaaSamples(), color_format,
                         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT |
                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -463,7 +464,7 @@ void application::VulkanApplication::CreateDepthResources() {
   VkFormat depth_format = context_->FindDepthFormat();
   context_->CreateImage(swap_chain_extent_.width, swap_chain_extent_.height,
                         context_->GetMsaaSamples(),
-                        depth_format, VK_IMAGE_TILING_OPTIMAL,
+                        depth_format,
                         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                         &depth_image_,
@@ -659,9 +660,8 @@ bool application::VulkanApplication::PrepareFrame() {
   render_pass_info.renderArea.offset = {0, 0};
   render_pass_info.renderArea.extent = swap_chain_extent_;
 
-  auto color = renderer_->GetClearColor();
   std::array<VkClearValue, 2> clear_values = {};
-  clear_values[0].color = {color.r, color.g, color.b, color.a};
+  clear_values[0].color = {0.0, 0.0, 0.0, 1.0};
   clear_values[1].depthStencil = {1.0f, 0};
   render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
   render_pass_info.pClearValues = clear_values.data();

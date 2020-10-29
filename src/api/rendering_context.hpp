@@ -1,36 +1,26 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "src/api/index_buffer.hpp"
 #include "src/api/rendering_pipeline.hpp"
 #include "src/api/shader.hpp"
 #include "src/api/texture_2d.hpp"
 #include "src/api/uniform_buffer.hpp"
 #include "src/api/vertex_buffer.hpp"
-#include "src/api/vertex_binding.hpp"
 
 namespace api {
 class RenderingContext {
- protected:
-  glm::mat4x4 orthographic_projection_{};
-  glm::mat4x4 perspective_projection_{};
  public:
   RenderingContext() = default;
 
-  virtual std::shared_ptr<IndexBuffer> CreateIndexBuffer(const void *data, unsigned int size, DataType type) = 0;
+  virtual std::shared_ptr<IndexBuffer> CreateIndexBuffer(unsigned int count, DataType type) = 0;
 
-  virtual std::shared_ptr<VertexBuffer> CreateVertexBuffer(const void *data, unsigned int size) = 0;
+  virtual std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) = 0;
 
-  virtual std::shared_ptr<VertexBinding> CreateVertexBinding(
-      std::shared_ptr<VertexBuffer> buffer,
-      std::shared_ptr<VertexBufferLayout> vertex_buffer_layout) = 0;
-
-  virtual std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
+  virtual std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_path,
                                                std::string entry_point_name,
                                                api::ShaderType type) = 0;
 
-  virtual std::shared_ptr<UniformBuffer> CreateUniformBuffer(int length,
+  virtual std::shared_ptr<UniformBuffer> CreateUniformBuffer(size_t size_in_bytes,
                                                              int binding_point,
                                                              ShaderType shader_stage) = 0;
 
@@ -39,29 +29,22 @@ class RenderingContext {
                                                      ShaderType shader_stage) = 0;
 
   virtual std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(
-      std::shared_ptr<VertexBinding> vertex_binding,
+      std::shared_ptr<VertexBuffer> vertex_binding,
       std::shared_ptr<IndexBuffer> index_buffer,
       std::shared_ptr<Shader> vertex_shader,
       std::shared_ptr<Shader> fragment_shader,
-      std::shared_ptr<RenderingPipelineLayout> pipeline_layout,
-      RenderingPipelineLayoutConfig config) = 0;
-
-  virtual std::shared_ptr<RenderingPipelineLayout> CreateRenderingPipelineLayout(
-      const std::vector<std::shared_ptr<Uniform>> &bindings) = 0;
-
-  virtual void SetViewportSize(int width, int height) = 0;
+      RenderingPipelineConfig config) = 0;
 
   virtual void WaitForGpuIdle() const = 0;
 
-  [[nodiscard]] inline const glm::mat4x4 &GetOrthographicProjection() const {
-    return orthographic_projection_;
-  }
+//  [[nodiscard]] inline const glm::mat4x4 &GetOrthographicProjection() const {
+//    return orthographic_projection_;
+//  }
+//
+//  [[nodiscard]] inline const glm::mat4x4 &GetPerspectiveProjection() const {
+//    return perspective_projection_;
+//  }
 
-  [[nodiscard]] inline const glm::mat4x4 &GetPerspectiveProjection() const {
-    return perspective_projection_;
-  }
-
-  virtual ~
-  RenderingContext() = default;
+  virtual ~RenderingContext() = default;
 };
 }

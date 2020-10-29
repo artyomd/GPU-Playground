@@ -7,6 +7,9 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 
+application::GlfwApplication::GlfwApplication(const std::shared_ptr<api::RenderingContext> &context) : TestApplication(
+    context) {}
+
 void application::GlfwApplication::InitWindow() {
   glfwSetErrorCallback([](int error, const char *description) {
     throw std::runtime_error("glfw error " + std::to_string(error) + ": " + description);
@@ -24,22 +27,19 @@ void application::GlfwApplication::InitWindow() {
     glfwTerminate();
     throw std::runtime_error("could not create window");
   }
-  renderer_->SetViewport(window_width_, window_height_);
   glfwSetWindowUserPointer(window_, this);
   glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
     auto app = reinterpret_cast<GlfwApplication *>(glfwGetWindowUserPointer(window));
     app->window_height_ = height;
     app->window_width_ = width;
-    app->renderer_->SetViewport(width, height);
     app->OnWindowSizeChanged();
-    app->current_test_->OnViewportChange();
+    app->current_test_->OnViewportChange(width, height);
   });
 }
 
 void application::GlfwApplication::Run() {
   while (!glfwWindowShouldClose(window_)) {
     glfwPollEvents();
-    current_test_->OnClear();
     if (!PrepareFrame()) {
       continue;
     }

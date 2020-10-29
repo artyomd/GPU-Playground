@@ -9,6 +9,12 @@ geometry::Quad::Quad(const std::shared_ptr<api::RenderingContext> &context,
                      geometry::Point &top_right,
                      geometry::Point &bottom_right,
                      geometry::Point &bottom_left) : GeometryItem(context) {
+  api::VertexBufferLayout layout;
+  layout.Push<float>(3);
+  layout.Push<float>(4);
+  vertex_buffer_ = context->CreateVertexBuffer(4 * 7 * sizeof(float), layout);
+  index_buffer_ = context->CreateIndexBuffer(6, api::DataType::DATA_TYPE_UINT_16);
+
   float positions[] = {
       top_left.x, top_left.y, top_left.z, top_left.r, top_left.g, top_left.b, top_left.a,
       top_right.x, top_right.y, top_right.z, top_right.r, top_right.g, top_right.b, top_right.a,
@@ -18,15 +24,10 @@ geometry::Quad::Quad(const std::shared_ptr<api::RenderingContext> &context,
   };
 
   unsigned short indices[] = {
-      3, 2, 0,
-      2, 1, 0
+      0, 1, 3,
+      1, 3, 2
   };
 
-  vertex_buffer_ = context->CreateVertexBuffer(positions, 4 * 7 * sizeof(float));
-  layout_ = std::make_shared<api::VertexBufferLayout>();
-  layout_->Push<float>(3);
-  layout_->Push<float>(4);
-
-  vertex_binding_ = context->CreateVertexBinding(vertex_buffer_, layout_);
-  index_buffer_ = context->CreateIndexBuffer(indices, 6, api::DataType::DATA_TYPE_UINT_16);
+  vertex_buffer_->Update(&positions[0]);
+  index_buffer_->Update(&indices[0]);
 }
