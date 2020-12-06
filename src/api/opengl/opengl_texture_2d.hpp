@@ -10,7 +10,9 @@
 namespace api::opengl {
 class OpenglTexture2D : public Texture2D, public OpenGlUniform {
  public:
-  OpenglTexture2D(const std::string &image_path, int binding_point, ShaderType shader_stage);
+  OpenglTexture2D(int binding_point, ShaderType shader_stage);
+  void Load(const std::string &path) override;
+  void Load(size_t width, size_t height, void *data) override;
   void SetSampler(api::Sampler sampler) override;
   void Bind() const override;
   void Unbind() const override;

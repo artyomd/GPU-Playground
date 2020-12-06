@@ -55,8 +55,7 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   void WaitForGpuIdle() const override;
 
-  std::shared_ptr<Texture2D> CreateTexture2D(std::string image_path,
-                                             int binding_point,
+  std::shared_ptr<Texture2D> CreateTexture2D(int binding_point,
                                              ShaderType shader_stage) override;
 
   ~VulkanRenderingContext() override = default;

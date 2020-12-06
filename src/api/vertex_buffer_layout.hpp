@@ -12,26 +12,18 @@ namespace api {
 struct VertexAttribute {
   DataType type;
   unsigned int count;
+  size_t offset;
+  size_t stride;
 };
 
 class VertexBufferLayout {
  private:
-  std::vector<VertexAttribute> elements_;
-  unsigned int stride_;
+  std::vector<VertexAttribute> elements_{};
  public:
-  VertexBufferLayout() : stride_(0) {}
+  VertexBufferLayout() = default;
 
-  template<typename T>
-  void Push(unsigned int) {
-    throw std::runtime_error("not implemented");
-  }
+  void Push(const VertexAttribute &vertex_attribute);
 
-  [[nodiscard]] inline std::vector<VertexAttribute> GetElements() const {
-    return elements_;
-  }
-
-  [[nodiscard]] inline unsigned int GetStride() const {
-    return stride_;
-  }
+  [[nodiscard]] const std::vector<VertexAttribute> &GetElements() const;
 };
 }

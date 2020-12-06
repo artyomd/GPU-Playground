@@ -170,8 +170,7 @@ void api::vulkan::VulkanRenderingPipeline::Render() {
   vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   vkCmdSetViewport(command_buffer, 0, 1, &this->viewport_);
   vkCmdSetScissor(command_buffer, 0, 1, &this->scissor_);
-  VkDeviceSize offsets[] = {0};
-  vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffer_->GetBuffer(), offsets);
+  vertex_buffer_->BindBuffer(command_buffer);
   vkCmdBindIndexBuffer(command_buffer, *index_buffer_->GetBuffer(), 0, index_buffer_->GetIndexType());
   vkCmdBindDescriptorSets(command_buffer,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -185,9 +184,11 @@ void api::vulkan::VulkanRenderingPipeline::Render() {
 }
 
 void api::vulkan::VulkanRenderingPipeline::AddUniform(std::shared_ptr<api::Uniform> uniform) {
+  auto vk_uniform = std::dynamic_pointer_cast<VulkanUniform>(uniform);
+  this->uniforms_.push_back(vk_uniform);
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
   for (size_t i = 0; i < context_->GetImageCount(); i++) {
-    auto descriptor_write = std::dynamic_pointer_cast<VulkanUniform>(uniform)->GetWriteDescriptorSetFor(i);
+    auto descriptor_write = vk_uniform->GetWriteDescriptorSetFor(i);
     descriptor_write.dstSet = descriptor_sets_[i];
     descriptor_writes.push_back(descriptor_write);
   }

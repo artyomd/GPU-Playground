@@ -36,10 +36,9 @@ std::shared_ptr<api::UniformBuffer> api::opengl::OpenGlRenderingContext::CreateU
   return std::make_shared<OpenGlUniformBuffer>(size_in_bytes, binding_point, shader_stage);
 }
 
-std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(std::string image_path,
-                                                                                     int binding_point,
+std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(int binding_point,
                                                                                      api::ShaderType shader_stage) {
-  return std::make_shared<OpenglTexture2D>(image_path, binding_point, shader_stage);
+  return std::make_shared<OpenglTexture2D>(binding_point, shader_stage);
 }
 
 std::shared_ptr<api::RenderingPipeline> api::opengl::OpenGlRenderingContext::CreateGraphicsPipeline(

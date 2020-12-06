@@ -11,8 +11,9 @@ geometry::Triangle::Triangle(
     const geometry::Point &point_2) : GeometryItem(context) {
 
   api::VertexBufferLayout layout;
-  layout.Push<float>(3);
-  layout.Push<float>(4);
+  size_t stride = sizeof(float) * 7;
+  layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, 0, stride});
+  layout.Push({api::DataType::DATA_TYPE_FLOAT, 4, sizeof(float) * 3, stride});
   vertex_buffer_ = context->CreateVertexBuffer(3 * 7 * sizeof(float), layout);
   index_buffer_ = context->CreateIndexBuffer(3, api::DataType::DATA_TYPE_UINT_16);
 

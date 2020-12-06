@@ -6,6 +6,7 @@
 #include <glm/gtx/hash.hpp>
 #include <tinyobjloader/tiny_obj_loader.h>
 #include <unordered_map>
+#include <iostream>
 
 struct Vertex {
   glm::vec3 position;
@@ -31,10 +32,11 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
   std::string warn, err;
-  if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "../res/models/chalet.obj")) {
+  if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "../res/models/chalet.obj", "../res/models")) {
     throw std::runtime_error(warn + err);
   }
-
+  std::cout << "warn:" << warn << std::endl;
+  std::cout << "err:" << err << std::endl;
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices = {};
@@ -60,42 +62,45 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   }
 
   api::VertexBufferLayout vertex_buffer_layout;
-  vertex_buffer_layout.Push<float>(3);
-  vertex_buffer_layout.Push<float>(2);
-  vertex_buffer_ = rendering_context_->CreateVertexBuffer(5 * vertices.size() * sizeof(float), vertex_buffer_layout);
-  vertex_buffer_->Update(vertices.data());
+  size_t stride = sizeof(float) * 5;
+  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, 0, stride});
+  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 2, sizeof(float) * 3, stride});
+  auto
+      vertex_buffer = rendering_context_->CreateVertexBuffer(5 * vertices.size() * sizeof(float), vertex_buffer_layout);
+  vertex_buffer->Update(vertices.data());
 
-  index_buffer_ = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
-  index_buffer_->Update(indices.data());
+  auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
+  index_buffer->Update(indices.data());
 
-  vertex_shader_ = rendering_context_->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
-                                                    "main",
-                                                    api::ShaderType::SHADER_TYPE_VERTEX);
-  fragment_shader_ = rendering_context_->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
-                                                      "main",
-                                                      api::ShaderType::SHADER_TYPE_FRAGMENT);
+  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
+                                                        "main",
+                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+  auto fragment_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
+                                                          "main",
+                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer_, index_buffer_,
-                                                         vertex_shader_, fragment_shader_,
-                                                         {api::DrawMode::TRIANGLE_LIST,
-                                                          api::CullMode::BACK,
-                                                          api::FrontFace::CCW,
-                                                          true,
-                                                          api::CompareOp::LESS});
+  auto pipeline = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
+                                                             vertex_shader, fragment_shader,
+                                                             {api::DrawMode::TRIANGLE_LIST,
+                                                              api::CullMode::BACK,
+                                                              api::FrontFace::CCW,
+                                                              true,
+                                                              api::CompareOp::LESS});
 
   uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
                                                             0,
                                                             api::ShaderType::SHADER_TYPE_VERTEX);
-  obj_texture_ = rendering_context_->CreateTexture2D("../res/textures/chalet.jpg",
-                                                     1,
-                                                     api::ShaderType::SHADER_TYPE_FRAGMENT);
-  obj_texture_->SetSampler({api::Filter::LINEAR,
-                            api::Filter::LINEAR,
-                            api::AddressMode::CLAMP_TO_EDGE,
-                            api::AddressMode::CLAMP_TO_EDGE,
-                            api::AddressMode::CLAMP_TO_EDGE});
-  pipeline_->AddUniform(uniform_buffer_);
-  pipeline_->AddUniform(obj_texture_);
+  auto obj_texture = rendering_context_->CreateTexture2D(1,
+                                                         api::ShaderType::SHADER_TYPE_FRAGMENT);
+  obj_texture->Load("../res/textures/chalet.jpg");
+  obj_texture->SetSampler({api::Filter::LINEAR,
+                           api::Filter::LINEAR,
+                           api::AddressMode::CLAMP_TO_EDGE,
+                           api::AddressMode::CLAMP_TO_EDGE,
+                           api::AddressMode::CLAMP_TO_EDGE});
+  pipeline->AddUniform(uniform_buffer_);
+  pipeline->AddUniform(obj_texture);
+  pipelines_.push_back(pipeline);
 }
 
 void test::TestObj::OnRender() {
@@ -103,5 +108,5 @@ void test::TestObj::OnRender() {
   ubo_->proj = perspective_projection_;
   ubo_->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
   uniform_buffer_->Update(ubo_.get());
-  pipeline_->Render();
+  pipelines_[0]->Render();
 }

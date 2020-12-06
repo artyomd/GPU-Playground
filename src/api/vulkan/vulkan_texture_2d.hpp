@@ -20,10 +20,11 @@ class VulkanTexture2D : public Texture2D, public VulkanUniform {
 
  public:
   VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
-                  std::string image_path,
                   int binding_point,
                   ShaderType shader_stage);
   void SetSampler(api::Sampler sampler) override;
+  void Load(const std::string &path) override;
+  void Load(size_t width, size_t height, void *data) override;
   [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(int image_index) const override;
   ~VulkanTexture2D() override;
 };

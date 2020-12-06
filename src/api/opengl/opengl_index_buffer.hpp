@@ -17,7 +17,7 @@ class OpenGlIndexBuffer : public IndexBuffer {
  public:
   OpenGlIndexBuffer(unsigned int item_count, enum DataType type);
 
-  void Update(void *data) override;
+  void Update(const void *data) override;
   [[nodiscard]] GLuint GetBufferId() const;
   [[nodiscard]] GLint GetIndexType() const;
 

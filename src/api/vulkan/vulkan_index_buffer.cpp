@@ -24,7 +24,7 @@ api::vulkan::VulkanIndexBuffer::VulkanIndexBuffer(std::shared_ptr<VulkanRenderin
                          &memory_);
 }
 
-void api::vulkan::VulkanIndexBuffer::Update(void *data) {
+void api::vulkan::VulkanIndexBuffer::Update(const void *data) {
   VkBuffer staging_buffer;
   VkDeviceMemory staging_buffer_memory;
   context_->CreateBuffer(size_in_bytes_,

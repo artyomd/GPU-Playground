@@ -11,6 +11,7 @@
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 #include "src/api/vulkan/vulkan_shader.hpp"
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
+#include "src/api/vulkan/vulkan_uniform.hpp"
 
 namespace api::vulkan {
 class VulkanRenderingPipeline : public RenderingPipeline {
@@ -28,6 +29,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   std::shared_ptr<VulkanIndexBuffer> index_buffer_ = nullptr;
   std::shared_ptr<VulkanShader> vertex_shader_ = nullptr;
   std::shared_ptr<VulkanShader> fragment_shader_ = nullptr;
+  std::vector<std::shared_ptr<VulkanUniform>> uniforms_{};
 
   std::vector<VkDescriptorSet> descriptor_sets_{};
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;

@@ -13,7 +13,7 @@ api::opengl::OpenGlIndexBuffer::OpenGlIndexBuffer(unsigned int item_count, enum 
   this->index_type_ = GetGlType(type);
 }
 
-void api::opengl::OpenGlIndexBuffer::Update(void *data) {
+void api::opengl::OpenGlIndexBuffer::Update(const void *data) {
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_id_));
   GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, size_in_bytes_, data, GL_STATIC_DRAW));
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));

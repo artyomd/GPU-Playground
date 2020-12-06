@@ -101,10 +101,9 @@ std::shared_ptr<api::UniformBuffer> api::vulkan::VulkanRenderingContext::CreateU
   return std::make_shared<VulkanUniformBuffer>(shared_from_this(), size_in_bytes, binding_point, shader_stage);
 }
 
-std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(std::string image_path,
-                                                                                     int binding_point,
+std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(int binding_point,
                                                                                      ShaderType shader_stage) {
-  return std::make_shared<VulkanTexture2D>(shared_from_this(), image_path, binding_point, shader_stage);
+  return std::make_shared<VulkanTexture2D>(shared_from_this(), binding_point, shader_stage);
 }
 
 //void api::vulkan::VulkanRenderingContext::SetViewportSize(int width, int height) {

@@ -25,7 +25,7 @@ class IndexBuffer {
     }
   }
  public:
-  virtual void Update(void *data) = 0;
+  virtual void Update(const void *data) = 0;
 
   [[nodiscard]] inline unsigned int GetCount() const {
     return count_;

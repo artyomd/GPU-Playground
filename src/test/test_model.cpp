@@ -28,7 +28,9 @@ void test::TestModel::OnViewportChange(size_t width, size_t height) {
   float new_width = 4.0f;
   float new_height = ((float) width * new_width) / (float) height;
   max_side_ = std::fmax(new_width / 2, new_height / 2);
-  orthographic_projection_ = glm::ortho(-new_width, new_width, -new_height, new_height);
-  perspective_projection_ = glm::perspective(glm::radians(45.0f), ((float) width / (float) height), 0.1f, 10.0f);
+  if (!lock_projection_) {
+    orthographic_projection_ = glm::ortho(-new_width, new_width, -new_height, new_height);
+    perspective_projection_ = glm::perspective(glm::radians(45.0f), ((float) width / (float) height), 0.1f, 10.0f);
+  }
 }
 

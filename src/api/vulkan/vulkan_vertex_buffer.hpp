@@ -17,19 +17,19 @@ class VulkanVertexBuffer : public VertexBuffer {
   VkBuffer buffer_{};
   VkDeviceMemory memory_{};
 
-  VkVertexInputBindingDescription vertex_input_binding_description_{};
+  std::vector<VkVertexInputBindingDescription> vertex_input_binding_descriptions_{};
   std::vector<VkVertexInputAttributeDescription> attribute_descriptions_{};
   VkPipelineVertexInputStateCreateInfo vertex_input_info_ = {};
 
  public:
   VulkanVertexBuffer(std::shared_ptr<VulkanRenderingContext> context,
                      size_t size_in_bytes,
-                     const VertexBufferLayout& layout);
-  void Update(void *data) override;
+                     const VertexBufferLayout &layout);
+  void Update(const void *data) override;
 
   [[nodiscard]] VkPipelineVertexInputStateCreateInfo GetVertexInputInfo() const;
 
-  [[nodiscard]] const VkBuffer *GetBuffer() const;
+  void BindBuffer(const VkCommandBuffer& command_buffer);
 
   ~VulkanVertexBuffer() override;
 };

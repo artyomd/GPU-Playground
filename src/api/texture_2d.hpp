@@ -12,15 +12,14 @@
 namespace api {
 class Texture2D : public Uniform {
  protected:
-  std::string image_path_;
-  Texture2D(std::string image_path, int binding_point, ShaderType shader_stage) :
-      Uniform(binding_point, shader_stage), image_path_(std::move(image_path)) {};
+  Texture2D(int binding_point, ShaderType shader_stage) :
+      Uniform(binding_point, shader_stage) {};
 
  public:
   virtual void SetSampler(api::Sampler sampler) = 0;
 
-  [[nodiscard]] const std::string &GetImagePath() const {
-    return image_path_;
-  }
+  virtual void Load(const std::string &path) = 0;
+
+  virtual void Load(size_t width, size_t height, void *data) = 0;
 };
 }

@@ -10,17 +10,17 @@
 
 test::TestSphere::TestSphere(std::shared_ptr<api::RenderingContext> rendering_context) : TestModel(std::move(
     rendering_context)) {
-  sphere_ = std::make_shared<geometry::SpiralSphere>(rendering_context_, 1.0f, 32, 64);
-  vertex_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
-                                                    "main",
-                                                    api::ShaderType::SHADER_TYPE_VERTEX);
-  fragment_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
-                                                      "main",
-                                                      api::ShaderType::SHADER_TYPE_FRAGMENT);
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(sphere_->GetVertexBuffer(),
-                                                         sphere_->GetIndexBuffer(),
-                                                         vertex_shader_, fragment_shader_,
-                                                         {
+  auto sphere = std::make_shared<geometry::SpiralSphere>(rendering_context_, 1.0f, 32, 64);
+  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/default_mvp_color_vertex_shader.spv",
+                                                        "main",
+                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+  auto fragment_shader = rendering_context_->CreateShader("../res/shader/compiled/default_color_fragment_shader.spv",
+                                                          "main",
+                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+  auto pipeline = rendering_context_->CreateGraphicsPipeline(sphere->GetVertexBuffer(),
+                                                             sphere->GetIndexBuffer(),
+                                                             vertex_shader, fragment_shader,
+                                                             {
                                                              api::DrawMode::TRIANGLE_STRIP,
                                                              api::CullMode::NONE,
                                                              api::FrontFace::CCW,
@@ -30,12 +30,13 @@ test::TestSphere::TestSphere(std::shared_ptr<api::RenderingContext> rendering_co
   uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
                                                             0,
                                                             api::ShaderType::SHADER_TYPE_VERTEX);
-  pipeline_->AddUniform(uniform_buffer_);
+  pipeline->AddUniform(uniform_buffer_);
+  pipelines_.push_back(pipeline);
 }
 void test::TestSphere::OnRender() {
   ubo_->model = ComputeModelMatrix();
   ubo_->proj = orthographic_projection_;
   ubo_->view = glm::mat4(1.0f);
   uniform_buffer_->Update(ubo_.get());
-  pipeline_->Render();
+  pipelines_[0]->Render();
 }

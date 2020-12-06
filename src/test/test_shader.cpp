@@ -10,28 +10,28 @@
 #include "src/geometry/quad.hpp"
 
 test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_context,
-                             std::string fragment_shader)
+                             std::string fragment_shader_data)
     : Test(std::move(rendering_context)) {
   geometry::Point point_0 = {-1.0f, 1.0f, 0.0f};
   geometry::Point point_1 = {1.0f, 1.0f, 0.0f};
   geometry::Point point_2 = {1.0f, -1.0f, 0.0f};
   geometry::Point point_3 = {-1.0f, -1.0f, 0.0f};
 
-  quad_ = std::make_shared<geometry::Quad>(rendering_context_, point_0, point_1, point_2, point_3);
+  auto quad = std::make_shared<geometry::Quad>(rendering_context_, point_0, point_1, point_2, point_3);
 
-  vertex_shader_ = rendering_context_->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
-                                                    "main",
-                                                    api::ShaderType::SHADER_TYPE_VERTEX);
+  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
+                                                        "main",
+                                                        api::ShaderType::SHADER_TYPE_VERTEX);
 
-  fragment_shader_ = rendering_context_->CreateShader(std::move(fragment_shader),
-                                                      "main",
-                                                      api::ShaderType::SHADER_TYPE_FRAGMENT);
+  auto fragment_shader = rendering_context_->CreateShader(std::move(fragment_shader_data),
+                                                          "main",
+                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(quad_->GetVertexBuffer(),
-                                                         quad_->GetIndexBuffer(),
-                                                         vertex_shader_,
-                                                         fragment_shader_,
-                                                         {
+  auto pipeline = rendering_context_->CreateGraphicsPipeline(quad->GetVertexBuffer(),
+                                                             quad->GetIndexBuffer(),
+                                                             vertex_shader,
+                                                             fragment_shader,
+                                                             {
                                                              api::DrawMode::TRIANGLE_STRIP,
                                                              api::CullMode::NONE,
                                                              api::FrontFace::CW,
@@ -43,12 +43,13 @@ test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_co
                                                             0,
                                                             api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  pipeline_->AddUniform(uniform_buffer_);
+  pipeline->AddUniform(uniform_buffer_);
+  pipelines_.push_back(pipeline);
 }
 
 void test::TestShader::OnRender() {
   uniform_buffer_->Update(ubo_.get());
-  pipeline_->Render();
+  pipelines_[0]->Render();
 }
 
 void test::TestShader::OnUpdate(float delta_time) {

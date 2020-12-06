@@ -15,19 +15,18 @@ api::opengl::OpenGlVertexBuffer::OpenGlVertexBuffer(size_t size_in_bytes, const 
   GL_CALL(glBindVertexArray(vertex_array_id_));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer_id_));
   const auto &elements = layout.GetElements();
-  unsigned int offset = 0;
   for (unsigned int i = 0; i < elements.size(); i++) {
     const auto &element = elements[i];
     GL_CALL(glEnableVertexAttribArray(i));
-    GL_CALL(glVertexAttribPointer(i, element.count, GetGlType(element.type), GL_FALSE, layout.GetStride(),
-                                  reinterpret_cast<void *> (offset)));
-    offset += element.count * GetDataTypeSizeInBytes(element.type);
+    GL_CALL(glVertexAttribPointer(i, element.count, GetGlType(element.type), GL_FALSE,
+                                  element.stride,
+                                  reinterpret_cast<void *> (element.offset)));
   }
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
   GL_CALL(glBindVertexArray(0));
 }
 
-void api::opengl::OpenGlVertexBuffer::Update(void *data) {
+void api::opengl::OpenGlVertexBuffer::Update(const void *data) {
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer_id_));
   GL_CALL(glBufferData(GL_ARRAY_BUFFER, size_in_bytes_, data, GL_STATIC_DRAW));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));

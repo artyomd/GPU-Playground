@@ -4,14 +4,9 @@
 
 #include "src/api/vertex_buffer_layout.hpp"
 
-template<>
-void api::VertexBufferLayout::Push<float>(unsigned int count) {
-  elements_.push_back({DataType::DATA_TYPE_FLOAT, count});
-  stride_ += count * GetDataTypeSizeInBytes(DataType::DATA_TYPE_FLOAT);
+const std::vector<api::VertexAttribute> &api::VertexBufferLayout::GetElements() const {
+  return elements_;
 }
-
-template<>
-void api::VertexBufferLayout::Push<unsigned int>(unsigned int count) {
-  elements_.push_back({DataType::DATA_TYPE_UINT_32, count});
-  stride_ += count * GetDataTypeSizeInBytes(DataType::DATA_TYPE_UINT_32);
+void api::VertexBufferLayout::Push(const api::VertexAttribute &vertex_attribute) {
+  elements_.emplace_back(vertex_attribute);
 }

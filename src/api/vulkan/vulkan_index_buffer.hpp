@@ -25,7 +25,7 @@ class VulkanIndexBuffer : public IndexBuffer {
                     enum DataType type);
 
  public:
-  void Update(void *data) override;
+  void Update(const void *data) override;
   [[nodiscard]] const VkBuffer *GetBuffer() const;
   [[nodiscard]] VkIndexType GetIndexType() const;
   ~VulkanIndexBuffer() override;

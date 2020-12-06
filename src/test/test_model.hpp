@@ -26,7 +26,8 @@ class TestModel : public Test {
  protected:
   glm::mat4 ComputeModelMatrix();
   glm::mat4 orthographic_projection_{};
-  glm::mat4 perspective_projection_{};
+  bool lock_projection_ = false;
+  glm::mat4 perspective_projection_ = glm::mat4(1.0);
 
  public:
   explicit TestModel(std::shared_ptr<api::RenderingContext> rendering_context) : Test(std::move(rendering_context)) {};

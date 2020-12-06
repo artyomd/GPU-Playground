@@ -24,8 +24,7 @@ class RenderingContext {
                                                              int binding_point,
                                                              ShaderType shader_stage) = 0;
 
-  virtual std::shared_ptr<Texture2D> CreateTexture2D(std::string image_path,
-                                                     int binding_point,
+  virtual std::shared_ptr<Texture2D> CreateTexture2D(int binding_point,
                                                      ShaderType shader_stage) = 0;
 
   virtual std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(

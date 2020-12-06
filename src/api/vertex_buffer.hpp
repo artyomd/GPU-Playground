@@ -16,7 +16,7 @@ class VertexBuffer {
       : size_in_bytes_(size_in_bytes) {}
 
  public:
-  virtual void Update(void *data) = 0;
+  virtual void Update(const void *data) = 0;
 
   virtual ~VertexBuffer() = default;
 };

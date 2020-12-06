@@ -16,7 +16,7 @@ class OpenGlVertexBuffer : public VertexBuffer {
  public:
   OpenGlVertexBuffer(size_t size_in_bytes, const VertexBufferLayout& layout);
 
-  void Update(void *data) override;
+  void Update(const void *data) override;
   [[nodiscard]] GLuint GetBufferId() const;
   [[nodiscard]] GLuint GetVertexArrayId() const;
 

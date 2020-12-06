@@ -22,34 +22,33 @@ api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(std::shared_ptr<VulkanRender
                          &buffer_,
                          &memory_);
 
-  vertex_input_binding_description_.binding = 0;
-  vertex_input_binding_description_.stride = layout.GetStride();
-  vertex_input_binding_description_.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
   const auto &elements = layout.GetElements();
-  unsigned int offset = 0;
   for (unsigned int i = 0; i < elements.size(); i++) {
     const auto &element = elements[i];
 
+    VkVertexInputBindingDescription vertex_input_binding_description{};
+    vertex_input_binding_description.binding = i;
+    vertex_input_binding_description.stride = element.stride;
+    vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+    vertex_input_binding_descriptions_.push_back(vertex_input_binding_description);
+
     VkVertexInputAttributeDescription description{};
-    description.binding = 0;
+    description.binding = i;
     description.location = i;
     description.format = GetVkFormat(element.type, element.count);
-    description.offset = offset;
+    description.offset = element.offset;
     attribute_descriptions_.push_back(description);
-
-    offset += element.count * GetDataTypeSizeInBytes(element.type);
   }
 
   vertex_input_info_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertex_input_info_.vertexBindingDescriptionCount = 1;
-  vertex_input_info_.pVertexBindingDescriptions = &vertex_input_binding_description_;
+  vertex_input_info_.vertexBindingDescriptionCount = static_cast<uint32_t>(vertex_input_binding_descriptions_.size());
+  vertex_input_info_.pVertexBindingDescriptions = vertex_input_binding_descriptions_.data();
   vertex_input_info_.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions_.size());
   vertex_input_info_.pVertexAttributeDescriptions = attribute_descriptions_.data();
 
 }
 
-void api::vulkan::VulkanVertexBuffer::Update(void *data) {
+void api::vulkan::VulkanVertexBuffer::Update(const void *data) {
   VkBuffer staging_buffer;
   VkDeviceMemory staging_buffer_memory;
   context_->CreateBuffer(size_in_bytes_,
@@ -71,8 +70,11 @@ VkPipelineVertexInputStateCreateInfo api::vulkan::VulkanVertexBuffer::GetVertexI
   return vertex_input_info_;
 }
 
-const VkBuffer *api::vulkan::VulkanVertexBuffer::GetBuffer() const {
-  return &buffer_;
+void api::vulkan::VulkanVertexBuffer::BindBuffer(const VkCommandBuffer &command_buffer) {
+  VkDeviceSize offsets[] = {0};
+  for (int i = 0; i < vertex_input_binding_descriptions_.size(); i++) {
+    vkCmdBindVertexBuffers(command_buffer, i, 1, &buffer_, offsets);
+  }
 }
 
 api::vulkan::VulkanVertexBuffer::~VulkanVertexBuffer() {
