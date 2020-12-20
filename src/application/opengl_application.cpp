@@ -7,8 +7,8 @@
 #include "src/application/opengl_application.hpp"
 
 #include <imgui/imgui.h>
-#include <imgui/examples/imgui_impl_opengl3.h>
-#include <imgui/examples/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/imgui_impl_glfw.h>
 
 #include "src/api/opengl/opengl_utils.hpp"
 #include "src/api/opengl/opengl_rendering_context.hpp"

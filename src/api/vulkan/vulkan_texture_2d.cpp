@@ -5,7 +5,7 @@
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
 
 #include <cstring>
-#include <stb/stb_image.h>
+#include <stb_image.h>
 #include <stdexcept>
 #include <utility>
 
