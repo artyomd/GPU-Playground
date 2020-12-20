@@ -55,20 +55,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #        CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
 #        FORCE)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-
-IF (UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-ENDIF ()
-
 find_package(glfw3 REQUIRED)
 
-IF (APPLE)
-    MESSAGE("Apple")
-ELSE (APPLE)
-    MESSAGE("not Apple")
+IF (NOT APPLE)
     OPTION(USE_OPENGL "Build with opengl support" ON)
-ENDIF (APPLE)
+ENDIF ()
 
 find_package(Vulkan)
 IF (NOT Vulkan_FOUND)
@@ -78,6 +69,10 @@ ELSE ()
 ENDIF ()
 
 file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.c src/*.hpp src/*.h)
+
+file(GLOB_RECURSE EXTERNAL_SOURCE_FILES external/src/*.cpp)
+#spir-v reflect
+list(APPEND EXTERNAL_SOURCE_FILES external/SPIRV-Reflect/spirv_reflect.c)
 
 IF (USE_OPENGL)
     MESSAGE("gl enabled")
@@ -91,8 +86,15 @@ ELSE (USE_OPENGL)
 ENDIF (USE_OPENGL)
 
 include_directories("${PROJECT_SOURCE_DIR}")
-include_directories(SYSTEM "${PROJECT_SOURCE_DIR}/src/vendor")
 include_directories(SYSTEM ${GLEW_INCLUDE_DIRS})
+include_directories(SYSTEM external/glm)
+include_directories(SYSTEM external/SPIRV-Reflect)
+include_directories(SYSTEM external/stb)
+include_directories(SYSTEM external/tinyobjloader)
+include_directories(SYSTEM external/src)
+include_directories(SYSTEM external/src/imgui)
+include_directories(SYSTEM external)
 
-add_executable(playground ${SOURCE_FILES})
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} ${DIRECTFB_LIBRARIES} ${XCB_LIBRARIES} ${WAYLAND_CLIENT_LIBRARIES})
+
+add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
+target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY})

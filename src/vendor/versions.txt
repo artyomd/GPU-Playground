@@ -1,5 +1,0 @@
-stb_image - v2.26
-glm - v0.9.9.8
-imgui - v1.78
-tiny_obj_loader - v2.0.0
-spirv-reflect - v1.0

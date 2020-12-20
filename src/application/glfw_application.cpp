@@ -5,7 +5,7 @@
 #include "src/application/glfw_application.hpp"
 
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
+#include <imgui/examples/imgui_impl_glfw.h>
 
 application::GlfwApplication::GlfwApplication(const std::shared_ptr<api::RenderingContext> &context) : TestApplication(
     context) {}

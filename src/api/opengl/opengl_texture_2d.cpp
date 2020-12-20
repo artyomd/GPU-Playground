@@ -4,7 +4,7 @@
 
 #include "src/api/opengl/opengl_texture_2d.hpp"
 
-#include <stb_image/stb_image.h>
+#include <stb/stb_image.h>
 #include <stdexcept>
 
 #include "src/api/opengl/opengl_utils.hpp"

@@ -6,7 +6,7 @@
 
 #include <cassert>
 #include <vulkan/vulkan.h>
-#include <spirv-reflect/spirv_reflect.h>
+#include <SPIRV-Reflect/spirv_reflect.h>
 
 #include "src/api/utils.hpp"
 #include "src/api/vulkan/vulkan_utils.hpp"
