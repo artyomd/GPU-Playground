@@ -92,6 +92,7 @@ include_directories(SYSTEM external/stb)
 include_directories(SYSTEM external/tinyobjloader)
 include_directories(SYSTEM external/src)
 include_directories(SYSTEM external/src/imgui)
+include_directories(SYSTEM external/json/single_include/)
 include_directories(SYSTEM external)
 
 

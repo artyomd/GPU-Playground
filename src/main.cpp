@@ -11,6 +11,7 @@
 #include "src/test/test_obj.hpp"
 #include "src/test/test_cube.hpp"
 #include "src/test/test_triangle.hpp"
+#include "src/test/test_gltf.hpp"
 
 int main() {
   try {
@@ -29,6 +30,7 @@ int main() {
     test_application.RegisterTest<test::TestTexture2D>("Texture2D");
     test_application.RegisterTest<test::TestObj>("Obj");
     test_application.RegisterTest<test::TestSphere>("Sphere");
+    test_application.RegisterTest<test::TestGltf>("gltf");
     test_application.Run();
     test_application.DestroyImGui();
     test_application.DestroyContext();

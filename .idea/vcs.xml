@@ -2,5 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/SPIRV-Reflect" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/tinygltf" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/tinyobjloader" vcs="Git" />
   </component>
 </project>
