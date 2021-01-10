@@ -5,11 +5,10 @@
 
 #include <vulkan/vulkan.h>
 
-#include "src/api/uniform.hpp"
-
 namespace api::vulkan {
 class VulkanUniform {
  public:
-  [[nodiscard]] virtual VkWriteDescriptorSet GetWriteDescriptorSetFor(int image_index) const = 0;
+  [[nodiscard]] virtual VkWriteDescriptorSet GetWriteDescriptorSetFor(unsigned int image_index,
+                                                                      unsigned int binding_point) const = 0;
 };
 }

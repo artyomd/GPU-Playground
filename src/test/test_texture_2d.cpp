@@ -10,10 +10,10 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
     : TestModel(std::move(rendering_context)) {
 
   float positions[] = {
-      -0.5f, -0.5f, 0.0f, 0.0f,
-      0.5f, -0.5f, 1.0f, 0.0f,
-      -0.5f, 0.5f, 0.0f, 1.0f,
-      0.5f, 0.5f, 1.0f, 1.0f
+      -0.5F, -0.5F, 0.0F, 0.0F,
+      0.5F, -0.5F, 1.0F, 0.0F,
+      -0.5F, 0.5F, 0.0F, 1.0F,
+      0.5F, 0.5F, 1.0F, 1.0F
   };
 
   unsigned short indices[] = {
@@ -38,7 +38,7 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   auto fragment_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
-  auto pipeline = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
                                                              index_buffer,
                                                              vertex_shader,
                                                              fragment_shader,
@@ -50,26 +50,20 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
                                                              api::CompareOp::LESS
                                                          });
 
-  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
-                                                            0,
-                                                            api::ShaderType::SHADER_TYPE_VERTEX);
-  auto texture_2_d = rendering_context_->CreateTexture2D(1,
-                                                         api::ShaderType::SHADER_TYPE_FRAGMENT);
+  auto texture_2_d = rendering_context_->CreateTexture2D();
   texture_2_d->Load("../res/textures/image.png");
   texture_2_d->SetSampler({api::Filter::LINEAR,
                            api::Filter::LINEAR,
                            api::AddressMode::CLAMP_TO_EDGE,
                            api::AddressMode::CLAMP_TO_EDGE,
                            api::AddressMode::CLAMP_TO_EDGE});
-  pipeline->AddUniform(uniform_buffer_);
-  pipeline->AddUniform(texture_2_d);
-  pipelines_.push_back(pipeline);
+  pipeline_->SetTexture(1, texture_2_d);
 }
 
 void test::TestTexture2D::OnRender() {
-  ubo_->model = ComputeModelMatrix();
-  ubo_->proj = orthographic_projection_;
-  ubo_->view = glm::mat4(1.0f);
-  uniform_buffer_->Update(ubo_.get());
-  pipelines_[0]->Render();
+  ubo_.model = ComputeModelMatrix();
+  ubo_.proj = orthographic_projection_;
+  ubo_.view = glm::mat4(1.0F);
+  pipeline_->UpdateUniformBuffer(0, &ubo_);
+  pipeline_->Render();
 }

@@ -79,34 +79,27 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  auto pipeline = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
-                                                             vertex_shader, fragment_shader,
-                                                             {api::DrawMode::TRIANGLE_LIST,
-                                                              api::CullMode::BACK,
-                                                              api::FrontFace::CCW,
-                                                              true,
-                                                              api::CompareOp::LESS});
-
-  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
-                                                            0,
-                                                            api::ShaderType::SHADER_TYPE_VERTEX);
-  auto obj_texture = rendering_context_->CreateTexture2D(1,
-                                                         api::ShaderType::SHADER_TYPE_FRAGMENT);
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
+                                                         vertex_shader, fragment_shader,
+                                                         {api::DrawMode::TRIANGLE_LIST,
+                                                          api::CullMode::BACK,
+                                                          api::FrontFace::CCW,
+                                                          true,
+                                                          api::CompareOp::LESS});
+  auto obj_texture = rendering_context_->CreateTexture2D();
   obj_texture->Load("../res/textures/chalet.jpg");
   obj_texture->SetSampler({api::Filter::LINEAR,
                            api::Filter::LINEAR,
                            api::AddressMode::CLAMP_TO_EDGE,
                            api::AddressMode::CLAMP_TO_EDGE,
                            api::AddressMode::CLAMP_TO_EDGE});
-  pipeline->AddUniform(uniform_buffer_);
-  pipeline->AddUniform(obj_texture);
-  pipelines_.push_back(pipeline);
+  pipeline_->SetTexture(1, obj_texture);
 }
 
 void test::TestObj::OnRender() {
-  ubo_->model = ComputeModelMatrix();
-  ubo_->proj = perspective_projection_;
-  ubo_->view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-  uniform_buffer_->Update(ubo_.get());
-  pipelines_[0]->Render();
+  ubo_.model = ComputeModelMatrix();
+  ubo_.proj = perspective_projection_;
+  ubo_.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+  pipeline_->UpdateUniformBuffer(0, &ubo_);
+  pipeline_->Render();
 }

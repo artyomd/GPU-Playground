@@ -32,4 +32,6 @@ VkSamplerAddressMode GetVkAddressMode(api::AddressMode address_mode);
 VkShaderStageFlags GetVkShaderStageFlag(api::ShaderType shader_type);
 
 VkShaderStageFlagBits GetShaderVkType(api::ShaderType shader_type);
+
+void CheckVkResult(VkResult result);
 }

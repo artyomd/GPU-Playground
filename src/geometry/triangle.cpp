@@ -18,11 +18,11 @@ geometry::Triangle::Triangle(
   index_buffer_ = context->CreateIndexBuffer(3, api::DataType::DATA_TYPE_UINT_16);
 
   Point geometry_data[] = {point_0, point_1, point_2};
+  vertex_buffer_->Update(&geometry_data[0]);
 
   unsigned short indices[] = {
       0, 1, 2
   };
 
-  vertex_buffer_->Update(&geometry_data[0]);
   index_buffer_->Update(&indices[0]);
 }

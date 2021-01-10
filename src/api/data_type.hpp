@@ -14,9 +14,11 @@ enum class DataType {
 struct Pixel_RGBA {
   float r, g, b, a;
 };
+
 struct Size {
   int width = 0;
   int height = 0;
 };
+
 size_t GetDataTypeSizeInBytes(DataType type);
 }

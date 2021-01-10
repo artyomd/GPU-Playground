@@ -13,6 +13,7 @@ enum class Filter {
   NEAREST,
   COUNT,
 };
+
 enum class AddressMode {
   REPEAT = 0,
   MIRRORED_REPEAT = 1,
@@ -20,6 +21,7 @@ enum class AddressMode {
   CLAMP_TO_BORDER = 3,
   COUNT,
 };
+
 struct Sampler {
   Filter mag_filter = Filter::LINEAR;
   Filter min_filter = Filter::NEAREST;

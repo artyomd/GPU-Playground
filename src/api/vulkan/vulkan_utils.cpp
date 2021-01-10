@@ -128,3 +128,10 @@ VkCompareOp api::vulkan::GetVkCompareOp(api::CompareOp compare_op) {
     default: throw std::runtime_error("unsupported compare op");;
   }
 }
+
+void api::vulkan::CheckVkResult(VkResult result) {
+  if (result == VK_SUCCESS) {
+    return;
+  }
+  throw std::runtime_error("vk error");
+}

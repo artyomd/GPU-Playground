@@ -68,6 +68,5 @@ geometry::SpiralSphere::SpiralSphere(
   vertex_buffer_->Update(geometry_data.data());
 
   index_buffer_ = context->CreateIndexBuffer(index_data.size(), api::DataType::DATA_TYPE_UINT_16);
-  index_buffer_->Update(index_data.data());
-
+  index_buffer_->Update(&index_data[0]);
 }

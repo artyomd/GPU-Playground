@@ -5,19 +5,11 @@
 
 #include <utility>
 
-#include "src/api/vertex_buffer_layout.hpp"
+#include "src/api/buffer.hpp"
 
 namespace api {
-class VertexBuffer {
+class VertexBuffer : public virtual Buffer {
  protected:
-  size_t size_in_bytes_;
-
-  explicit VertexBuffer(size_t size_in_bytes)
-      : size_in_bytes_(size_in_bytes) {}
-
- public:
-  virtual void Update(const void *data) = 0;
-
-  virtual ~VertexBuffer() = default;
+  VertexBuffer() = default;
 };
 }

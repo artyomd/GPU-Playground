@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <map>
 #include <vulkan/vulkan.h>
 
 #include "src/api/rendering_pipeline.hpp"
@@ -31,9 +32,12 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   std::shared_ptr<VulkanShader> fragment_shader_ = nullptr;
   std::vector<std::shared_ptr<VulkanUniform>> uniforms_{};
 
+  std::map<unsigned int, std::vector<std::shared_ptr<VulkanBuffer>>> uniform_buffers_;
+
   std::vector<VkDescriptorSet> descriptor_sets_{};
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;
 
+  void CreateUniformBuffers(std::shared_ptr<VulkanShader> shader);
   void DestroyPipeline();
   void CreatePipeline();
 
@@ -46,8 +50,9 @@ class VulkanRenderingPipeline : public RenderingPipeline {
                           RenderingPipelineConfig config);
 
   void Render() override;
-  void AddUniform(std::shared_ptr<api::Uniform> uniform) override;
-  void ViewportChanged(size_t width, size_t height) override;
+  void UpdateUniformBuffer(unsigned int binding_point, void *data) override;
+  void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) override;
+  void SetViewPort(size_t width, size_t height) override;
   ~VulkanRenderingPipeline() override;
 };
 }

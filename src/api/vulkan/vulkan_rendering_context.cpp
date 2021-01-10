@@ -10,8 +10,8 @@
 #include "src/api/vulkan/vulkan_rendering_pipeline.hpp"
 #include "src/api/vulkan/vulkan_shader.hpp"
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
-#include "src/api/vulkan/vulkan_uniform_buffer.hpp"
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
+#include "vulkan_buffer.hpp"
 
 api::vulkan::VulkanRenderingContext::VulkanRenderingContext(
     VkPhysicalDevice physical_device,
@@ -94,16 +94,9 @@ std::shared_ptr<api::Shader> api::vulkan::VulkanRenderingContext::CreateShader(s
                                         type);
 }
 
-std::shared_ptr<api::UniformBuffer> api::vulkan::VulkanRenderingContext::CreateUniformBuffer(
-    size_t size_in_bytes,
-    int binding_point,
-    ShaderType shader_stage) {
-  return std::make_shared<VulkanUniformBuffer>(shared_from_this(), size_in_bytes, binding_point, shader_stage);
-}
 
-std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(int binding_point,
-                                                                                     ShaderType shader_stage) {
-  return std::make_shared<VulkanTexture2D>(shared_from_this(), binding_point, shader_stage);
+std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D() {
+  return std::make_shared<VulkanTexture2D>(shared_from_this());
 }
 
 //void api::vulkan::VulkanRenderingContext::SetViewportSize(int width, int height) {
@@ -313,10 +306,16 @@ int api::vulkan::VulkanRenderingContext::GetImageCount() const {
   return image_count_;
 }
 
-void api::vulkan::VulkanRenderingContext::CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size) {
+void api::vulkan::VulkanRenderingContext::CopyBuffer(VkBuffer src_buffer,
+                                                     VkBuffer dst_buffer,
+                                                     VkDeviceSize size,
+                                                     VkDeviceSize src_offset,
+                                                     VkDeviceSize dst_offset) {
   VkCommandBuffer command_buffer = BeginSingleTimeCommands(graphics_pool_);
   VkBufferCopy copy_region = {};
   copy_region.size = size;
+  copy_region.srcOffset = src_offset;
+  copy_region.dstOffset = dst_offset;
   vkCmdCopyBuffer(command_buffer, src_buffer, dst_buffer, 1, &copy_region);
   EndSingleTimeCommands(graphics_queue_, graphics_pool_, command_buffer);
 }
@@ -392,4 +391,8 @@ void api::vulkan::VulkanRenderingContext::SetCurrentCommandBuffer(VkCommandBuffe
 
 void api::vulkan::VulkanRenderingContext::SetVkRenderPass(VkRenderPass vk_render_pass) {
   vk_render_pass_ = vk_render_pass;
+}
+
+std::shared_ptr<api::Buffer> api::vulkan::VulkanRenderingContext::CreateBuffer(size_t size_in_bytes) {
+  return std::make_shared<VulkanBuffer>(shared_from_this(), size_in_bytes);
 }

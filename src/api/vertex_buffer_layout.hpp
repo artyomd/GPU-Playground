@@ -11,7 +11,7 @@
 namespace api {
 struct VertexAttribute {
   DataType type;
-  unsigned int count;
+  size_t count;
   size_t offset;
   size_t stride;
 };

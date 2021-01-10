@@ -14,8 +14,8 @@ struct UniformBufferObjectShader {
 };
 class TestShader : public Test {
  private:
-  std::shared_ptr<api::UniformBuffer> uniform_buffer_ = nullptr;
-  std::shared_ptr<UniformBufferObjectShader> ubo_ = std::make_shared<UniformBufferObjectShader>();
+  UniformBufferObjectShader ubo_{};
+  std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
 
  public:
   explicit TestShader(std::shared_ptr<api::RenderingContext> rendering_context, std::string fragment_shader);

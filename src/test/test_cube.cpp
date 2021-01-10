@@ -52,7 +52,7 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  auto pipeline = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
                                                              index_buffer,
                                                              vertex_shader,
                                                              fragment_shader,
@@ -62,17 +62,12 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
                                                                  api::FrontFace::CCW,
                                                                  true,
                                                                  api::CompareOp::LESS});
-  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
-                                                            0,
-                                                            api::ShaderType::SHADER_TYPE_VERTEX);
-  pipeline->AddUniform(uniform_buffer_);
-  pipelines_.push_back(pipeline);
 }
 
 void test::TestCube::OnRender() {
-  ubo_->model = ComputeModelMatrix();
-  ubo_->proj = perspective_projection_;
-  ubo_->view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-  uniform_buffer_->Update(ubo_.get());
-  pipelines_[0]->Render();
+  ubo_.model = ComputeModelMatrix();
+  ubo_.proj = perspective_projection_;
+  ubo_.view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+  pipeline_->UpdateUniformBuffer(0, &ubo_);
+  pipeline_->Render();
 }

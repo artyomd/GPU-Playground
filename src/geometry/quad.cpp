@@ -23,12 +23,11 @@ geometry::Quad::Quad(const std::shared_ptr<api::RenderingContext> &context,
       bottom_right.a,
       bottom_left.x, bottom_left.y, bottom_left.z, bottom_left.r, bottom_left.g, bottom_left.b, bottom_left.a
   };
+  vertex_buffer_->Update(&positions[0]);
 
   unsigned short indices[] = {
       0, 1, 3,
       1, 3, 2
   };
-
-  vertex_buffer_->Update(&positions[0]);
   index_buffer_->Update(&indices[0]);
 }
