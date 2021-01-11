@@ -4,9 +4,10 @@
 
 #include "src/geometry/gltf_model.hpp"
 
-#include <tinygltf/tiny_gltf.h>
 #include <utility>
 #include <glm/ext.hpp>
+#include <snowhouse/snowhouse.h>
+#include <tinygltf/tiny_gltf.h>
 
 static api::DataType GetType(int type) {
   switch (type) {
@@ -148,15 +149,15 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node, glm::mat4 parent_
       camera_matrix = glm::perspective(data.yfov, data.aspectRatio, data.znear, data.zfar);
     } else {
       auto data = camera.orthographic;
-      camera_matrix[0][0] = 1.0F / data.xmag;
-      camera_matrix[1][1] = 1.0F / data.ymag;
-      camera_matrix[2][2] = 2.0F / (data.znear - data.zfar);
-      camera_matrix[3][2] = (data.zfar + data.znear) / (data.znear - data.zfar);
+      camera_matrix[0][0] = static_cast<float>(1.0F / data.xmag);
+      camera_matrix[1][1] = static_cast<float>(1.0F / data.ymag);
+      camera_matrix[2][2] = static_cast<float>(2.0F / (data.znear - data.zfar));
+      camera_matrix[3][2] = static_cast<float>((data.zfar + data.znear) / (data.znear - data.zfar));
     }
     Camera camera_obj{matrix, camera_matrix, camera.name};
     cameras_.emplace_back(camera_obj);
   }
-  for (auto child:node.children) {
+  for (const auto &child:node.children) {
     LoadNode(model_.nodes[child], matrix);
   }
 }
@@ -170,36 +171,21 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     std::shared_ptr<api::VertexBuffer> vertex_buffer;
     unsigned int index_max_value;
     { //index buffer
-      if (primitive.indices == -1) {
-        throw std::runtime_error("panic");
-      } else {
-        auto indices_accessor = model_.accessors[primitive.indices];
-        if (indices_accessor.type != TINYGLTF_TYPE_SCALAR) {
-          throw std::runtime_error("wrong type for index buffer");
-        }
-        if (indices_accessor.byteOffset != 0) {
-          throw std::runtime_error("panic");
-        }
-        if (indices_accessor.normalized) {
-          throw std::runtime_error("panic");
-        }
-        auto type = GetType(indices_accessor.componentType);
-        auto accessor_defined_length = indices_accessor.count * api::GetDataTypeSizeInBytes(type);
-        auto buffer_view = model_.bufferViews[indices_accessor.bufferView];
-        if (accessor_defined_length != buffer_view.byteLength) {
-          throw std::runtime_error("panic");
-        }
-        if (buffer_view.byteStride != 0) {
-          throw std::runtime_error("panic");
-        }
-        if (buffer_view.target != TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER) {
-          throw std::runtime_error("panic");
-        }
-        index_buffer = context_->CreateIndexBuffer(indices_accessor.count, type);
-        auto buffer = buffers_[buffer_view.buffer];
-        index_buffer->CopyFrom(buffer, index_buffer->GetSizeInBytes(), buffer_view.byteOffset, 0);
-        index_max_value = static_cast<unsigned int>(indices_accessor.maxValues[0]);
-      }
+      AssertThat(primitive.indices, snowhouse::Is().Not().EqualTo(-1)); //unhandled
+      auto indices_accessor = model_.accessors[static_cast<unsigned long>(primitive.indices)];
+      AssertThat(indices_accessor.type, snowhouse::Is().EqualTo(TINYGLTF_TYPE_SCALAR));
+      AssertThat(indices_accessor.byteOffset, snowhouse::Is().EqualTo(0)); //unhandled
+      AssertThat(indices_accessor.normalized, snowhouse::Is().False());
+      auto type = GetType(indices_accessor.componentType);
+      auto accessor_defined_length = indices_accessor.count * api::GetDataTypeSizeInBytes(type);
+      auto buffer_view = model_.bufferViews[static_cast<unsigned long>(indices_accessor.bufferView)];
+      AssertThat(accessor_defined_length, snowhouse::Is().EqualTo(buffer_view.byteLength));
+      AssertThat(buffer_view.byteStride, snowhouse::Is().EqualTo(0));//unhandled
+      AssertThat(buffer_view.target, snowhouse::Is().EqualTo(TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER));
+      index_buffer = context_->CreateIndexBuffer(indices_accessor.count, type);
+      auto buffer = buffers_[static_cast<unsigned long>(buffer_view.buffer)];
+      index_buffer->CopyFrom(buffer, index_buffer->GetSizeInBytes(), buffer_view.byteOffset, 0);
+      index_max_value = static_cast<unsigned int>(indices_accessor.maxValues[0]);
     }
     {//vertex buffer
       auto vbl = api::VertexBufferLayout();

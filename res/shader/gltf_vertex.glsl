@@ -16,6 +16,6 @@ layout(binding = 0, std140) uniform UniformBufferObject {
 layout(location = 0) out vec2 v_texCoords;
 
 void main() {
-    gl_Position = proj * view * model * position; //vec4((((position-min)*2.)/(max-min))-1, 1.);
+    gl_Position = proj * view * model * position;
     v_texCoords = textCoords;
 }

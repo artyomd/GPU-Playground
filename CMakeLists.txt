@@ -66,3 +66,24 @@ add_subdirectory(external/snowhouse)
 
 add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
 target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)
+
+FUNCTION(CONVERT_SPV result)
+    SET(spvs "")
+    FOREACH (glsl ${ARGN})
+        get_filename_component(name ${glsl} NAME_WE)
+        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compiled/${name}.spv")
+    ENDFOREACH (glsl)
+    SET(${result} "${spvs}" PARENT_SCOPE)
+ENDFUNCTION(CONVERT_SPV)
+
+file(GLOB_RECURSE GLSL_FILES res/shader/*.glsl)
+CONVERT_SPV(SPV_FILES ${GLSL_FILES})
+
+add_custom_command(
+        OUTPUT ${SPV_FILES}
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compileAll.sh
+        DEPENDS ${GLSL_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
+)
+add_custom_target(shaders DEPENDS ${SPV_FILES})
+add_dependencies(playground shaders)
