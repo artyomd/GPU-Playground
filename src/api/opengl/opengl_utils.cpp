@@ -21,7 +21,7 @@ bool api::opengl::GlLogCall(const char *function, const char *file, int line) {
   return true;
 }
 
-GLint api::opengl::GetGlType(api::DataType type) {
+GLenum api::opengl::GetGlType(api::DataType type) {
   switch (type) {
     case api::DataType::DATA_TYPE_BYTE:return GL_UNSIGNED_BYTE;
     case api::DataType::DATA_TYPE_UINT_16:return GL_UNSIGNED_SHORT;

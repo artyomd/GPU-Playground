@@ -3,6 +3,9 @@
 //
 
 #include "vulkan_buffer.hpp"
+
+#include <cstring>
+
 #include "vulkan_utils.hpp"
 
 api::vulkan::VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanRenderingContext> &context,

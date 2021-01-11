@@ -16,12 +16,12 @@ api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
            std::move(entry_point_name),
            type) {
   GL_CALL(shader_id_ = glCreateShader(GetShaderGlType(type)));
-  assert(shader_id_ != 0);
+  AssertThat(shader_id_, snowhouse::Is().Not().EqualTo(0));
 
   auto code = ReadFile(this->sipr_v_shader_location_);
   GL_CALL(glShaderBinary(1, &shader_id_, GL_SHADER_BINARY_FORMAT_SPIR_V, code.data(), code.size()));
 
-  GL_CALL(glSpecializeShader(shader_id_, (const GLchar *) entry_point_name_.c_str(), 0, nullptr, nullptr));
+  GL_CALL(glSpecializeShader(shader_id_, static_cast<const GLchar *>(entry_point_name_.c_str()), 0, nullptr, nullptr));
 
   GLint result;
   GL_CALL(glGetShaderiv(shader_id_, GL_COMPILE_STATUS, &result));
@@ -29,7 +29,7 @@ api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
   if (result == GL_FALSE) {
     GLint length;
     GL_CALL(glGetShaderiv(shader_id_, GL_INFO_LOG_LENGTH, &length));
-    char *message = (char *) alloca(length * sizeof(char));
+    char *message = static_cast<char *>(alloca(static_cast<unsigned long>(length) * sizeof(char)));
     GL_CALL(glGetShaderInfoLog(shader_id_, length, &length, message));
     std::cout << "Failed to compile shader" << std::endl;
     GL_CALL(glDeleteShader(shader_id_));
@@ -37,14 +37,6 @@ api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
   }
 
 }
-
-//void api::opengl::OpenGlShader::AttachShader(GLuint program_id) const {
-//  GL_CALL(glAttachShader(program_id, renderer_id_));
-//}
-//
-//void api::opengl::OpenGlShader::DetachShader(GLuint program_id) const {
-//  GL_CALL(glDetachShader(program_id, renderer_id_));
-//}
 
 GLuint api::opengl::OpenGlShader::GetShaderId() const {
   return shader_id_;

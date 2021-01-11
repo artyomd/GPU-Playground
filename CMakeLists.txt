@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_C_FLAGS "-fsanitize=thread -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=thread -g -O1")
 # AddressSanitize
-set(CMAKE_C_FLAGS "-fsanitize=address")
-set(CMAKE_CXX_FLAGS "-fsanitize=address")
+#set(CMAKE_C_FLAGS "-fsanitize=address")
+#set(CMAKE_CXX_FLAGS "-fsanitize=address")
 # LeakSanitizer
 #set(CMAKE_C_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
@@ -62,6 +62,7 @@ include_directories(SYSTEM external/src/imgui)
 include_directories(SYSTEM external/json/single_include/)
 include_directories(SYSTEM external)
 
+add_subdirectory(external/snowhouse)
 
 add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY})
+target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)

@@ -4,7 +4,7 @@
 
 #include "src/api/vulkan/vulkan_shader.hpp"
 
-#include <cassert>
+#include <snowhouse/snowhouse.h>
 
 #include "src/api/utils.hpp"
 #include "src/api/vulkan/vulkan_utils.hpp"
@@ -33,18 +33,18 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
   shader_stage_info_.pName = this->entry_point_name_.data();
 
   SpvReflectResult result = spvReflectCreateShaderModule(code.size(), code.data(), &reflect_shader_module_);
-  assert(result == SPV_REFLECT_RESULT_SUCCESS);
+  AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
 
   uint32_t count = 0;
   result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, nullptr);
-  assert(result == SPV_REFLECT_RESULT_SUCCESS);
+  AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
   if (count > 1) {
     throw std::runtime_error("unhandled");
   }
 
   std::vector<SpvReflectDescriptorSet *> sets(count);
   result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
-  assert(result == SPV_REFLECT_RESULT_SUCCESS);
+  AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
 
   for (auto set:sets) {
     bindings_.resize(set->binding_count);
@@ -74,7 +74,7 @@ size_t api::vulkan::VulkanShader::DescriptorSizeInBytes(unsigned int binding_poi
   uint32_t count = 1;
   std::vector<SpvReflectDescriptorSet *> sets(count);
   auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
-  assert(result == SPV_REFLECT_RESULT_SUCCESS);
+  AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
   for (uint32_t i_binding = 0; i_binding < sets[0]->binding_count; ++i_binding) {
     const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(sets[0]->bindings[i_binding]);
     if (reflect_descriptor_binding.binding != binding_point) {

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <cassert>
 #include <GL/glew.h>
+#include <snowhouse/snowhouse.h>
 
 #include "src/api/data_type.hpp"
 #include "src/api/redering_pipeline_config.hpp"
@@ -14,14 +14,14 @@
 
 #define GL_CALL(x) api::opengl::GlClearError;\
     x;\
-    assert(api::opengl::GlLogCall(#x, __FILE__, __LINE__))
+    AssertThat(api::opengl::GlLogCall(#x, __FILE__, __LINE__), snowhouse::Is().True())
 
 namespace api::opengl {
 void GlClearError();
 
 bool GlLogCall(const char *function, const char *file, int line);
 
-GLint GetGlType(api::DataType type);
+GLenum GetGlType(api::DataType type);
 
 GLint GetGlFilter(api::Filter filter);
 

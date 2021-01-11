@@ -12,7 +12,7 @@
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 #include "src/api/vulkan/vulkan_shader.hpp"
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
-#include "src/api/vulkan/vulkan_uniform.hpp"
+#include "src/api/vulkan/vulkan_texture_2d.hpp"
 
 namespace api::vulkan {
 class VulkanRenderingPipeline : public RenderingPipeline {
@@ -30,7 +30,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   std::shared_ptr<VulkanIndexBuffer> index_buffer_ = nullptr;
   std::shared_ptr<VulkanShader> vertex_shader_ = nullptr;
   std::shared_ptr<VulkanShader> fragment_shader_ = nullptr;
-  std::vector<std::shared_ptr<VulkanUniform>> uniforms_{};
+  std::vector<std::shared_ptr<VulkanTexture2D>> textures_{};
 
   std::map<unsigned int, std::vector<std::shared_ptr<VulkanBuffer>>> uniform_buffers_;
 

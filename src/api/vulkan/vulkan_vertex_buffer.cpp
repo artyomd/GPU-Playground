@@ -12,9 +12,9 @@ api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(std::shared_ptr<VulkanRender
                                                     size_t size_in_bytes,
                                                     const VertexBufferLayout &layout)
     : Buffer(size_in_bytes),
-      VertexBuffer(),
       VulkanBuffer(context, size_in_bytes, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT),
+      VertexBuffer(size_in_bytes) {
 
   const auto &elements = layout.GetElements();
   for (unsigned int i = 0; i < elements.size(); i++) {

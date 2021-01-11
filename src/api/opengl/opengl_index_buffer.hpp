@@ -4,23 +4,21 @@
 
 #pragma once
 
-#include <GL/glew.h>
-
 #include "src/api/index_buffer.hpp"
+#include "src/api/opengl/opengl_buffer.hpp"
 
 namespace api::opengl {
-class OpenGlIndexBuffer : public IndexBuffer {
+class OpenGlIndexBuffer :
+    public OpenGlBuffer,
+    public IndexBuffer {
  private:
-  GLuint buffer_id_ = 0;
-  GLint index_type_ = 0;
+  GLenum index_type_ = 0;
 
  public:
   OpenGlIndexBuffer(unsigned int item_count, enum DataType type);
 
-  void Update(const void *data) override;
-  [[nodiscard]] GLuint GetBufferId() const;
-  [[nodiscard]] GLint GetIndexType() const;
+  [[nodiscard]] GLenum GetIndexType() const;
 
-  ~OpenGlIndexBuffer() override;
+  ~OpenGlIndexBuffer() override = default;
 };
 }

@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 namespace api {
 class Buffer {

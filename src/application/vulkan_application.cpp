@@ -150,7 +150,7 @@ bool application::VulkanApplication::CheckValidationLayerSupport() {
 
 std::vector<const char *> application::VulkanApplication::GetRequiredExtensions() const {
   uint32_t glfw_extension_count = 0;
-  const char **glfw_extensions = glfwGetRequiredInstanceExt ensions(&glfw_extension_count);
+  const char **glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
   std::vector<const char *> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
   if (enable_validation_layers_) {
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
