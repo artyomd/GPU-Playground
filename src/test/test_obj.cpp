@@ -63,8 +63,8 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
 
   api::VertexBufferLayout vertex_buffer_layout;
   size_t stride = sizeof(float) * 5;
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, 0, stride});
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 2, sizeof(float) * 3, stride});
+  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 2});
   auto
       vertex_buffer = rendering_context_->CreateVertexBuffer(5 * vertices.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(vertices.data());

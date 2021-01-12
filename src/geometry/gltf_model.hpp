@@ -19,8 +19,9 @@ struct Camera {
 };
 
 struct PrimitiveUbo;
+struct ParsedAttribute;
 
-struct RenderingUnit{
+struct RenderingUnit {
   std::shared_ptr<api::RenderingPipeline> pipeline;
   std::shared_ptr<geometry::PrimitiveUbo> ubo;
 };
@@ -36,12 +37,13 @@ class GltfModel {
  private:
   void LoadNode(const tinygltf::Node &node, glm::mat4 parent_transform = glm::identity<glm::mat4>());
   std::vector<geometry::RenderingUnit> LoadMesh(tinygltf::Mesh &mesh, glm::mat4 model_matrix);
+  ParsedAttribute ParseAttribute(const std::string &attribute_name,
+                                 int accessor_id);
  private:
   std::shared_ptr<api::RenderingContext> context_;
   tinygltf::Model model_{};
-  std::vector<std::shared_ptr<api::Buffer>> buffers_{};
   std::vector<std::shared_ptr<api::Texture2D>> textures_{};
   std::vector<RenderingUnit> current_pipelines_{};
-  std::vector<Camera> cameras_;
+  std::vector<Camera> cameras_{};
 };
 }

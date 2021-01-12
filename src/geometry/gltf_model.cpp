@@ -9,12 +9,35 @@
 #include <snowhouse/snowhouse.h>
 #include <tinygltf/tiny_gltf.h>
 
+#include "src/geometry/gltf_model_defaults.hpp"
+
+namespace geometry {
+struct ParsedAttribute {
+  unsigned char *data = nullptr;
+  size_t stride = 0;
+  size_t instance_count = 0;
+  unsigned int element_count = 0;
+  api::DataType element_type = api::DataType::DATA_TYPE_FLOAT;
+  size_t element_size = 0;
+};
+}
+
 static api::DataType GetType(int type) {
   switch (type) {
     case TINYGLTF_COMPONENT_TYPE_BYTE:return api::DataType::DATA_TYPE_BYTE;
     case TINYGLTF_COMPONENT_TYPE_FLOAT:return api::DataType::DATA_TYPE_FLOAT;
     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:return api::DataType::DATA_TYPE_UINT_16;
     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:return api::DataType::DATA_TYPE_UINT_32;
+    default: throw std::runtime_error("unknown type");
+  }
+}
+
+static unsigned int GetElementCount(int type) {
+  switch (type) {
+    case TINYGLTF_TYPE_SCALAR:return 1;
+    case TINYGLTF_TYPE_VEC2:return 2;
+    case TINYGLTF_TYPE_VEC3:return 3;
+    case TINYGLTF_TYPE_VEC4:return 4;
     default: throw std::runtime_error("unknown type");
   }
 }
@@ -64,8 +87,6 @@ static api::Sampler GetSampler(const tinygltf::Sampler &sampler) {
 
 namespace geometry {
 struct PrimitiveUbo {
-  alignas(16) glm::vec3 max;
-  alignas(16) glm::vec3 min;
   alignas(16) glm::mat4 model;
   alignas(16) glm::mat4 view;
   alignas(16) glm::mat4 projection;
@@ -92,16 +113,11 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context, c
     throw std::runtime_error("Failed to parse glTF\n");
   }
 
-  for (const auto &buffer:model_.buffers) {
-    auto gpu_buffer = context_->CreateBuffer(buffer.data.size());
-    gpu_buffer->Update(buffer.data.data());
-    buffers_.push_back(gpu_buffer);
-  }
-
-  for (const auto &image:model_.images) {
+  for (const auto &tex:model_.textures) {
     auto texture = context_->CreateTexture2D();
-    texture->Load(image.width, image.height, image.image.data());
-    texture->SetSampler(GetSampler(model_.samplers[0]));
+    auto image = model_.images[static_cast<unsigned long>(tex.source)];
+    texture->Load(static_cast<size_t>(image.width), static_cast<size_t>(image.height), image.image.data());
+    texture->SetSampler(GetSampler(model_.samplers[static_cast<unsigned long>(tex.sampler)]));
     textures_.emplace_back(texture);
   }
 }
@@ -167,100 +183,131 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
   std::vector<geometry::RenderingUnit> pipelines{};
   for (const auto &primitive:mesh.primitives) {
     auto ubo = std::make_shared<PrimitiveUbo>();
+    ubo->model = model_matrix;
     std::shared_ptr<api::IndexBuffer> index_buffer;
     std::shared_ptr<api::VertexBuffer> vertex_buffer;
-    unsigned int index_max_value;
     { //index buffer
       AssertThat(primitive.indices, snowhouse::Is().Not().EqualTo(-1)); //unhandled
-      auto indices_accessor = model_.accessors[static_cast<unsigned long>(primitive.indices)];
-      AssertThat(indices_accessor.type, snowhouse::Is().EqualTo(TINYGLTF_TYPE_SCALAR));
-      AssertThat(indices_accessor.byteOffset, snowhouse::Is().EqualTo(0)); //unhandled
-      AssertThat(indices_accessor.normalized, snowhouse::Is().False());
-      auto type = GetType(indices_accessor.componentType);
-      auto accessor_defined_length = indices_accessor.count * api::GetDataTypeSizeInBytes(type);
-      auto buffer_view = model_.bufferViews[static_cast<unsigned long>(indices_accessor.bufferView)];
-      AssertThat(accessor_defined_length, snowhouse::Is().EqualTo(buffer_view.byteLength));
-      AssertThat(buffer_view.byteStride, snowhouse::Is().EqualTo(0));//unhandled
-      AssertThat(buffer_view.target, snowhouse::Is().EqualTo(TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER));
-      index_buffer = context_->CreateIndexBuffer(indices_accessor.count, type);
-      auto buffer = buffers_[static_cast<unsigned long>(buffer_view.buffer)];
-      index_buffer->CopyFrom(buffer, index_buffer->GetSizeInBytes(), buffer_view.byteOffset, 0);
-      index_max_value = static_cast<unsigned int>(indices_accessor.maxValues[0]);
+      auto index = ParseAttribute("INDICES", primitive.indices);
+      char *data = new char[index.instance_count * index.element_size];
+      size_t offset = 0;
+      for (unsigned long i = 0; i < index.instance_count; i++) {
+        memcpy(data + offset,
+               index.data + (i * index.stride),
+               index.element_size);
+        offset += index.element_size;
+      }
+      index_buffer = context_->CreateIndexBuffer(index.instance_count, index.element_type);
+      index_buffer->Update(data);
+      delete[] data;
     }
-    {//vertex buffer
+    {
+      auto attributes = primitive.attributes;
       auto vbl = api::VertexBufferLayout();
-      size_t current_offset = 0;
-      std::map<std::string, std::shared_ptr<api::Buffer>> attribute_buffer_mapping{};
-      auto position = primitive.attributes.find("POSITION");
-      if (position != primitive.attributes.end()) {
-        auto position_accessor = model_.accessors[position->second];
-        if (position_accessor.count != index_max_value + 1) {
-          throw std::runtime_error("panic");
-        }
-        if (position_accessor.type != TINYGLTF_TYPE_VEC3) {
-          throw std::runtime_error("panic");
-        }
-        auto type = GetType(position_accessor.componentType);
-        if (type != api::DataType::DATA_TYPE_FLOAT) {
-          throw std::runtime_error("panic");
-        }
-        auto position_buffer_view = model_.bufferViews[position_accessor.bufferView];
-        if (position_buffer_view.target != TINYGLTF_TARGET_ARRAY_BUFFER) {
-          throw std::runtime_error("panic");
-        }
-        auto buffer_view = model_.bufferViews[position_accessor.bufferView];
-        auto position_size_in_bytes = position_accessor.count * api::GetDataTypeSizeInBytes(type) * 3;
-        if (buffer_view.byteStride != api::GetDataTypeSizeInBytes(type) * 3) {
-          throw std::runtime_error("panic");
-        }
-        auto buffer = context_->CreateBuffer(position_size_in_bytes);
-        buffer->Update(
-            model_.buffers[buffer_view.buffer].data.data() + buffer_view.byteOffset + position_accessor.byteOffset);
-        for (int i = 0; i < position_accessor.maxValues.size(); i++) {
-          ubo->max[i] = position_accessor.maxValues[i];
-        }
-        for (int i = 0; i < position_accessor.minValues.size(); i++) {
-          ubo->min[i] = position_accessor.minValues[i];
-        }
-        ubo->model = model_matrix;
-        vbl.Push(api::VertexAttribute{type, 3, current_offset, buffer_view.byteStride});
-        attribute_buffer_mapping.insert(std::make_pair("POSITION", buffer));
-        current_offset += buffer->GetSizeInBytes();
+      ParsedAttribute position{};
+      ParsedAttribute normal{};
+      ParsedAttribute tangent{};
+      ParsedAttribute text_coord_0{};
+      ParsedAttribute text_coord_1{};
+      ParsedAttribute color_0{};
+      ParsedAttribute joints_0{};
+      ParsedAttribute weights_0{};
+
+      auto position_attr = attributes.find("POSITION");
+      AssertThat(position_attr, snowhouse::Is().Not().EqualTo(attributes.end()));
+      position = ParseAttribute("POSITION", position_attr->second);
+      auto vertex_count = position.instance_count;
+      vbl.Push({0, position.element_type, position.element_count});
+
+      if (attributes.find("NORMAL") != attributes.end()) {
+        normal = ParseAttribute("NORMAL", attributes.find("NORMAL")->second);
+        AssertThat(normal.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({1, normal.element_type, normal.element_count});
       }
-      auto coords = primitive.attributes.find("TEXCOORD_0");
-      if (coords != primitive.attributes.end()) {
-        auto coords_accessor = model_.accessors[coords->second];
-        if (coords_accessor.count != index_max_value + 1) {
-          throw std::runtime_error("panic");
-        }
-        if (coords_accessor.type != TINYGLTF_TYPE_VEC2) {
-          throw std::runtime_error("panic");
-        }
-        auto type = GetType(coords_accessor.componentType);
-        if (type != api::DataType::DATA_TYPE_FLOAT) {
-          throw std::runtime_error("panic");
-        }
-        auto position_buffer_view = model_.bufferViews[coords_accessor.bufferView];
-        if (position_buffer_view.target != TINYGLTF_TARGET_ARRAY_BUFFER) {
-          throw std::runtime_error("panic");
-        }
-        auto buffer_view = model_.bufferViews[coords_accessor.bufferView];
-        auto position_size_in_bytes = coords_accessor.count * api::GetDataTypeSizeInBytes(type) * 2;
-        if (buffer_view.byteStride != api::GetDataTypeSizeInBytes(type) * 2) {
-          throw std::runtime_error("panic");
-        }
-        auto buffer = context_->CreateBuffer(position_size_in_bytes);
-        buffer->Update(
-            model_.buffers[buffer_view.buffer].data.data() + buffer_view.byteOffset + coords_accessor.byteOffset);
-        vbl.Push(api::VertexAttribute{type, 2, current_offset, buffer_view.byteStride});
-        attribute_buffer_mapping.insert(std::make_pair("TEXCOORD_0", buffer));
-        current_offset += buffer->GetSizeInBytes();
+      if (attributes.find("TANGENT") != attributes.end()) {
+        tangent = ParseAttribute("TANGENT", attributes.find("TANGENT")->second);
+        AssertThat(normal.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({2, tangent.element_type, tangent.element_count});
       }
-      vertex_buffer = context_->CreateVertexBuffer(current_offset, vbl);
-      auto pos_buffer = attribute_buffer_mapping["POSITION"];
-      auto coords_buffer = attribute_buffer_mapping["TEXCOORD_0"];
-      vertex_buffer->CopyFrom(pos_buffer, pos_buffer->GetSizeInBytes(), 0, 0);
-      vertex_buffer->CopyFrom(coords_buffer, coords_buffer->GetSizeInBytes(), 0, pos_buffer->GetSizeInBytes());
+      if (attributes.find("TEXCOORD_0") != attributes.end()) {
+        text_coord_0 = ParseAttribute("TEXCOORD_0", attributes.find("TEXCOORD_0")->second);
+        AssertThat(text_coord_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({3, text_coord_0.element_type, text_coord_0.element_count});
+      }
+      if (attributes.find("TEXCOORD_1") != attributes.end()) {
+        text_coord_1 = ParseAttribute("TEXCOORD_1", attributes.find("TEXCOORD_1")->second);
+        AssertThat(text_coord_1.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({4, text_coord_1.element_type, text_coord_1.element_count});
+      }
+      if (attributes.find("COLOR_0") != attributes.end()) {
+        color_0 = ParseAttribute("TEXCOORD_1", attributes.find("TEXCOORD_1")->second);
+        AssertThat(color_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({5, color_0.element_type, color_0.element_count});
+      }
+      if (attributes.find("JOINTS_0") != attributes.end()) {
+        joints_0 = ParseAttribute("JOINTS_0", attributes.find("JOINTS_0")->second);
+        AssertThat(joints_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({6, joints_0.element_type, joints_0.element_count});
+      }
+      if (attributes.find("WEIGHTS_0") != attributes.end()) {
+        weights_0 = ParseAttribute("WEIGHTS_0", attributes.find("WEIGHTS_0")->second);
+        AssertThat(weights_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
+        vbl.Push({7, weights_0.element_type, weights_0.element_count});
+      }
+      auto vertex_stride = vbl.GetElementSize();
+      char *vertex_data = new char[vertex_count * vertex_stride];
+      size_t vertex_data_offset = 0;
+      for (unsigned long i = 0; i < vertex_count; i++) {
+        memcpy(vertex_data + vertex_data_offset,
+               position.data + (i * position.stride),
+               position.element_size);
+        vertex_data_offset += position.element_size;
+        if (normal.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 normal.data + (i * normal.stride),
+                 normal.element_size);
+          vertex_data_offset += normal.element_size;
+        }
+        if (tangent.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 tangent.data + (i * tangent.stride),
+                 tangent.element_size);
+          vertex_data_offset += tangent.element_size;
+        }
+        if (text_coord_0.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 text_coord_0.data + (i * text_coord_0.stride),
+                 text_coord_0.element_size);
+          vertex_data_offset += text_coord_0.element_size;
+        }
+        if (text_coord_1.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 text_coord_1.data + (i * text_coord_1.stride),
+                 text_coord_1.element_size);
+          vertex_data_offset += text_coord_1.element_size;
+        }
+        if (color_0.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 color_0.data + (i * color_0.stride),
+                 color_0.element_size);
+          vertex_data_offset += color_0.element_size;
+        }
+        if (joints_0.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 joints_0.data + (i * joints_0.stride),
+                 joints_0.element_size);
+          vertex_data_offset += joints_0.element_size;
+        }
+        if (weights_0.data != nullptr) {
+          memcpy(vertex_data + vertex_data_offset,
+                 weights_0.data + (i * weights_0.stride),
+                 weights_0.element_size);
+          vertex_data_offset += weights_0.element_size;
+        }
+      }
+      vertex_buffer = context_->CreateVertexBuffer(vertex_count * vertex_stride, vbl);
+      vertex_buffer->Update(vertex_data);
+      delete[] vertex_data;
     }
     auto vertex_shader = context_->CreateShader("../res/shader/compiled/gltf_vertex.spv",
                                                 "main",
@@ -300,4 +347,46 @@ void geometry::GltfModel::SetCamera(int camera_index) {
     unit.ubo->view = glm::inverse(camera.view);
     unit.pipeline->UpdateUniformBuffer(0, unit.ubo.get());
   }
+}
+geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string &attribute_name,
+                                                              int accessor_id) {
+  auto accessor = model_.accessors[static_cast<unsigned long>(accessor_id)];
+  auto attr_defaults = geometry::kPrimitiveTypes.find(attribute_name);
+  auto expected_count = attr_defaults->second.element_count;
+  bool matched = false;
+  for (auto type:expected_count) {
+    if (accessor.type == type) {
+      matched = true;
+      break;
+    }
+  }
+  AssertThat(matched, snowhouse::IsTrue());
+  auto expected_data_types = attr_defaults->second.element_type;
+  matched = false;
+  for (auto type:expected_data_types) {
+    if (accessor.componentType == type) {
+      matched = true;
+      break;
+    }
+  }
+  AssertThat(matched, snowhouse::IsTrue());
+  auto data_type = GetType(accessor.componentType);
+  auto buffer_view = model_.bufferViews[static_cast<unsigned long>(accessor.bufferView)];
+  AssertThat(buffer_view.target, snowhouse::Is().EqualTo(attr_defaults->second.target));
+  auto stride_in_current_buffer = buffer_view.byteStride;
+  unsigned char *data = model_.buffers[static_cast<unsigned long>(buffer_view.buffer)].data.data()
+      + buffer_view.byteOffset
+      + accessor.byteOffset;
+  auto element_count = GetElementCount(accessor.type);
+  auto element_size = element_count * api::GetDataTypeSizeInBytes(data_type);
+  if (stride_in_current_buffer == 0) {
+    stride_in_current_buffer = element_size;
+  }
+  return {data,
+          stride_in_current_buffer,
+          accessor.count,
+          element_count,
+          data_type,
+          element_size
+  };
 }

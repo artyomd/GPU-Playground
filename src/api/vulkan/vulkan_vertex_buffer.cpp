@@ -17,21 +17,24 @@ api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(std::shared_ptr<VulkanRender
       VertexBuffer(size_in_bytes) {
 
   const auto &elements = layout.GetElements();
+  auto stride = static_cast<uint32_t>(layout.GetElementSize());
+  size_t offset = 0;
   for (unsigned int i = 0; i < elements.size(); i++) {
     const auto &element = elements[i];
 
     VkVertexInputBindingDescription vertex_input_binding_description{};
     vertex_input_binding_description.binding = i;
-    vertex_input_binding_description.stride = element.stride;
+    vertex_input_binding_description.stride = stride;
     vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     vertex_input_binding_descriptions_.push_back(vertex_input_binding_description);
 
     VkVertexInputAttributeDescription description{};
     description.binding = i;
-    description.location = i;
+    description.location = element.binding_index;
     description.format = GetVkFormat(element.type, element.count);
-    description.offset = element.offset;
+    description.offset = offset;
     attribute_descriptions_.push_back(description);
+    offset += element.count * GetDataTypeSizeInBytes(element.type);
   }
 
   vertex_input_info_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

@@ -23,8 +23,8 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
 
   api::VertexBufferLayout vertex_buffer_layout;
   size_t stride = sizeof(float) * 4;
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 2, 0, stride});
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 2, sizeof(float) * 2, stride});
+  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 2});
+  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 2});
 
   auto vertex_buffer = rendering_context_->CreateVertexBuffer(4 * 4 * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(&positions[0]);
@@ -39,10 +39,10 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
-                                                             index_buffer,
-                                                             vertex_shader,
-                                                             fragment_shader,
-                                                             {
+                                                         index_buffer,
+                                                         vertex_shader,
+                                                         fragment_shader,
+                                                         {
                                                              api::DrawMode::TRIANGLE_LIST,
                                                              api::CullMode::NONE,
                                                              api::FrontFace::CW,

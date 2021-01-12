@@ -37,8 +37,8 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
 
   api::VertexBufferLayout vertex_buffer_layout;
   size_t stride = sizeof(float) * 6;
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, 0, stride});
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, sizeof(float) * 3, stride});
+  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 3});
   auto vertex_buffer = rendering_context_->CreateVertexBuffer(positions.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(positions.data());
 
@@ -53,15 +53,15 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
-                                                             index_buffer,
-                                                             vertex_shader,
-                                                             fragment_shader,
-                                                             {
-                                                                 api::DrawMode::TRIANGLE_LIST,
-                                                                 api::CullMode::BACK,
-                                                                 api::FrontFace::CCW,
-                                                                 true,
-                                                                 api::CompareOp::LESS});
+                                                         index_buffer,
+                                                         vertex_shader,
+                                                         fragment_shader,
+                                                         {
+                                                             api::DrawMode::TRIANGLE_LIST,
+                                                             api::CullMode::BACK,
+                                                             api::FrontFace::CCW,
+                                                             true,
+                                                             api::CompareOp::LESS});
 }
 
 void test::TestCube::OnRender() {
