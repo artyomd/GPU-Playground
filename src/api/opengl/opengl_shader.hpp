@@ -18,6 +18,8 @@ class OpenGlShader : public Shader {
 
   [[nodiscard]] GLuint GetShaderId() const;
 
+  void SetConstant(unsigned int constant_id, bool constant_value) override;
+
   ~OpenGlShader() override;
 };
 }

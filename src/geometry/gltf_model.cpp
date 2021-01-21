@@ -62,6 +62,7 @@ static api::Filter GetFilter(int filter) {
     case TINYGLTF_TEXTURE_FILTER_NEAREST:
     case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST:
     case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:return api::Filter::NEAREST;
+    case -1: return api::Filter::LINEAR;
     default: throw std::runtime_error("unknown filter");
   }
 }
@@ -186,6 +187,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     ubo->model = model_matrix;
     std::shared_ptr<api::IndexBuffer> index_buffer;
     std::shared_ptr<api::VertexBuffer> vertex_buffer;
+    bool has_normals = false;
     { //index buffer
       AssertThat(primitive.indices, snowhouse::Is().Not().EqualTo(-1)); //unhandled
       auto index = ParseAttribute("INDICES", primitive.indices);
@@ -223,6 +225,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
         normal = ParseAttribute("NORMAL", attributes.find("NORMAL")->second);
         AssertThat(normal.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({1, normal.element_type, normal.element_count});
+        has_normals = true;
       }
       if (attributes.find("TANGENT") != attributes.end()) {
         tangent = ParseAttribute("TANGENT", attributes.find("TANGENT")->second);
@@ -262,7 +265,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
                position.data + (i * position.stride),
                position.element_size);
         vertex_data_offset += position.element_size;
-        if (normal.data != nullptr) {
+        if (has_normals) {
           memcpy(vertex_data + vertex_data_offset,
                  normal.data + (i * normal.stride),
                  normal.element_size);

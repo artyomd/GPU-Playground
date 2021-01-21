@@ -26,11 +26,16 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
   if (vkCreateShaderModule(device_, &create_info, nullptr, &shader_module_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
   }
+  shader_specialization_info_.dataSize = 0;
+  shader_specialization_info_.pData = nullptr;
+  shader_specialization_info_.pMapEntries = nullptr;
+  shader_specialization_info_.mapEntryCount = 0;
 
   shader_stage_info_.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
   shader_stage_info_.stage = GetShaderVkType(type);
   shader_stage_info_.module = shader_module_;
   shader_stage_info_.pName = this->entry_point_name_.data();
+  shader_stage_info_.pSpecializationInfo = &shader_specialization_info_;
 
   SpvReflectResult result = spvReflectCreateShaderModule(code.size(), code.data(), &reflect_shader_module_);
   AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
@@ -63,6 +68,10 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
 }
 
 VkPipelineShaderStageCreateInfo api::vulkan::VulkanShader::GetShaderStageInfo() const {
+  shader_specialization_info_.mapEntryCount = static_cast<uint32_t>(specialization_map_entries_.size());
+  shader_specialization_info_.pMapEntries = specialization_map_entries_.data();
+  shader_specialization_info_.dataSize = spec_data_size_;
+  shader_specialization_info_.pData = spec_data_;
   return shader_stage_info_;
 }
 
@@ -85,7 +94,19 @@ size_t api::vulkan::VulkanShader::DescriptorSizeInBytes(unsigned int binding_poi
   throw std::runtime_error("invalid binding point");
 }
 
+void api::vulkan::VulkanShader::SetConstant(unsigned int constant_id, bool constant_value) {
+  VkSpecializationMapEntry entry{};
+  entry.size = 1;
+  entry.constantID = constant_id;
+  entry.offset = static_cast<uint32_t>(spec_data_size_);
+  specialization_map_entries_.emplace_back(entry);
+  spec_data_size_ += 1;
+  spec_data_ = realloc(spec_data_, spec_data_size_);
+  *(static_cast<bool *>(spec_data_) + (spec_data_size_ - 1)) = constant_value;
+}
+
 api::vulkan::VulkanShader::~VulkanShader() {
   spvReflectDestroyShaderModule(&reflect_shader_module_);
   vkDestroyShaderModule(device_, shader_module_, nullptr);
 }
+
