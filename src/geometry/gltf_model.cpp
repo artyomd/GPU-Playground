@@ -62,6 +62,7 @@ static api::Filter GetFilter(int filter) {
     case TINYGLTF_TEXTURE_FILTER_NEAREST:
     case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST:
     case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:return api::Filter::NEAREST;
+    case -1: return api::Filter::LINEAR;
     default: throw std::runtime_error("unknown filter");
   }
 }
@@ -186,6 +187,13 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     ubo->model = model_matrix;
     std::shared_ptr<api::IndexBuffer> index_buffer;
     std::shared_ptr<api::VertexBuffer> vertex_buffer;
+    bool has_normals = false;
+    bool has_tangents = false;
+    bool has_text_coord_0 = false;
+    bool has_text_coord_1 = false;
+    bool has_color_0 = false;
+    bool has_joints_0 = false;
+    bool has_weights_0 = false;
     { //index buffer
       AssertThat(primitive.indices, snowhouse::Is().Not().EqualTo(-1)); //unhandled
       auto index = ParseAttribute("INDICES", primitive.indices);
@@ -223,36 +231,43 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
         normal = ParseAttribute("NORMAL", attributes.find("NORMAL")->second);
         AssertThat(normal.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({1, normal.element_type, normal.element_count});
+        has_normals = true;
       }
       if (attributes.find("TANGENT") != attributes.end()) {
         tangent = ParseAttribute("TANGENT", attributes.find("TANGENT")->second);
         AssertThat(normal.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({2, tangent.element_type, tangent.element_count});
+        has_tangents = true;
       }
       if (attributes.find("TEXCOORD_0") != attributes.end()) {
         text_coord_0 = ParseAttribute("TEXCOORD_0", attributes.find("TEXCOORD_0")->second);
         AssertThat(text_coord_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({3, text_coord_0.element_type, text_coord_0.element_count});
+        has_text_coord_0 = true;
       }
       if (attributes.find("TEXCOORD_1") != attributes.end()) {
         text_coord_1 = ParseAttribute("TEXCOORD_1", attributes.find("TEXCOORD_1")->second);
         AssertThat(text_coord_1.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({4, text_coord_1.element_type, text_coord_1.element_count});
+        has_text_coord_1 = true;
       }
       if (attributes.find("COLOR_0") != attributes.end()) {
         color_0 = ParseAttribute("TEXCOORD_1", attributes.find("TEXCOORD_1")->second);
         AssertThat(color_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({5, color_0.element_type, color_0.element_count});
+        has_color_0 = true;
       }
       if (attributes.find("JOINTS_0") != attributes.end()) {
         joints_0 = ParseAttribute("JOINTS_0", attributes.find("JOINTS_0")->second);
         AssertThat(joints_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({6, joints_0.element_type, joints_0.element_count});
+        has_joints_0 = true;
       }
       if (attributes.find("WEIGHTS_0") != attributes.end()) {
         weights_0 = ParseAttribute("WEIGHTS_0", attributes.find("WEIGHTS_0")->second);
         AssertThat(weights_0.instance_count, snowhouse::Is().EqualTo(vertex_count));
         vbl.Push({7, weights_0.element_type, weights_0.element_count});
+        has_weights_0 = true;
       }
       auto vertex_stride = vbl.GetElementSize();
       char *vertex_data = new char[vertex_count * vertex_stride];
@@ -262,43 +277,45 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
                position.data + (i * position.stride),
                position.element_size);
         vertex_data_offset += position.element_size;
-        if (normal.data != nullptr) {
+        if (has_normals) {
           memcpy(vertex_data + vertex_data_offset,
                  normal.data + (i * normal.stride),
                  normal.element_size);
           vertex_data_offset += normal.element_size;
+        }else{
+
         }
-        if (tangent.data != nullptr) {
+        if (has_tangents) {
           memcpy(vertex_data + vertex_data_offset,
                  tangent.data + (i * tangent.stride),
                  tangent.element_size);
           vertex_data_offset += tangent.element_size;
         }
-        if (text_coord_0.data != nullptr) {
+        if (has_text_coord_0) {
           memcpy(vertex_data + vertex_data_offset,
                  text_coord_0.data + (i * text_coord_0.stride),
                  text_coord_0.element_size);
           vertex_data_offset += text_coord_0.element_size;
         }
-        if (text_coord_1.data != nullptr) {
+        if (has_text_coord_1) {
           memcpy(vertex_data + vertex_data_offset,
                  text_coord_1.data + (i * text_coord_1.stride),
                  text_coord_1.element_size);
           vertex_data_offset += text_coord_1.element_size;
         }
-        if (color_0.data != nullptr) {
+        if (has_color_0) {
           memcpy(vertex_data + vertex_data_offset,
                  color_0.data + (i * color_0.stride),
                  color_0.element_size);
           vertex_data_offset += color_0.element_size;
         }
-        if (joints_0.data != nullptr) {
+        if (has_joints_0) {
           memcpy(vertex_data + vertex_data_offset,
                  joints_0.data + (i * joints_0.stride),
                  joints_0.element_size);
           vertex_data_offset += joints_0.element_size;
         }
-        if (weights_0.data != nullptr) {
+        if (has_weights_0) {
           memcpy(vertex_data + vertex_data_offset,
                  weights_0.data + (i * weights_0.stride),
                  weights_0.element_size);
@@ -312,6 +329,14 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     auto vertex_shader = context_->CreateShader("../res/shader/compiled/gltf_vertex.spv",
                                                 "main",
                                                 api::ShaderType::SHADER_TYPE_VERTEX);
+    vertex_shader->SetConstant(1, has_normals);
+    vertex_shader->SetConstant(2, has_tangents);
+    vertex_shader->SetConstant(3, has_text_coord_0);
+    vertex_shader->SetConstant(4, has_text_coord_1);
+    vertex_shader->SetConstant(5, has_color_0);
+    vertex_shader->SetConstant(6, has_joints_0);
+    vertex_shader->SetConstant(7, has_weights_0);
+
     auto fragment_shader = context_->CreateShader("../res/shader/compiled/gltf_fragment.spv",
                                                   "main",
                                                   api::ShaderType::SHADER_TYPE_FRAGMENT);

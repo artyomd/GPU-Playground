@@ -17,6 +17,10 @@ class VulkanShader : public Shader {
   VkShaderModule shader_module_ = nullptr;
   SpvReflectShaderModule reflect_shader_module_{};
   VkPipelineShaderStageCreateInfo shader_stage_info_{};
+  mutable VkSpecializationInfo shader_specialization_info_{};
+  mutable std::vector<VkSpecializationMapEntry> specialization_map_entries_{};
+  mutable void *spec_data_ = nullptr;
+  mutable size_t spec_data_size_ = 0;
 
   std::vector<VkDescriptorSetLayoutBinding> bindings_{};
 
