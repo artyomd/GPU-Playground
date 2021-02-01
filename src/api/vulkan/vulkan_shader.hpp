@@ -31,8 +31,6 @@ class VulkanShader : public Shader {
                ShaderType type
   );
 
-  void SetConstant(unsigned int constant_id, bool constant_value) override;
-
   [[nodiscard]] VkPipelineShaderStageCreateInfo GetShaderStageInfo() const;
 
   [[nodiscard]] std::vector<VkDescriptorSetLayoutBinding> GetBindings() const;

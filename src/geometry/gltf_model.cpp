@@ -334,8 +334,8 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     vertex_shader->SetConstant(3, has_text_coord_0);
     vertex_shader->SetConstant(4, has_text_coord_1);
     vertex_shader->SetConstant(5, has_color_0);
-    vertex_shader->SetConstant(6, has_joints_0);
-    vertex_shader->SetConstant(7, has_weights_0);
+//    vertex_shader->SetConstant(6, has_joints_0);
+//    vertex_shader->SetConstant(7, has_weights_0);
 
     auto fragment_shader = context_->CreateShader("../res/shader/compiled/gltf_fragment.spv",
                                                   "main",

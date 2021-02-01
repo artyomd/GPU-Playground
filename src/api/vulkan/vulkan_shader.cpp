@@ -8,6 +8,7 @@
 
 #include "src/api/utils.hpp"
 #include "src/api/vulkan/vulkan_utils.hpp"
+#include "src/utils/variant_utils.hpp"
 
 api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingContext> &context,
                                         std::string sipr_v_shader_location,
@@ -73,14 +74,23 @@ VkPipelineShaderStageCreateInfo api::vulkan::VulkanShader::GetShaderStageInfo() 
     specialization_map_entries_.clear();
     spec_data_size_ = 0;
     for (const auto &entry:specs_) {
-      size_t size = entry.second->GetDataSize();;
       VkSpecializationMapEntry specialization_map_entry{};
       specialization_map_entry.constantID = entry.first;
-      specialization_map_entry.size = size;
-      specialization_map_entry.offset = spec_data_size_;
-      spec_data_ = realloc(spec_data_, spec_data_size_ + size);
-      memcpy((static_cast<char *>(spec_data_) + spec_data_size_), entry.second->GetData(), size);
-      spec_data_size_ += size;
+      specialization_map_entry.offset = static_cast<uint32_t>(spec_data_size_);
+      visit_variant(entry.second,
+#define VISIT(data_type) \
+  [&](data_type v) {\
+  spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(data_type));\
+  *(reinterpret_cast< data_type *>(static_cast<char*>(spec_data_)+spec_data_size_)) = v; \
+  spec_data_size_+= sizeof(data_type);                                  \
+  specialization_map_entry.size = sizeof(data_type);\
+  }
+                    VISIT(bool),
+                    VISIT(unsigned int),
+                    VISIT(int),
+                    VISIT(float),
+                    VISIT(double)
+      );
       specialization_map_entries_.emplace_back(specialization_map_entry);
     }
     shader_specialization_info_.pMapEntries = specialization_map_entries_.data();
@@ -107,17 +117,6 @@ size_t api::vulkan::VulkanShader::DescriptorSizeInBytes(unsigned int binding_poi
     return reflect_descriptor_binding.block.size;
   }
   throw std::runtime_error("invalid binding point");
-}
-
-void api::vulkan::VulkanShader::SetConstant(unsigned int constant_id, bool constant_value) {
-  VkSpecializationMapEntry entry{};
-  entry.size = 1;
-  entry.constantID = constant_id;
-  entry.offset = static_cast<uint32_t>(spec_data_size_);
-  specialization_map_entries_.emplace_back(entry);
-  spec_data_size_ += 1;
-  spec_data_ = realloc(spec_data_, spec_data_size_);
-  *(static_cast<bool *>(spec_data_) + (spec_data_size_ - 1)) = constant_value;
 }
 
 api::vulkan::VulkanShader::~VulkanShader() {
