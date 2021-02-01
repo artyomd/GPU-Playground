@@ -109,8 +109,20 @@ size_t api::vulkan::VulkanShader::DescriptorSizeInBytes(unsigned int binding_poi
   throw std::runtime_error("invalid binding point");
 }
 
+void api::vulkan::VulkanShader::SetConstant(unsigned int constant_id, bool constant_value) {
+  VkSpecializationMapEntry entry{};
+  entry.size = 1;
+  entry.constantID = constant_id;
+  entry.offset = static_cast<uint32_t>(spec_data_size_);
+  specialization_map_entries_.emplace_back(entry);
+  spec_data_size_ += 1;
+  spec_data_ = realloc(spec_data_, spec_data_size_);
+  *(static_cast<bool *>(spec_data_) + (spec_data_size_ - 1)) = constant_value;
+}
+
 api::vulkan::VulkanShader::~VulkanShader() {
   spvReflectDestroyShaderModule(&reflect_shader_module_);
   vkDestroyShaderModule(device_, shader_module_, nullptr);
   free(spec_data_);
 }
+

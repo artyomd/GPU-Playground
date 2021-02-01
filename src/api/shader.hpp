@@ -37,6 +37,9 @@ class Shader {
   bool constants_changed_ = false;
   std::map<unsigned int, std::shared_ptr<SpecEntryBase>> specs_{};
 
+  bool constants_changed_ = false;
+  std::map<GLuint, std::shared_ptr<SpecEntryBase>> specs_{};
+
   Shader(std::string sipr_v_shader_location,
          std::string entry_point_name,
          ShaderType type)
