@@ -10,10 +10,9 @@
 
 namespace api {
 struct VertexAttribute {
+  unsigned int binding_index;
   DataType type;
-  unsigned int count;
-  size_t offset;
-  size_t stride;
+  size_t count;
 };
 
 class VertexBufferLayout {
@@ -22,7 +21,9 @@ class VertexBufferLayout {
  public:
   VertexBufferLayout() = default;
 
-  void Push(const VertexAttribute &vertex_attribute);
+  void Push(VertexAttribute attribute);
+
+  [[nodiscard]] size_t GetElementSize() const;
 
   [[nodiscard]] const std::vector<VertexAttribute> &GetElements() const;
 };

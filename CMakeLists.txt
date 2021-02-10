@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17.3)
+cmake_minimum_required(VERSION 3.17.5)
 
 project(playground)
 
@@ -6,54 +6,20 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ThreadSanitizer
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=thread -g -O1"
-#        CACHE STRING "Flags used by the C compiler during ThreadSanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=thread -g -O1"
-#        CACHE STRING "Flags used by the C++ compiler during ThreadSanitizer builds."
-#        FORCE)
-#
+#set(CMAKE_C_FLAGS "-fsanitize=thread -g -O1")
+#set(CMAKE_CXX_FLAGS "-fsanitize=thread -g -O1")
 # AddressSanitize
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=address"
-#        CACHE STRING "Flags used by the C compiler during AddressSanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=address"
-#        CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds."
-#        FORCE)
-#
+#set(CMAKE_C_FLAGS "-fsanitize=address")
+#set(CMAKE_CXX_FLAGS "-fsanitize=address")
 # LeakSanitizer
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=leak -fno-omit-frame-pointer -g -O1"
-#        CACHE STRING "Flags used by the C compiler during LeakSanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=leak -fno-omit-frame-pointer -g -O1"
-#        CACHE STRING "Flags used by the C++ compiler during LeakSanitizer builds."
-#        FORCE)
-#
+#set(CMAKE_C_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
+#set(CMAKE_CXX_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
 # MemorySanitizer
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2"
-#        CACHE STRING "Flags used by the C compiler during MemorySanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2"
-#        CACHE STRING "Flags used by the C++ compiler during MemorySanitizer builds."
-#        FORCE)
-#
+#set(CMAKE_C_FLAGS "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2")
+#set(CMAKE_CXX_FLAGS"-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2")
 # UndefinedBehaviour
-#set(CMAKE_C_FLAGS
-#        "-fsanitize=undefined"
-#        CACHE STRING "Flags used by the C compiler during UndefinedBehaviourSanitizer builds."
-#        FORCE)
-#set(CMAKE_CXX_FLAGS
-#        "-fsanitize=undefined"
-#        CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds."
-#        FORCE)
+#set(CMAKE_C_FLAGS"-fsanitize=undefined")
+#set(CMAKE_CXX_FLAGS "-fsanitize=undefined")
 
 find_package(glfw3 REQUIRED)
 
@@ -82,7 +48,8 @@ IF (USE_OPENGL)
     add_compile_definitions(GLEW_STATIC)
 ELSE (USE_OPENGL)
     MESSAGE("gl disabled")
-    list(FILTER SOURCE_FILES EXCLUDE REGEX "opengl")
+    list(FILTER SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
+    list(FILTER EXTERNAL_SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
 ENDIF (USE_OPENGL)
 
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -92,8 +59,31 @@ include_directories(SYSTEM external/stb)
 include_directories(SYSTEM external/tinyobjloader)
 include_directories(SYSTEM external/src)
 include_directories(SYSTEM external/src/imgui)
+include_directories(SYSTEM external/json/single_include/)
 include_directories(SYSTEM external)
 
+add_subdirectory(external/snowhouse)
 
 add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY})
+target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)
+
+FUNCTION(CONVERT_SPV result)
+    SET(spvs "")
+    FOREACH (glsl ${ARGN})
+        get_filename_component(name ${glsl} NAME_WE)
+        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compiled/${name}.spv")
+    ENDFOREACH (glsl)
+    SET(${result} "${spvs}" PARENT_SCOPE)
+ENDFUNCTION(CONVERT_SPV)
+
+file(GLOB_RECURSE GLSL_FILES res/shader/*.glsl)
+CONVERT_SPV(SPV_FILES ${GLSL_FILES})
+
+add_custom_command(
+        OUTPUT ${SPV_FILES}
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compileAll.sh
+        DEPENDS ${GLSL_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
+)
+add_custom_target(shaders DEPENDS ${SPV_FILES})
+add_dependencies(playground shaders)

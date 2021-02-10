@@ -14,11 +14,11 @@ class OpenGlRenderingContext : public RenderingContext {
   std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_location,
                                        std::string entry_point_name,
                                        api::ShaderType type) override;
-  std::shared_ptr<UniformBuffer> CreateUniformBuffer(size_t size_in_bytes,
-                                                     int binding_point,
-                                                     ShaderType shader_stage) override;
-  std::shared_ptr<Texture2D> CreateTexture2D(int binding_point,
-                                             ShaderType shader_stage) override;
+
+  std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) override;
+
+  std::shared_ptr<Texture2D> CreateTexture2D() override;
+
   std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(std::shared_ptr<VertexBuffer> vertex_binding,
                                                                  std::shared_ptr<IndexBuffer> index_buffer,
                                                                  std::shared_ptr<Shader> vertex_shader,

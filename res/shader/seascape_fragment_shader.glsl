@@ -4,7 +4,7 @@
  * Contact: tdmaav@gmail.com
  */
 
-#version 450
+#version 460
 #pragma shader_stage(fragment)
 #extension GL_ARB_separate_shader_objects : enable
 

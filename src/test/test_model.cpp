@@ -32,5 +32,8 @@ void test::TestModel::OnViewportChange(size_t width, size_t height) {
     orthographic_projection_ = glm::ortho(-new_width, new_width, -new_height, new_height);
     perspective_projection_ = glm::perspective(glm::radians(45.0f), ((float) width / (float) height), 0.1f, 10.0f);
   }
+  if (pipeline_ != nullptr) {
+    pipeline_->SetViewPort(size_[0], size_[1]);
+  }
 }
 

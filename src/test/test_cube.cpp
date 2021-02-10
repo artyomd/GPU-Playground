@@ -37,8 +37,8 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
 
   api::VertexBufferLayout vertex_buffer_layout;
   size_t stride = sizeof(float) * 6;
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, 0, stride});
-  vertex_buffer_layout.Push({api::DataType::DATA_TYPE_FLOAT, 3, sizeof(float) * 3, stride});
+  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 3});
   auto vertex_buffer = rendering_context_->CreateVertexBuffer(positions.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(positions.data());
 
@@ -52,27 +52,22 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
-  auto pipeline = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
-                                                             index_buffer,
-                                                             vertex_shader,
-                                                             fragment_shader,
-                                                             {
-                                                                 api::DrawMode::TRIANGLE_LIST,
-                                                                 api::CullMode::BACK,
-                                                                 api::FrontFace::CCW,
-                                                                 true,
-                                                                 api::CompareOp::LESS});
-  uniform_buffer_ = rendering_context_->CreateUniformBuffer(sizeof(UniformBufferObjectMvp),
-                                                            0,
-                                                            api::ShaderType::SHADER_TYPE_VERTEX);
-  pipeline->AddUniform(uniform_buffer_);
-  pipelines_.push_back(pipeline);
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
+                                                         index_buffer,
+                                                         vertex_shader,
+                                                         fragment_shader,
+                                                         {
+                                                             api::DrawMode::TRIANGLE_LIST,
+                                                             api::CullMode::BACK,
+                                                             api::FrontFace::CCW,
+                                                             true,
+                                                             api::CompareOp::LESS});
 }
 
 void test::TestCube::OnRender() {
-  ubo_->model = ComputeModelMatrix();
-  ubo_->proj = perspective_projection_;
-  ubo_->view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-  uniform_buffer_->Update(ubo_.get());
-  pipelines_[0]->Render();
+  ubo_.model = ComputeModelMatrix();
+  ubo_.proj = perspective_projection_;
+  ubo_.view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+  pipeline_->UpdateUniformBuffer(0, &ubo_);
+  pipeline_->Render();
 }

@@ -2,6 +2,9 @@
 
 #include <string>
 #include <utility>
+#include <map>
+#include <memory>
+#include <variant>
 
 namespace api {
 enum class ShaderType {
@@ -15,6 +18,8 @@ class Shader {
   const std::string sipr_v_shader_location_;
   const std::string entry_point_name_;
   ShaderType type_;
+  bool constants_changed_ = false;
+  std::map<unsigned int, std::variant<bool, int, unsigned int, float, double>> specs_{};
 
   Shader(std::string sipr_v_shader_location,
          std::string entry_point_name,
@@ -24,6 +29,11 @@ class Shader {
         type_(type) {}
 
  public:
+  void SetConstant(unsigned int constant_id, bool constant_value) {
+    constants_changed_ = true;
+    specs_.insert_or_assign(constant_id, constant_value);
+  }
+
   virtual ~Shader() = default;
 };
 }

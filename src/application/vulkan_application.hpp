@@ -6,6 +6,8 @@
 
 #define GLFW_INCLUDE_VULKAN
 
+#include <optional>
+
 #include "src/application/glfw_application.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 
@@ -102,6 +104,8 @@ class VulkanApplication : public GlfwApplication {
   void PickPhysicalDevice();
 
   QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
+  std::vector<VkExtensionProperties> GetDeviceExtensions(VkPhysicalDevice device);
 
   bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 

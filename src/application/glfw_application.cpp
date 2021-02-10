@@ -63,7 +63,8 @@ void application::GlfwApplication::Run() {
     DrawFrame();
     PostRender();
   }
-  PostRender();
+  ResetMenu();
+  current_test_ = nullptr;
   PrepareForShutdown();
 }
 

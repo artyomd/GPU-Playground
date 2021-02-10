@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "src/api/vulkan/vulkan_shader.hpp"
-#include "src/api/vulkan/vulkan_uniform.hpp"
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
 
 api::vulkan::VulkanRenderingPipeline::VulkanRenderingPipeline(std::shared_ptr<VulkanRenderingContext> context,
@@ -24,12 +23,12 @@ api::vulkan::VulkanRenderingPipeline::VulkanRenderingPipeline(std::shared_ptr<Vu
   this->index_buffer_ = std::dynamic_pointer_cast<VulkanIndexBuffer>(index_buffer);
   this->vertex_shader_ = std::dynamic_pointer_cast<VulkanShader>(vertex_shader);
   this->fragment_shader_ = std::dynamic_pointer_cast<VulkanShader>(fragment_shader);
-  viewport_.x = 0.0f;
-  viewport_.y = 0.0f;
-  viewport_.width = 0;
-  viewport_.height = 0;
-  viewport_.minDepth = 0.0f;
-  viewport_.maxDepth = 1.0f;
+  viewport_.x = 0.0F;
+  viewport_.y = 0.0F;
+  viewport_.width = 0.0F;
+  viewport_.height = 0.0F;
+  viewport_.minDepth = 0.0F;
+  viewport_.maxDepth = 1.0F;
   scissor_.offset = {0, 0};
   scissor_.extent = {0, 0};
   CreatePipeline();
@@ -40,7 +39,6 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
       vertex_shader_->GetShaderStageInfo(),
       fragment_shader_->GetShaderStageInfo()
   };
-
   auto vertex_bindings = vertex_shader_->GetBindings();
   auto fragment_bindings = fragment_shader_->GetBindings();
   auto pipeline_bindings = vertex_bindings;
@@ -74,7 +72,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   rasterizer.depthClampEnable = VK_FALSE;
   rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-  rasterizer.lineWidth = 1.0f;
+  rasterizer.lineWidth = 1.0F;
   rasterizer.cullMode = GetVkCullMode(config_.cull_mode);
   rasterizer.frontFace = GetVkFrontFace(config_.front_face);
   rasterizer.depthBiasEnable = VK_FALSE;
@@ -96,10 +94,10 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   color_blending.logicOp = VK_LOGIC_OP_COPY;
   color_blending.attachmentCount = 1;
   color_blending.pAttachments = &color_blend_attachment;
-  color_blending.blendConstants[0] = 0.0f;
-  color_blending.blendConstants[1] = 0.0f;
-  color_blending.blendConstants[2] = 0.0f;
-  color_blending.blendConstants[3] = 0.0f;
+  color_blending.blendConstants[0] = 0.0F;
+  color_blending.blendConstants[1] = 0.0F;
+  color_blending.blendConstants[2] = 0.0F;
+  color_blending.blendConstants[3] = 0.0F;
 
   VkPipelineDepthStencilStateCreateInfo depth_stencil = {};
   depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -107,8 +105,8 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   depth_stencil.depthWriteEnable = VK_TRUE;
   depth_stencil.depthCompareOp = GetVkCompareOp(config_.depth_function);
   depth_stencil.depthBoundsTestEnable = VK_FALSE;
-  depth_stencil.minDepthBounds = 0.0f;
-  depth_stencil.maxDepthBounds = 1.0f;
+  depth_stencil.minDepthBounds = 0.0F;
+  depth_stencil.maxDepthBounds = 1.0F;
 
   VkPipelineLayoutCreateInfo pipeline_layout_info = {};
   pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -159,6 +157,47 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   if (vkAllocateDescriptorSets(device_, &alloc_info, descriptor_sets_.data()) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate descriptor sets!");
   }
+  CreateUniformBuffers(vertex_shader_);
+  CreateUniformBuffers(fragment_shader_);
+}
+
+void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(std::shared_ptr<VulkanShader> shader) {
+  std::vector<VkWriteDescriptorSet> descriptor_writes{};
+  for (auto binding:shader->GetBindings()) {
+    if (binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
+        && uniform_buffers_.find(binding.binding) == uniform_buffers_.end()) {
+      auto size = shader->DescriptorSizeInBytes(binding.binding);
+      std::vector<std::shared_ptr<VulkanBuffer>> buffers;
+      buffers.reserve(context_->GetImageCount());
+      for (auto i = 0; i < context_->GetImageCount(); i++) {
+        auto vulkan_buffer = std::make_shared<VulkanBuffer>(context_,
+                                                            size,
+                                                            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        buffers.emplace_back(vulkan_buffer);
+
+        VkDescriptorBufferInfo descriptor_buffer_info{};
+        descriptor_buffer_info.buffer = vulkan_buffer->GetBuffer();
+        descriptor_buffer_info.offset = 0;
+        descriptor_buffer_info.range = vulkan_buffer->GetSizeInBytes();
+
+        VkWriteDescriptorSet write_descriptor_set{};
+        write_descriptor_set.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        write_descriptor_set.descriptorCount = 1;
+        write_descriptor_set.pBufferInfo = &descriptor_buffer_info;
+        write_descriptor_set.dstBinding = binding.binding;
+        write_descriptor_set.dstArrayElement = 0;
+        write_descriptor_set.dstSet = descriptor_sets_[i];
+        descriptor_writes.push_back(write_descriptor_set);
+      }
+      uniform_buffers_[binding.binding] = buffers;
+    }
+  }
+  vkUpdateDescriptorSets(device_,
+                         static_cast<uint32_t>(descriptor_writes.size()),
+                         descriptor_writes.data(),
+                         0,
+                         nullptr);
 }
 
 void api::vulkan::VulkanRenderingPipeline::DestroyPipeline() {
@@ -171,7 +210,7 @@ void api::vulkan::VulkanRenderingPipeline::Render() {
   vkCmdSetViewport(command_buffer, 0, 1, &this->viewport_);
   vkCmdSetScissor(command_buffer, 0, 1, &this->scissor_);
   vertex_buffer_->BindBuffer(command_buffer);
-  vkCmdBindIndexBuffer(command_buffer, *index_buffer_->GetBuffer(), 0, index_buffer_->GetIndexType());
+  vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), 0, index_buffer_->GetIndexType());
   vkCmdBindDescriptorSets(command_buffer,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           pipeline_layout_,
@@ -183,12 +222,22 @@ void api::vulkan::VulkanRenderingPipeline::Render() {
   vkCmdDrawIndexed(context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
 }
 
-void api::vulkan::VulkanRenderingPipeline::AddUniform(std::shared_ptr<api::Uniform> uniform) {
-  auto vk_uniform = std::dynamic_pointer_cast<VulkanUniform>(uniform);
-  this->uniforms_.push_back(vk_uniform);
+void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int binding_point, void *data) {
+  if (uniform_buffers_.find(binding_point) == uniform_buffers_.end()) {
+    throw std::runtime_error("invalid binding point");
+  }
+  for (const auto &buffer : uniform_buffers_[binding_point]) {
+    buffer->Update(data);
+  }
+}
+
+void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point,
+                                                      std::shared_ptr<api::Texture2D> texture) {
+  auto vk_uniform = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
+  this->textures_.push_back(vk_uniform);
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
   for (size_t i = 0; i < context_->GetImageCount(); i++) {
-    auto descriptor_write = vk_uniform->GetWriteDescriptorSetFor(i);
+    auto descriptor_write = vk_uniform->GetWriteDescriptorSetFor(i, binding_point);
     descriptor_write.dstSet = descriptor_sets_[i];
     descriptor_writes.push_back(descriptor_write);
   }
@@ -198,11 +247,12 @@ void api::vulkan::VulkanRenderingPipeline::AddUniform(std::shared_ptr<api::Unifo
                          0,
                          nullptr);
 }
-void api::vulkan::VulkanRenderingPipeline::ViewportChanged(size_t width, size_t height) {
-  viewport_.width = (float) width;
-  viewport_.height = -((float) height);
-  viewport_.x = 0;
-  viewport_.y = (float) height;
+
+void api::vulkan::VulkanRenderingPipeline::SetViewPort(size_t width, size_t height) {
+  viewport_.width = static_cast<float>(width);
+  viewport_.height = -static_cast<float>(height);
+  viewport_.x = 0.0F;
+  viewport_.y = static_cast<float>(height);
   scissor_.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 

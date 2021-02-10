@@ -7,30 +7,27 @@
 #include <vulkan/vulkan.h>
 
 #include "src/api/vertex_buffer.hpp"
+#include "src/api/vulkan/vulkan_buffer.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 
 namespace api::vulkan {
-class VulkanVertexBuffer : public VertexBuffer {
- private:
-  std::shared_ptr<VulkanRenderingContext> context_;
-  VkDevice device_;
-  VkBuffer buffer_{};
-  VkDeviceMemory memory_{};
-
-  std::vector<VkVertexInputBindingDescription> vertex_input_binding_descriptions_{};
-  std::vector<VkVertexInputAttributeDescription> attribute_descriptions_{};
-  VkPipelineVertexInputStateCreateInfo vertex_input_info_ = {};
+class VulkanVertexBuffer : public VulkanBuffer,
+                           public VertexBuffer {
 
  public:
+  VulkanVertexBuffer() = delete;
   VulkanVertexBuffer(std::shared_ptr<VulkanRenderingContext> context,
                      size_t size_in_bytes,
                      const VertexBufferLayout &layout);
-  void Update(const void *data) override;
 
   [[nodiscard]] VkPipelineVertexInputStateCreateInfo GetVertexInputInfo() const;
 
-  void BindBuffer(const VkCommandBuffer& command_buffer);
+  void BindBuffer(const VkCommandBuffer &command_buffer);
 
-  ~VulkanVertexBuffer() override;
+  ~VulkanVertexBuffer() override = default;
+ private:
+  std::vector<VkVertexInputBindingDescription> vertex_input_binding_descriptions_{};
+  std::vector<VkVertexInputAttributeDescription> attribute_descriptions_{};
+  VkPipelineVertexInputStateCreateInfo vertex_input_info_ = {};
 };
 }

@@ -8,6 +8,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_vulkan.h>
+#include <array>
 
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 
@@ -169,7 +170,12 @@ void application::VulkanApplication::SetupDebugMessenger() {
                                    VkDebugUtilsMessageTypeFlagsEXT message_type,
                                    const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
                                    void *p_user_data) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
-    std::cerr << "validation layer: " << p_callback_data->pMessage << std::endl;
+    if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+        | message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+      std::cerr << "validation layer: " << p_callback_data->pMessage << std::endl;
+    } else {
+      std::cout << "validation layer: " << p_callback_data->pMessage << std::endl;
+    }
     return VK_FALSE;
   };
   if (CreateDebugUtilsMessengerExt(vulkan_instance_, &create_info, nullptr, &debug_messenger_) != VK_SUCCESS) {
@@ -242,15 +248,20 @@ application::VulkanApplication::QueueFamilyIndices application::VulkanApplicatio
 }
 
 bool application::VulkanApplication::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
-  uint32_t extension_count;
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
-  std::vector<VkExtensionProperties> available_extensions(extension_count);
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+  auto available_extensions = GetDeviceExtensions(device);
   std::set<std::string> required_extensions(device_extensions_.begin(), device_extensions_.end());
   for (const auto &extension : available_extensions) {
     required_extensions.erase(extension.extensionName);
   }
   return required_extensions.empty();
+}
+
+std::vector<VkExtensionProperties> application::VulkanApplication::GetDeviceExtensions(VkPhysicalDevice device) {
+  uint32_t extension_count;
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+  std::vector<VkExtensionProperties> available_extensions(extension_count);
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+  return available_extensions;
 }
 
 application::VulkanApplication::SwapChainSupportDetails application::VulkanApplication::QuerySwapChainSupport(
@@ -291,13 +302,21 @@ void application::VulkanApplication::CreateLogicalDevice() {
 
   VkPhysicalDeviceFeatures device_features = {};
 
+  auto device_extensions = GetDeviceExtensions(physical_device_);
+  std::vector<const char *> extensions_to_enable(device_extensions_.begin(), device_extensions_.end());
+  for (auto ext:device_extensions) {
+    if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
+      extensions_to_enable.emplace_back("VK_KHR_portability_subset");
+    }
+  }
+
   VkDeviceCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
   create_info.pQueueCreateInfos = queue_create_infos.data();
   create_info.pEnabledFeatures = &device_features;
-  create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions_.size());
-  create_info.ppEnabledExtensionNames = device_extensions_.data();
+  create_info.enabledExtensionCount = static_cast<uint32_t>(extensions_to_enable.size());
+  create_info.ppEnabledExtensionNames = extensions_to_enable.data();
 
   if (enable_validation_layers_) {
     create_info.enabledLayerCount = static_cast<uint32_t>(validation_layers_.size());

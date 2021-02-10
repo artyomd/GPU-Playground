@@ -34,6 +34,8 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] VkDevice GetDevice() const;
 
+  std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) override;
+
   std::shared_ptr<IndexBuffer> CreateIndexBuffer(unsigned int count, DataType type) override;
 
   std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) override;
@@ -49,14 +51,9 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
                                        std::string entry_point_name,
                                        api::ShaderType type) override;
 
-  std::shared_ptr<UniformBuffer> CreateUniformBuffer(size_t size_in_bytes,
-                                                     int binding_point,
-                                                     ShaderType shader_stage) override;
-
   void WaitForGpuIdle() const override;
 
-  std::shared_ptr<Texture2D> CreateTexture2D(int binding_point,
-                                             ShaderType shader_stage) override;
+  std::shared_ptr<Texture2D> CreateTexture2D() override;
 
   ~VulkanRenderingContext() override = default;
 
@@ -75,7 +72,11 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
                    VkImage *image,
                    VkDeviceMemory *image_memory) const;
 
-  void CopyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
+  void CopyBuffer(VkBuffer src_buffer,
+                  VkBuffer dst_buffer,
+                  VkDeviceSize size,
+                  VkDeviceSize src_offset = 0,
+                  VkDeviceSize dst_offset = 0);
 
   void CopyBufferToImage(VkBuffer buffer, VkImage image, size_t width, size_t height);
 

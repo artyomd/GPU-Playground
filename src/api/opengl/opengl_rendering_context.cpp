@@ -4,19 +4,23 @@
 
 #include "src/api/opengl/opengl_rendering_context.hpp"
 
+#include "src/api/opengl/opengl_buffer.hpp"
 #include "src/api/opengl/opengl_index_buffer.hpp"
 #include "src/api/opengl/opengl_rendering_pipeline.hpp"
 #include "src/api/opengl/opengl_shader.hpp"
 #include "src/api/opengl/opengl_texture_2d.hpp"
-#include "src/api/opengl/opengl_uniform_buffer.hpp"
 #include "src/api/opengl/opengl_utils.hpp"
 #include "src/api/opengl/opengl_vertex_buffer.hpp"
 
 api::opengl::OpenGlRenderingContext::OpenGlRenderingContext() : RenderingContext() {}
 
+std::shared_ptr<api::Buffer> api::opengl::OpenGlRenderingContext::CreateBuffer(size_t size_in_bytes) {
+  return std::make_shared<api::opengl::OpenGlBuffer>(size_in_bytes);
+}
+
 std::shared_ptr<api::IndexBuffer> api::opengl::OpenGlRenderingContext::CreateIndexBuffer(unsigned int count,
                                                                                          api::DataType type) {
-  return std::make_shared<OpenGlIndexBuffer>(count, type);
+  return std::make_shared<api::opengl::OpenGlIndexBuffer>(count, type);
 }
 
 std::shared_ptr<api::VertexBuffer> api::opengl::OpenGlRenderingContext::CreateVertexBuffer(size_t size_in_bytes,
@@ -30,15 +34,8 @@ std::shared_ptr<api::Shader> api::opengl::OpenGlRenderingContext::CreateShader(s
   return std::make_shared<OpenGlShader>(sipr_v_shader_location, entry_point_name, type);
 }
 
-std::shared_ptr<api::UniformBuffer> api::opengl::OpenGlRenderingContext::CreateUniformBuffer(size_t size_in_bytes,
-                                                                                             int binding_point,
-                                                                                             api::ShaderType shader_stage) {
-  return std::make_shared<OpenGlUniformBuffer>(size_in_bytes, binding_point, shader_stage);
-}
-
-std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(int binding_point,
-                                                                                     api::ShaderType shader_stage) {
-  return std::make_shared<OpenglTexture2D>(binding_point, shader_stage);
+std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D() {
+  return std::make_shared<OpenglTexture2D>();
 }
 
 std::shared_ptr<api::RenderingPipeline> api::opengl::OpenGlRenderingContext::CreateGraphicsPipeline(

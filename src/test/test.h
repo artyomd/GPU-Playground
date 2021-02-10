@@ -11,7 +11,6 @@ namespace test {
 class Test {
  protected:
   std::shared_ptr<api::RenderingContext> rendering_context_;
-  std::vector<std::shared_ptr<api::RenderingPipeline>> pipelines_{};
   int size_[2] = {0, 0};
 
   explicit Test(std::shared_ptr<api::RenderingContext> rendering_context) :
@@ -27,9 +26,6 @@ class Test {
   virtual void OnViewportChange(size_t width, size_t height) {
     size_[0] = width;
     size_[1] = height;
-    for (const auto &pipe:pipelines_) {
-      pipe->ViewportChanged(size_[0], size_[1]);
-    }
   };
 
   virtual ~Test() = default;

@@ -11,19 +11,21 @@
 
 namespace test {
 struct UniformBufferObjectMvp {
-  alignas(16) glm::mat4 model = glm::mat4(1.0f);
-  alignas(16) glm::mat4 view = glm::mat4(1.0f);
-  alignas(16) glm::mat4 proj = glm::mat4(1.0f);
+  alignas(16) glm::mat4 model = glm::mat4(1.0F);
+  alignas(16) glm::mat4 view = glm::mat4(1.0F);
+  alignas(16) glm::mat4 proj = glm::mat4(1.0F);
 };
 
 class TestModel : public Test {
  private:
-  glm::vec3 translation_ = glm::vec3(0.0f, 0.0f, 0.0f);
-  glm::vec3 scale_ = glm::vec3(1.0f, 1.0f, 1.0f);
-  glm::vec3 rotate_ = glm::vec3(0.0f, 0.0f, 0.0f);
-  float max_side_ = 2.0f;
+  glm::vec3 translation_ = glm::vec3(0.0F, 0.0F, 0.0F);
+  glm::vec3 scale_ = glm::vec3(1.0F, 1.0F, 1.0F);
+  glm::vec3 rotate_ = glm::vec3(0.0F, 0.0F, 0.0F);
+  float max_side_ = 2.0F;
 
  protected:
+  UniformBufferObjectMvp ubo_{};
+  std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
   glm::mat4 ComputeModelMatrix();
   glm::mat4 orthographic_projection_{};
   bool lock_projection_ = false;

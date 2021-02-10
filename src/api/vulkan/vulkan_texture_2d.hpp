@@ -6,10 +6,9 @@
 
 #include "src/api/texture_2d.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
-#include "src/api/vulkan/vulkan_uniform.hpp"
 
 namespace api::vulkan {
-class VulkanTexture2D : public Texture2D, public VulkanUniform {
+class VulkanTexture2D : public Texture2D {
  private:
   std::shared_ptr<VulkanRenderingContext> context_;
   VkDevice device_;
@@ -19,13 +18,12 @@ class VulkanTexture2D : public Texture2D, public VulkanUniform {
   VkDeviceMemory image_memory_{};
 
  public:
-  VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
-                  int binding_point,
-                  ShaderType shader_stage);
+  explicit VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context);
   void SetSampler(api::Sampler sampler) override;
   void Load(const std::string &path) override;
-  void Load(size_t width, size_t height, void *data) override;
-  [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(int image_index) const override;
-  ~VulkanTexture2D() override;
+  void Load(size_t width, size_t height, const void *data) override;
+  [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(unsigned int image_index,
+                                                              unsigned int binding_point) const;
+  ~VulkanTexture2D();
 };
 }

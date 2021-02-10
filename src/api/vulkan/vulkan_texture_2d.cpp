@@ -11,10 +11,8 @@
 
 #include "src/api/vulkan/vulkan_utils.hpp"
 
-api::vulkan::VulkanTexture2D::VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
-                                              int binding_point,
-                                              api::ShaderType shader_stage)
-    : Texture2D(binding_point, shader_stage),
+api::vulkan::VulkanTexture2D::VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context)
+    : Texture2D(),
       context_(std::move(context)), device_(context_->GetDevice()) {
 }
 
@@ -71,7 +69,7 @@ void api::vulkan::VulkanTexture2D::Load(const std::string &path) {
   image_info_.sampler = VK_NULL_HANDLE;
 }
 
-void api::vulkan::VulkanTexture2D::Load(size_t width, size_t height, void *data) {
+void api::vulkan::VulkanTexture2D::Load(size_t width, size_t height, const void *data) {
   VkDeviceSize image_size = width * height * 4;
   VkBuffer staging_buffer;
   VkDeviceMemory staging_buffer_memory;
@@ -115,7 +113,8 @@ void api::vulkan::VulkanTexture2D::Load(size_t width, size_t height, void *data)
   image_info_.sampler = VK_NULL_HANDLE;
 }
 
-VkWriteDescriptorSet api::vulkan::VulkanTexture2D::GetWriteDescriptorSetFor(int image_index) const {
+VkWriteDescriptorSet api::vulkan::VulkanTexture2D::GetWriteDescriptorSetFor(unsigned int image_index,
+                                                                            unsigned int binding_point) const {
   if (image_info_.sampler == VK_NULL_HANDLE) {
     throw std::runtime_error("no sampler defined for the texture");
   }
@@ -124,7 +123,7 @@ VkWriteDescriptorSet api::vulkan::VulkanTexture2D::GetWriteDescriptorSetFor(int 
   write_descriptor_set.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   write_descriptor_set.descriptorCount = 1;
   write_descriptor_set.pImageInfo = &image_info_;
-  write_descriptor_set.dstBinding = binding_point_;
+  write_descriptor_set.dstBinding = binding_point;
   write_descriptor_set.dstArrayElement = 0;
   return write_descriptor_set;
 }
@@ -141,7 +140,7 @@ void api::vulkan::VulkanTexture2D::SetSampler(api::Sampler sampler) {
   sampler_info.addressModeV = GetVkAddressMode(sampler.address_mode_v);
   sampler_info.addressModeW = GetVkAddressMode(sampler.address_mode_w);
   sampler_info.anisotropyEnable = VK_FALSE;
-  sampler_info.maxAnisotropy = 1;
+  sampler_info.maxAnisotropy = 1.0F;
   sampler_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
   sampler_info.unnormalizedCoordinates = VK_FALSE;
   sampler_info.compareEnable = VK_FALSE;
