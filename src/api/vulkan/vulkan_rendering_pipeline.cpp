@@ -234,7 +234,7 @@ void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int bind
 void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point,
                                                       std::shared_ptr<api::Texture2D> texture) {
   auto vk_uniform = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
-  this->textures_.push_back(vk_uniform);
+  this->textures_[binding_point] = vk_uniform;
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
   for (size_t i = 0; i < context_->GetImageCount(); i++) {
     auto descriptor_write = vk_uniform->GetWriteDescriptorSetFor(i, binding_point);

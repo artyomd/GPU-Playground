@@ -15,3 +15,11 @@ size_t api::GetDataTypeSizeInBytes(DataType type) {
     default: throw std::runtime_error("unsupported enum");
   }
 }
+
+size_t api::GetPixelFormatSizeInBytes(PixelFormat type) {
+  switch (type) {
+    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_UNORM:
+    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB:return 4;
+    default:throw std::runtime_error("unsupported enum");
+  }
+}

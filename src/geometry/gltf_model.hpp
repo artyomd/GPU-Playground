@@ -42,7 +42,6 @@ class GltfModel {
  private:
   std::shared_ptr<api::RenderingContext> context_;
   tinygltf::Model model_{};
-  std::vector<std::shared_ptr<api::Texture2D>> textures_{};
   std::vector<RenderingUnit> current_pipelines_{};
   std::vector<Camera> cameras_{};
 };

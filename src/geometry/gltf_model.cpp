@@ -87,10 +87,24 @@ static api::Sampler GetSampler(const tinygltf::Sampler &sampler) {
 }
 
 namespace geometry {
-struct PrimitiveUbo {
+struct MVP {
   alignas(16) glm::mat4 model;
   alignas(16) glm::mat4 view;
   alignas(16) glm::mat4 projection;
+  alignas(16) glm::mat4 normal;
+};
+
+struct Material {
+  alignas(16) glm::vec4 base_color;
+  alignas(16) glm::vec3 emissive_factor;
+  alignas(4) float metallic_factor;
+  alignas(4) float roughness_factor;
+  alignas(4) float alpha_cutoff;
+  alignas(4) bool double_sided;
+};
+struct PrimitiveUbo {
+  MVP mvp{};
+  Material material{};
 };
 }
 
@@ -115,11 +129,21 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context, c
   }
 
   for (const auto &tex:model_.textures) {
-    auto texture = context_->CreateTexture2D();
-    auto image = model_.images[static_cast<unsigned long>(tex.source)];
-    texture->Load(static_cast<size_t>(image.width), static_cast<size_t>(image.height), image.image.data());
-    texture->SetSampler(GetSampler(model_.samplers[static_cast<unsigned long>(tex.sampler)]));
-    textures_.emplace_back(texture);
+    auto image = model_.images[tex.source];
+//    auto texture = context_->CreateTexture2D();
+//    texture->Load(static_cast<size_t>(image.width), static_cast<size_t>(image.height), image.image.data());
+//    texture->SetSampler(GetSampler(model_.samplers[tex.sampler]));
+//    textures_.emplace_back(texture);
+  }
+}
+
+static api::PixelFormat GetPixelFormat(bool srgb, const tinygltf::Image &image) {
+  AssertThat(image.pixel_type, snowhouse::Equals(TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE));
+  AssertThat(image.component, snowhouse::Equals(4));
+  if (srgb) {
+    return api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB;
+  } else {
+    return api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_UNORM;
   }
 }
 
@@ -184,7 +208,8 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
   std::vector<geometry::RenderingUnit> pipelines{};
   for (const auto &primitive:mesh.primitives) {
     auto ubo = std::make_shared<PrimitiveUbo>();
-    ubo->model = model_matrix;
+    ubo->mvp.model = model_matrix;
+    ubo->mvp.normal = glm::inverseTranspose(model_matrix);
     std::shared_ptr<api::IndexBuffer> index_buffer;
     std::shared_ptr<api::VertexBuffer> vertex_buffer;
     bool has_normals = false;
@@ -282,8 +307,6 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
                  normal.data + (i * normal.stride),
                  normal.element_size);
           vertex_data_offset += normal.element_size;
-        }else{
-
         }
         if (has_tangents) {
           memcpy(vertex_data + vertex_data_offset,
@@ -326,7 +349,9 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
       vertex_buffer->Update(vertex_data);
       delete[] vertex_data;
     }
-    auto vertex_shader = context_->CreateShader("../res/shader/compiled/gltf_vertex.spv",
+    auto vertex_shader = context_->CreateShader({
+#include SHADER(gltf_vertex)
+                                                },
                                                 "main",
                                                 api::ShaderType::SHADER_TYPE_VERTEX);
     vertex_shader->SetConstant(1, has_normals);
@@ -337,9 +362,75 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 //    vertex_shader->SetConstant(6, has_joints_0);
 //    vertex_shader->SetConstant(7, has_weights_0);
 
-    auto fragment_shader = context_->CreateShader("../res/shader/compiled/gltf_fragment.spv",
+    auto fragment_shader = context_->CreateShader({
+#include SHADER(gltf_fragment)
+                                                  },
                                                   "main",
                                                   api::ShaderType::SHADER_TYPE_FRAGMENT);
+
+    std::map<unsigned int, std::shared_ptr<api::Texture2D>> textures_mapping{};
+
+    auto material = this->model_.materials[primitive.material];
+    auto pbr = material.pbrMetallicRoughness;
+
+    ubo->material.base_color = glm::make_vec4<float>(std::vector<float>(pbr.baseColorFactor.begin(),
+                                                                        pbr.baseColorFactor.end()).data());
+    if (pbr.baseColorTexture.index > -1) {
+      auto base_texture = this->model_.textures[pbr.baseColorTexture.index];
+      auto image = this->model_.images[base_texture.source];
+      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(true, image));
+      texture->Load(image.image.data());
+      texture->SetSampler(GetSampler(this->model_.samplers[base_texture.sampler]));
+      int base_texture_coords_index = pbr.baseColorTexture.texCoord; // 0 or 1
+      textures_mapping[2] = texture;
+      fragment_shader->SetConstant(2, base_texture_coords_index);
+    }
+    ubo->material.metallic_factor = static_cast<float>(pbr.metallicFactor);
+    ubo->material.roughness_factor = static_cast<float>(pbr.roughnessFactor);
+    if (pbr.metallicRoughnessTexture.index > -1) {
+      auto mr_texture = this->model_.textures[pbr.metallicRoughnessTexture.index];
+      auto image = this->model_.images[mr_texture.source];
+      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
+      texture->Load(image.image.data());
+      texture->SetSampler(GetSampler(this->model_.samplers[mr_texture.sampler]));
+      int mr_texture_coords_index = pbr.metallicRoughnessTexture.texCoord; // 0 or 1
+      textures_mapping[3] = texture;
+      fragment_shader->SetConstant(3, mr_texture_coords_index);
+    }
+    if (material.normalTexture.index > -1) {
+      auto normal_texture = this->model_.textures[material.normalTexture.index];
+      auto image = this->model_.images[normal_texture.source];
+      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
+      texture->Load(image.image.data());
+      texture->SetSampler(GetSampler(this->model_.samplers[normal_texture.sampler]));
+      int normal_texture_coords_index = material.normalTexture.texCoord; // 0 or 1
+      textures_mapping[4] = texture;
+      fragment_shader->SetConstant(4, normal_texture_coords_index);
+    }
+    if (material.occlusionTexture.index > -1) {
+      auto occlusion_texture = this->model_.textures[material.occlusionTexture.index];
+      auto image = this->model_.images[occlusion_texture.source];
+      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
+      texture->Load(image.image.data());
+      texture->SetSampler(GetSampler(this->model_.samplers[occlusion_texture.sampler]));
+      int occlusion_texture_texture_coords_index = material.occlusionTexture.texCoord; // 0 or 1
+      textures_mapping[5] = texture;
+      fragment_shader->SetConstant(5, occlusion_texture_texture_coords_index);
+    }
+    if (material.emissiveTexture.index > -1) {
+      auto emissive_texture = this->model_.textures[material.emissiveTexture.index];
+      auto image = this->model_.images[emissive_texture.source];
+      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(true, image));
+      texture->Load(image.image.data());
+      texture->SetSampler(GetSampler(this->model_.samplers[emissive_texture.sampler]));
+      int emissive_texture_coords_index = material.emissiveTexture.texCoord; // 0 or 1
+      textures_mapping[6] = texture;
+      fragment_shader->SetConstant(6, emissive_texture_coords_index);
+    }
+    ubo->material.emissive_factor =
+        glm::make_vec3(std::vector<float>(material.emissiveFactor.begin(), material.emissiveFactor.end()).data());
+    ubo->material.alpha_cutoff = static_cast<float>(material.alphaCutoff);
+    ubo->material.double_sided = material.doubleSided;
     auto pipe = context_->CreateGraphicsPipeline(vertex_buffer, index_buffer, vertex_shader, fragment_shader, {
         GetMode(primitive.mode),
         api::CullMode::BACK,
@@ -347,7 +438,10 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
         true,
         api::CompareOp::LESS,
     });
-    pipe->SetTexture(1, this->textures_[0]);
+    for (const auto &entry: textures_mapping) {
+      pipe->SetTexture(entry.first, entry.second);
+    }
+    pipe->UpdateUniformBuffer(1, &ubo->material);
     RenderingUnit unit{pipe, ubo};
     pipelines.emplace_back(unit);
   }
@@ -356,6 +450,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 
 void geometry::GltfModel::Render() {
   for (const auto &unit:current_pipelines_) {
+    unit.pipeline->UpdateUniformBuffer(0, &unit.ubo->mvp);
     unit.pipeline->Render();
   }
 }
@@ -368,9 +463,8 @@ void geometry::GltfModel::SetViewport(size_t width, size_t height) {
 void geometry::GltfModel::SetCamera(int camera_index) {
   auto camera = cameras_[camera_index];
   for (const auto &unit:current_pipelines_) {
-    unit.ubo->projection = camera.proj;
-    unit.ubo->view = glm::inverse(camera.view);
-    unit.pipeline->UpdateUniformBuffer(0, unit.ubo.get());
+    unit.ubo->mvp.projection = camera.proj;
+    unit.ubo->mvp.view = glm::inverse(camera.view);
   }
 }
 geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string &attribute_name,

@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_C_FLAGS "-fsanitize=thread -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=thread -g -O1")
 # AddressSanitize
-#set(CMAKE_C_FLAGS "-fsanitize=address")
-#set(CMAKE_CXX_FLAGS "-fsanitize=address")
+set(CMAKE_C_FLAGS "-fsanitize=address")
+set(CMAKE_CXX_FLAGS "-fsanitize=address")
 # LeakSanitizer
 #set(CMAKE_C_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
@@ -23,9 +23,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(glfw3 REQUIRED)
 
-IF (NOT APPLE)
-    OPTION(USE_OPENGL "Build with opengl support" ON)
-ENDIF ()
+#IF (NOT APPLE)
+#    OPTION(USE_OPENGL "Build with opengl support" ON)
+#ENDIF ()
 
 find_package(Vulkan)
 IF (NOT Vulkan_FOUND)
@@ -62,6 +62,8 @@ include_directories(SYSTEM external/src/imgui)
 include_directories(SYSTEM external/json/single_include/)
 include_directories(SYSTEM external)
 
+include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
+
 add_subdirectory(external/snowhouse)
 
 add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
@@ -71,17 +73,19 @@ FUNCTION(CONVERT_SPV result)
     SET(spvs "")
     FOREACH (glsl ${ARGN})
         get_filename_component(name ${glsl} NAME_WE)
-        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compiled/${name}.spv")
+        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/${name}.spv")
+        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex/${name}.spv")
     ENDFOREACH (glsl)
     SET(${result} "${spvs}" PARENT_SCOPE)
 ENDFUNCTION(CONVERT_SPV)
 
-file(GLOB_RECURSE GLSL_FILES res/shader/*.glsl)
+file(GLOB_RECURSE GLSL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/glsl460/*.glsl")
+message("${GLSL_FILES}")
 CONVERT_SPV(SPV_FILES ${GLSL_FILES})
 
 add_custom_command(
         OUTPUT ${SPV_FILES}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/compileAll.sh
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/generate-spv.sh
         DEPENDS ${GLSL_FILES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
 )

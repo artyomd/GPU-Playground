@@ -15,21 +15,22 @@ enum class ShaderType {
 
 class Shader {
  protected:
-  const std::string sipr_v_shader_location_;
+  const std::string code_;
   const std::string entry_point_name_;
   ShaderType type_;
   bool constants_changed_ = false;
   std::map<unsigned int, std::variant<bool, int, unsigned int, float, double>> specs_{};
 
-  Shader(std::string sipr_v_shader_location,
+  Shader(std::string sipr_v_shader_source,
          std::string entry_point_name,
          ShaderType type)
-      : sipr_v_shader_location_(std::move(sipr_v_shader_location)),
+      : code_(std::move(sipr_v_shader_source)),
         entry_point_name_(std::move(entry_point_name)),
         type_(type) {}
 
  public:
-  void SetConstant(unsigned int constant_id, bool constant_value) {
+  template<typename T>
+  void SetConstant(unsigned int constant_id, T constant_value) {
     constants_changed_ = true;
     specs_.insert_or_assign(constant_id, constant_value);
   }

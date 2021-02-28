@@ -52,15 +52,7 @@ VkIndexType api::vulkan::GetVkType(api::DataType type) {
   }
 }
 
-VkShaderStageFlags api::vulkan::GetVkShaderStageFlag(api::ShaderType shader_type) {
-  switch (shader_type) {
-    case api::ShaderType::SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
-    case api::ShaderType::SHADER_TYPE_FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
-    default: throw std::runtime_error("invalid shader type");
-  }
-}
-
-VkShaderStageFlagBits api::vulkan::GetShaderVkType(api::ShaderType shader_type) {
+VkShaderStageFlagBits api::vulkan::GetVkShaderStageFlag(api::ShaderType shader_type) {
   switch (shader_type) {
     case api::ShaderType::SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
     case api::ShaderType::SHADER_TYPE_FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -112,6 +104,14 @@ VkFrontFace api::vulkan::GetVkFrontFace(api::FrontFace front_face) {
     case FrontFace::CW: return VK_FRONT_FACE_CLOCKWISE;
     case FrontFace::CCW: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
     default: throw std::runtime_error("unsupported front face");
+  }
+}
+
+VkFormat api::vulkan::GetVkFormat(api::PixelFormat pixel_format) {
+  switch (pixel_format) {
+    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_UNORM:return VK_FORMAT_R8G8B8A8_UNORM;
+    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB:return VK_FORMAT_R8G8B8A8_SRGB;
+    default: throw std::runtime_error("unsupported pixel format");
   }
 }
 

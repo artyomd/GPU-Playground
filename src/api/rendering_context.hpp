@@ -9,6 +9,9 @@
 #include "src/api/vertex_buffer.hpp"
 #include "src/api/vertex_buffer_layout.hpp"
 
+#define STRINGIFY(_name_) #_name_
+#define SHADER(_name_)  STRINGIFY(_name_.spv)
+
 namespace api {
 class RenderingContext {
  public:
@@ -20,11 +23,11 @@ class RenderingContext {
 
   virtual std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) = 0;
 
-  virtual std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_path,
+  virtual std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_source,
                                                std::string entry_point_name,
                                                api::ShaderType type) = 0;
 
-  virtual std::shared_ptr<Texture2D> CreateTexture2D() = 0;
+  virtual std::shared_ptr<Texture2D> CreateTexture2D(size_t width, size_t height, PixelFormat pixel_format) = 0;
 
   virtual std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(
       std::shared_ptr<VertexBuffer> vertex_binding,

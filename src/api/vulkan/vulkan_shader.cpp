@@ -6,7 +6,6 @@
 
 #include <snowhouse/snowhouse.h>
 
-#include "src/api/utils.hpp"
 #include "src/api/vulkan/vulkan_utils.hpp"
 #include "src/utils/variant_utils.hpp"
 
@@ -18,11 +17,10 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
              std::move(entry_point_name),
              type),
       device_(context->GetDevice()) {
-  auto code = ReadFile(this->sipr_v_shader_location_);
   VkShaderModuleCreateInfo create_info = {};
   create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  create_info.codeSize = code.size();
-  create_info.pCode = reinterpret_cast<const uint32_t *>(code.data());
+  create_info.codeSize = code_.size();
+  create_info.pCode = reinterpret_cast<const uint32_t *>(code_.data());
 
   if (vkCreateShaderModule(device_, &create_info, nullptr, &shader_module_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
@@ -33,12 +31,12 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
   shader_specialization_info_.mapEntryCount = 0;
 
   shader_stage_info_.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-  shader_stage_info_.stage = GetShaderVkType(type);
+  shader_stage_info_.stage = GetVkShaderStageFlag(type);
   shader_stage_info_.module = shader_module_;
   shader_stage_info_.pName = this->entry_point_name_.data();
   shader_stage_info_.pSpecializationInfo = &shader_specialization_info_;
 
-  SpvReflectResult result = spvReflectCreateShaderModule(code.size(), code.data(), &reflect_shader_module_);
+  SpvReflectResult result = spvReflectCreateShaderModule(code_.size(), code_.data(), &reflect_shader_module_);
   AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
 
   uint32_t count = 0;
@@ -77,7 +75,7 @@ VkPipelineShaderStageCreateInfo api::vulkan::VulkanShader::GetShaderStageInfo() 
       VkSpecializationMapEntry specialization_map_entry{};
       specialization_map_entry.constantID = entry.first;
       specialization_map_entry.offset = static_cast<uint32_t>(spec_data_size_);
-      visit_variant(entry.second,
+      VisitVariant(entry.second,
 #define VISIT(data_type) \
   [&](data_type v) {\
   spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(data_type));\
@@ -85,11 +83,11 @@ VkPipelineShaderStageCreateInfo api::vulkan::VulkanShader::GetShaderStageInfo() 
   spec_data_size_+= sizeof(data_type);                                  \
   specialization_map_entry.size = sizeof(data_type);\
   }
-                    VISIT(bool),
-                    VISIT(unsigned int),
-                    VISIT(int),
-                    VISIT(float),
-                    VISIT(double)
+                   VISIT(bool),
+                   VISIT(unsigned int),
+                   VISIT(int),
+                   VISIT(float),
+                   VISIT(double)
       );
       specialization_map_entries_.emplace_back(specialization_map_entry);
     }

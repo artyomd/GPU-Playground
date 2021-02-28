@@ -5,6 +5,8 @@
 #include "src/test/test_texture_2d.hpp"
 
 #include <utility>
+#include <stb_image.h>
+#include <snowhouse/snowhouse.h>
 
 test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
@@ -32,10 +34,14 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   auto index_buffer = rendering_context_->CreateIndexBuffer(6, api::DataType::DATA_TYPE_UINT_16);
   index_buffer->Update(&indices[0]);
 
-  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
+  auto vertex_shader = rendering_context_->CreateShader({
+#include SHADER(texture2d_vertex)
+                                                        },
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
+  auto fragment_shader = rendering_context_->CreateShader({
+#include SHADER(texture2d_fragment)
+                                                          },
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
@@ -45,13 +51,21 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
                                                          {
                                                              api::DrawMode::TRIANGLE_LIST,
                                                              api::CullMode::NONE,
-                                                             api::FrontFace::CW,
+                                                             api::FrontFace::CCW,
                                                              false,
                                                              api::CompareOp::LESS
                                                          });
 
-  auto texture_2_d = rendering_context_->CreateTexture2D();
-  texture_2_d->Load("../res/textures/image.png");
+  stbi_set_flip_vertically_on_load(true);
+  int tex_width, tex_height, tex_channels;
+  stbi_uc *pixels = stbi_load("../res/textures/image.png", &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
+  if (!pixels) {
+    throw std::runtime_error("failed to load texture image!");
+  }
+  auto texture_2_d =
+      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB);
+  texture_2_d->Load(pixels);
+  stbi_image_free(pixels);
   texture_2_d->SetSampler({api::Filter::LINEAR,
                            api::Filter::LINEAR,
                            api::AddressMode::CLAMP_TO_EDGE,

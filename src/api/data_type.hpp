@@ -11,6 +11,12 @@ enum class DataType {
   COUNT,
 };
 
+enum class PixelFormat {
+  PIXEL_FORMAT_R8G8B8A8_UNORM,
+  PIXEL_FORMAT_R8G8B8A8_SRGB,
+  COUNT,
+};
+
 struct Pixel_RGBA {
   float r, g, b, a;
 };
@@ -21,4 +27,5 @@ struct Size {
 };
 
 size_t GetDataTypeSizeInBytes(DataType type);
+size_t GetPixelFormatSizeInBytes(PixelFormat type);
 }

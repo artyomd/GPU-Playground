@@ -18,10 +18,12 @@ class VulkanTexture2D : public Texture2D {
   VkDeviceMemory image_memory_{};
 
  public:
-  explicit VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context);
+  VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
+                  size_t width,
+                  size_t height,
+                  PixelFormat pixel_format);
   void SetSampler(api::Sampler sampler) override;
-  void Load(const std::string &path) override;
-  void Load(size_t width, size_t height, const void *data) override;
+  void Load(const void *data) override;
   [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(unsigned int image_index,
                                                               unsigned int binding_point) const;
   ~VulkanTexture2D();

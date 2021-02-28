@@ -19,7 +19,9 @@ test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_co
 
   auto quad = std::make_shared<geometry::Quad>(rendering_context_, point_0, point_1, point_2, point_3);
 
-  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/default_empty_vertex_shader.spv",
+  auto vertex_shader = rendering_context_->CreateShader({
+#include SHADER(default_empty_vertex_shader)
+                                                        },
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
 

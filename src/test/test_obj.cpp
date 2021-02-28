@@ -7,6 +7,8 @@
 #include <tinyobjloader/tiny_obj_loader.h>
 #include <unordered_map>
 #include <iostream>
+#include <stb_image.h>
+#include <snowhouse/snowhouse.h>
 
 struct Vertex {
   glm::vec3 position;
@@ -72,10 +74,14 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
   index_buffer->Update(indices.data());
 
-  auto vertex_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_vertex.spv",
+  auto vertex_shader = rendering_context_->CreateShader({
+#include SHADER(texture2d_vertex)
+                                                        },
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader("../res/shader/compiled/texture2d_fragment.spv",
+  auto fragment_shader = rendering_context_->CreateShader({
+#include SHADER(texture2d_fragment)
+                                                          },
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
@@ -86,8 +92,16 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
                                                           api::FrontFace::CCW,
                                                           true,
                                                           api::CompareOp::LESS});
-  auto obj_texture = rendering_context_->CreateTexture2D();
-  obj_texture->Load("../res/textures/chalet.jpg");
+  stbi_set_flip_vertically_on_load(true);
+  int tex_width, tex_height, tex_channels;
+  stbi_uc *pixels = stbi_load("../res/textures/chalet.jpg", &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
+  if (!pixels) {
+    throw std::runtime_error("failed to load texture image!");
+  }
+  auto obj_texture =
+      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB);
+  obj_texture->Load(pixels);
+  stbi_image_free(pixels);
   obj_texture->SetSampler({api::Filter::LINEAR,
                            api::Filter::LINEAR,
                            api::AddressMode::CLAMP_TO_EDGE,

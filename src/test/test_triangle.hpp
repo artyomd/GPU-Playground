@@ -7,7 +7,7 @@
 #include "src/test/test_model.hpp"
 
 namespace test {
-class TestTriangle : public TestModel { 
+class TestTriangle : public TestModel {
  public:
   explicit TestTriangle(std::shared_ptr<api::RenderingContext> rendering_context);
 

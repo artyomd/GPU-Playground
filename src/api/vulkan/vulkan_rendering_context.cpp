@@ -94,19 +94,11 @@ std::shared_ptr<api::Shader> api::vulkan::VulkanRenderingContext::CreateShader(s
                                         type);
 }
 
-
-std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D() {
-  return std::make_shared<VulkanTexture2D>(shared_from_this());
+std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(size_t width,
+                                                                                     size_t height,
+                                                                                     PixelFormat pixel_format) {
+  return std::make_shared<VulkanTexture2D>(shared_from_this(), width, height, pixel_format);
 }
-
-//void api::vulkan::VulkanRenderingContext::SetViewportSize(int width, int height) {
-//  swap_chain_extent_ = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-//  float new_width = 4.0f;
-//  float new_height = ((float) width * new_width) / (float) height;
-//  orthographic_projection_ = glm::ortho(-new_width, new_width, new_height, -new_height);
-//  perspective_projection_ = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 10.0f);
-//  perspective_projection_[1][1] *= -1;
-//}
 
 void api::vulkan::VulkanRenderingContext::WaitForGpuIdle() const {
   vkDeviceWaitIdle(device_);

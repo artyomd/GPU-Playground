@@ -29,9 +29,9 @@ VkCompareOp GetVkCompareOp(api::CompareOp compare_op);
 
 VkSamplerAddressMode GetVkAddressMode(api::AddressMode address_mode);
 
-VkShaderStageFlags GetVkShaderStageFlag(api::ShaderType shader_type);
+VkShaderStageFlagBits GetVkShaderStageFlag(api::ShaderType shader_type);
 
-VkShaderStageFlagBits GetShaderVkType(api::ShaderType shader_type);
+VkFormat GetVkFormat(api::PixelFormat pixel_format);
 
 void CheckVkResult(VkResult result);
 }

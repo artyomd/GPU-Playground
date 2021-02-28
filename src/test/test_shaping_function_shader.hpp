@@ -12,6 +12,8 @@ namespace test {
 class TestShapingFunctionShader : public TestShader {
  public:
   explicit TestShapingFunctionShader(std::shared_ptr<api::RenderingContext> rendering_context) :
-      TestShader(std::move(rendering_context), "../res/shader/compiled/shaping_function_fragment_shader.spv") {}
+      TestShader(std::move(rendering_context), {
+#include SHADER(shaping_function_fragment_shader)
+      }) {}
 };
 }
