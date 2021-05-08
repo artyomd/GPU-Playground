@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17.5)
+cmake_minimum_required(VERSION 3.19.2)
 
 project(playground)
 
@@ -9,8 +9,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_C_FLAGS "-fsanitize=thread -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=thread -g -O1")
 # AddressSanitize
-set(CMAKE_C_FLAGS "-fsanitize=address")
-set(CMAKE_CXX_FLAGS "-fsanitize=address")
+#set(CMAKE_C_FLAGS "-fsanitize=address")
+#set(CMAKE_CXX_FLAGS "-fsanitize=address")
 # LeakSanitizer
 #set(CMAKE_C_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
 #set(CMAKE_CXX_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
@@ -23,9 +23,9 @@ set(CMAKE_CXX_FLAGS "-fsanitize=address")
 
 find_package(glfw3 REQUIRED)
 
-#IF (NOT APPLE)
-#    OPTION(USE_OPENGL "Build with opengl support" ON)
-#ENDIF ()
+IF (NOT APPLE)
+    OPTION(USE_OPENGL "Build with opengl support" ON)
+ENDIF ()
 
 find_package(Vulkan)
 IF (NOT Vulkan_FOUND)

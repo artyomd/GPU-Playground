@@ -34,8 +34,10 @@ std::shared_ptr<api::Shader> api::opengl::OpenGlRenderingContext::CreateShader(s
   return std::make_shared<OpenGlShader>(sipr_v_shader_location, entry_point_name, type);
 }
 
-std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D() {
-  return std::make_shared<OpenglTexture2D>();
+std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(size_t width,
+                                                                                     size_t height,
+                                                                                     PixelFormat pixel_format) {
+  return std::make_shared<OpenglTexture2D>(width, height, pixel_format);
 }
 
 std::shared_ptr<api::RenderingPipeline> api::opengl::OpenGlRenderingContext::CreateGraphicsPipeline(

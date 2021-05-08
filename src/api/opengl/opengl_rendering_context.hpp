@@ -17,7 +17,7 @@ class OpenGlRenderingContext : public RenderingContext {
 
   std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) override;
 
-  std::shared_ptr<Texture2D> CreateTexture2D() override;
+  std::shared_ptr<Texture2D> CreateTexture2D(size_t width, size_t height, PixelFormat pixel_format) override;
 
   std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(std::shared_ptr<VertexBuffer> vertex_binding,
                                                                  std::shared_ptr<IndexBuffer> index_buffer,

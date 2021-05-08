@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <iostream>
 #include <stb_image.h>
-#include <snowhouse/snowhouse.h>
 
 struct Vertex {
   glm::vec3 position;
@@ -64,7 +63,6 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   }
 
   api::VertexBufferLayout vertex_buffer_layout;
-  size_t stride = sizeof(float) * 5;
   vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
   vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 2});
   auto

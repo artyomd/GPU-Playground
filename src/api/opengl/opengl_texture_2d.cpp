@@ -9,35 +9,11 @@
 
 #include "src/api/opengl/opengl_utils.hpp"
 
-api::opengl::OpenglTexture2D::OpenglTexture2D()
-    : Texture2D() {
+api::opengl::OpenglTexture2D::OpenglTexture2D(size_t width, size_t height, PixelFormat pixel_format)
+    : Texture2D(width, height, pixel_format) {
 }
 
-void api::opengl::OpenglTexture2D::Load(const std::string &path) {
-  if (texture_id_ != 0) {
-    GL_CALL(glDeleteTextures(1, &texture_id_));
-  }
-  stbi_set_flip_vertically_on_load(true);
-  GLsizei tex_width, tex_height, tex_channels;
-  stbi_uc *pixels = stbi_load(path.c_str(), &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
-  if (pixels != nullptr) {
-    throw std::runtime_error("failed to load texture image!");
-  }
-  GL_CALL(glGenTextures(1, &texture_id_));
-  GL_CALL(glBindTexture(GL_TEXTURE_2D, texture_id_));
-
-  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-  GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-  GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
-  GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-
-  stbi_image_free(pixels);
-}
-
-void api::opengl::OpenglTexture2D::Load(size_t width, size_t height, const void *data) {
+void api::opengl::OpenglTexture2D::Load(const void *data) {
   if (texture_id_ != 0) {
     GL_CALL(glDeleteTextures(1, &texture_id_));
   }
@@ -52,8 +28,8 @@ void api::opengl::OpenglTexture2D::Load(size_t width, size_t height, const void 
   GL_CALL(glTexImage2D(GL_TEXTURE_2D,
                        0,
                        GL_RGBA,
-                       static_cast<GLsizei>(width),
-                       static_cast<GLsizei>(height),
+                       static_cast<GLsizei>(width_),
+                       static_cast<GLsizei>(height_),
                        0,
                        GL_RGBA,
                        GL_UNSIGNED_BYTE,

@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include "src/api/opengl/opengl_utils.hpp"
-#include "src/api/utils.hpp"
 #include "src/utils/variant_utils.hpp"
 
 api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
@@ -22,8 +21,7 @@ api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
 
 GLuint api::opengl::OpenGlShader::GetShaderId() const {
   if (!specialized_ || constants_changed_) {
-    auto code = ReadFile(this->sipr_v_shader_location_);
-    GL_CALL(glShaderBinary(1, &shader_id_, GL_SHADER_BINARY_FORMAT_SPIR_V, code.data(), code.size()));
+    GL_CALL(glShaderBinary(1, &shader_id_, GL_SHADER_BINARY_FORMAT_SPIR_V, code_.data(), code_.size()));
     GLuint indices[specs_.size()];
     int i = 0;
     spec_data_size_ = 0;
@@ -31,18 +29,18 @@ GLuint api::opengl::OpenGlShader::GetShaderId() const {
       indices[i] = entry.first;
       i++;
       auto value = entry.second;
-      visit_variant(value,
+      VisitVariant(value,
 #define VISIT(data_type) \
   [&](data_type v) {\
   spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(GLuint));\
   *(reinterpret_cast< GLuint *>(static_cast<char*>(spec_data_)+spec_data_size_)) = v; \
   spec_data_size_+= sizeof(GLuint);\
   }
-                    VISIT(bool),
-                    VISIT(unsigned int),
-                    VISIT(int),
-                    VISIT(float),
-                    VISIT(double)
+                   VISIT(bool),
+                   VISIT(unsigned int),
+                   VISIT(int),
+                   VISIT(float),
+                   VISIT(double)
       );
     }
     GL_CALL(glSpecializeShader(shader_id_,

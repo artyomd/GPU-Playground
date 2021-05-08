@@ -12,12 +12,11 @@
 namespace api::opengl {
 class OpenglTexture2D : public Texture2D {
  public:
-  OpenglTexture2D();
-  void Load(const std::string &path) override;
-  void Load(size_t width, size_t height, const void *data) override;
+  OpenglTexture2D(size_t width, size_t height, PixelFormat pixel_format);
+  void SetSampler(api::Sampler sampler) override;
+  void Load(const void *data) override;
   void Bind(GLuint binding_point) const;
   void Unbind(GLuint binding_point) const;
-  void SetSampler(api::Sampler sampler) override;
   ~OpenglTexture2D();
  private:
   GLuint texture_id_ = 0;
