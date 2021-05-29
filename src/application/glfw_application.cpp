@@ -15,12 +15,12 @@ void application::GlfwApplication::InitWindow() {
     throw std::runtime_error("glfw error " + std::to_string(error) + ": " + description);
   });
 
-  if (!glfwInit()) {
+  if (glfwInit() != GLFW_TRUE) {
     throw std::runtime_error("can not init glfw");
   }
 
   SetupWindowHints();
-
+  glfwWindowHint(GLFW_FOCUSED, GLFW_FALSE);
   window_ = glfwCreateWindow(window_width_, window_height_, "GPU Playground", nullptr, nullptr);
   if (window_ == nullptr) {
     getchar();

@@ -12,8 +12,6 @@ namespace test {
 class TestSquaresShader : public TestShader {
  public:
   explicit TestSquaresShader(std::shared_ptr<api::RenderingContext> rendering_context) :
-      TestShader(std::move(rendering_context), {
-#include SHADER(squares_fragment_shader)
-      }) {}
+      TestShader(std::move(rendering_context), squares_fragment_shader) {}
 };
 }

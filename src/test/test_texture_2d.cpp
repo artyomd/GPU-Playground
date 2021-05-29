@@ -8,6 +8,8 @@
 #include <stb_image.h>
 #include <snowhouse/snowhouse.h>
 
+#include "src/shaders/shaders.hpp"
+
 test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
 
@@ -34,14 +36,10 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   auto index_buffer = rendering_context_->CreateIndexBuffer(6, api::DataType::DATA_TYPE_UINT_16);
   index_buffer->Update(&indices[0]);
 
-  auto vertex_shader = rendering_context_->CreateShader({
-#include SHADER(texture2d_vertex)
-                                                        },
+  auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader({
-#include SHADER(texture2d_fragment)
-                                                          },
+  auto fragment_shader = rendering_context_->CreateShader(texture2d_fragment,
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
@@ -59,7 +57,7 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   stbi_set_flip_vertically_on_load(true);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load("../res/textures/image.png", &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
-  if (!pixels) {
+  if (pixels == nullptr) {
     throw std::runtime_error("failed to load texture image!");
   }
   auto texture_2_d =

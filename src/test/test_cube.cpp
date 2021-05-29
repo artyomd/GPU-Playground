@@ -4,6 +4,8 @@
 
 #include "src/test/test_cube.hpp"
 
+#include "src/shaders/shaders.hpp"
+
 #include <glm/ext/matrix_transform.hpp>
 #include <utility>
 
@@ -45,14 +47,10 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
   auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_16);
   index_buffer->Update(indices.data());
 
-  auto vertex_shader = rendering_context_->CreateShader({
-#include SHADER(default_mvp_color_vertex_shader)
-                                                        },
+  auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader({
-#include SHADER(default_color_fragment_shader)
-                                                          },
+  auto fragment_shader = rendering_context_->CreateShader(default_color_fragment_shader,
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 

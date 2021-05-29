@@ -4,6 +4,7 @@
 #pragma once
 
 #include "src/geometry/quad.hpp"
+#include "src/shaders/shaders.hpp"
 #include "src/test/test.h"
 
 namespace test {

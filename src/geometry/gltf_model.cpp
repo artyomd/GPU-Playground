@@ -10,6 +10,7 @@
 #include <tinygltf/tiny_gltf.h>
 
 #include "src/geometry/gltf_model_defaults.hpp"
+#include "src/shaders/shaders.hpp"
 
 namespace geometry {
 struct ParsedAttribute {
@@ -349,9 +350,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
       vertex_buffer->Update(vertex_data);
       delete[] vertex_data;
     }
-    auto vertex_shader = context_->CreateShader({
-#include SHADER(gltf_vertex)
-                                                },
+    auto vertex_shader = context_->CreateShader(gltf_vertex,
                                                 "main",
                                                 api::ShaderType::SHADER_TYPE_VERTEX);
     vertex_shader->SetConstant(1, has_normals);
@@ -361,10 +360,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     vertex_shader->SetConstant(5, has_color_0);
 //    vertex_shader->SetConstant(6, has_joints_0);
 //    vertex_shader->SetConstant(7, has_weights_0);
-
-    auto fragment_shader = context_->CreateShader({
-#include SHADER(gltf_fragment)
-                                                  },
+    auto fragment_shader = context_->CreateShader(gltf_fragment,
                                                   "main",
                                                   api::ShaderType::SHADER_TYPE_FRAGMENT);
 

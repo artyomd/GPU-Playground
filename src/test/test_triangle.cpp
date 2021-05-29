@@ -7,6 +7,7 @@
 
 #include "src/geometry/point.hpp"
 #include "src/geometry/triangle.hpp"
+#include "src/shaders/shaders.hpp"
 
 test::TestTriangle::TestTriangle(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
@@ -16,14 +17,10 @@ test::TestTriangle::TestTriangle(std::shared_ptr<api::RenderingContext> renderin
   geometry::Point point_2 = {0.0F, 0.5F, 0.0F, 0.0F, 0.0F, 1.0F, 1.0F};
 
   auto triangle = std::make_shared<geometry::Triangle>(rendering_context_, point_0, point_1, point_2);
-  auto vertex_shader = rendering_context_->CreateShader({
-#include SHADER(default_mvp_color_vertex_shader)
-                                                        },
+  auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader({
-#include SHADER(default_color_fragment_shader)
-                                                          },
+  auto fragment_shader = rendering_context_->CreateShader(default_color_fragment_shader,
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(triangle->GetVertexBuffer(),

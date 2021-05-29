@@ -9,9 +9,6 @@
 #include "src/api/vertex_buffer.hpp"
 #include "src/api/vertex_buffer_layout.hpp"
 
-#define STRINGIFY(_name_) #_name_
-#define SHADER(_name_)  STRINGIFY(_name_.spv)
-
 namespace api {
 class RenderingContext {
  public:

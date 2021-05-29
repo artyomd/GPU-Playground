@@ -2,6 +2,7 @@
 #include "src/application/opengl_application.hpp"
 #endif
 #include "src/application/vulkan_application.hpp"
+#include "src/shaders/shaders.hpp"
 #include "src/test/test_raymarching.hpp"
 #include "src/test/test_seascape_shader.hpp"
 #include "src/test/test_color_shader.hpp"
@@ -17,6 +18,7 @@
 
 int main() {
   try {
+    LoadShaders();
     application::VulkanApplication test_application;
     test_application.InitWindow();
     test_application.InitContext();

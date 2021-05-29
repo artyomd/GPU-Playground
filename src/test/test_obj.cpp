@@ -3,6 +3,8 @@
 //
 #include "src/test/test_obj.hpp"
 
+#include "src/shaders/shaders.hpp"
+
 #include <glm/gtx/hash.hpp>
 #include <tinyobjloader/tiny_obj_loader.h>
 #include <unordered_map>
@@ -72,14 +74,10 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
   index_buffer->Update(indices.data());
 
-  auto vertex_shader = rendering_context_->CreateShader({
-#include SHADER(texture2d_vertex)
-                                                        },
+  auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
                                                         "main",
                                                         api::ShaderType::SHADER_TYPE_VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader({
-#include SHADER(texture2d_fragment)
-                                                          },
+  auto fragment_shader = rendering_context_->CreateShader(texture2d_fragment,
                                                           "main",
                                                           api::ShaderType::SHADER_TYPE_FRAGMENT);
 
@@ -93,7 +91,7 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   stbi_set_flip_vertically_on_load(true);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load("../res/textures/chalet.jpg", &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
-  if (!pixels) {
+  if (pixels == nullptr) {
     throw std::runtime_error("failed to load texture image!");
   }
   auto obj_texture =
