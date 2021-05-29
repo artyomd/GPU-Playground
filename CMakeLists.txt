@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19.2)
+cmake_minimum_required(VERSION 3.19)
 
 project(playground)
 
@@ -51,6 +51,8 @@ ELSE (USE_OPENGL)
     list(FILTER SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
     list(FILTER EXTERNAL_SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
 ENDIF (USE_OPENGL)
+
+add_definitions(-DIMGUI_DISABLE_DEMO_WINDOWS)
 
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories(SYSTEM ${GLEW_INCLUDE_DIRS})
