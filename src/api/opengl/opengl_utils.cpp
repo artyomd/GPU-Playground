@@ -12,8 +12,8 @@ void api::opengl::GlClearError() {
 
 bool api::opengl::GlLogCall(const char *function, const char *file, int line) {
   if (GLenum error = glGetError()) {
-    std::cout << "[OpenGL error] (" << error << "): "
-              << function << ""
+    std::cout << "[OpenGL error] (" << std::hex << error << std::dec << "): "
+              << function << " "
               << file << ":"
               << line << std::endl;
     return false;

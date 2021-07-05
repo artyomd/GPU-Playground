@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.19.7)
 
 project(playground)
 
@@ -68,9 +68,6 @@ include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
 
 add_subdirectory(external/snowhouse)
 
-add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)
-
 FUNCTION(CONVERT_SPV result)
     SET(spvs "")
     FOREACH (glsl ${ARGN})
@@ -92,4 +89,6 @@ add_custom_command(
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
 )
 add_custom_target(shaders DEPENDS ${SPV_FILES})
+add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
 add_dependencies(playground shaders)
+target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)

@@ -233,6 +233,23 @@ void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int bind
 
 void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point,
                                                       std::shared_ptr<api::Texture2D> texture) {
+  bool binding_available = false;
+  for (auto binding :fragment_shader_->GetBindings()) {
+    if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+      binding_available = true;
+    }
+  }
+  if (!binding_available) {
+    for (auto binding :vertex_shader_->GetBindings()) {
+      if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+        binding_available = true;
+      }
+    }
+  }
+  if (!binding_available) {
+    std::cout << "warning: entry point " << binding_point << " does not exists in shaders" << std::endl;
+    return;
+  }
   auto vk_uniform = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
   this->textures_[binding_point] = vk_uniform;
   std::vector<VkWriteDescriptorSet> descriptor_writes{};

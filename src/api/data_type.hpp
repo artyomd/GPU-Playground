@@ -17,10 +17,6 @@ enum class PixelFormat {
   COUNT,
 };
 
-struct Pixel_RGBA {
-  float r, g, b, a;
-};
-
 struct Size {
   int width = 0;
   int height = 0;

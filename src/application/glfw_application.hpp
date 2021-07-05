@@ -11,7 +11,7 @@
 namespace application {
 class GlfwApplication : public TestApplication {
  private:
-  const float delta_time_ = 0.03333333333f;
+  const float delta_time_ = 0.03333333333F;
  protected:
   GLFWwindow *window_ = nullptr;
 
@@ -19,7 +19,7 @@ class GlfwApplication : public TestApplication {
 
   virtual void SetupWindowHints() = 0;
 
-  virtual void OnWindowSizeChanged() {};
+  virtual void OnWindowSizeChanged() {}
 
   virtual bool PrepareFrame() = 0;
 

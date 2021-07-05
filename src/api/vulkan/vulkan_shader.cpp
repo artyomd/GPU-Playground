@@ -40,17 +40,24 @@ api::vulkan::VulkanShader::VulkanShader(const std::shared_ptr<VulkanRenderingCon
   AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
 
   uint32_t count = 0;
-  result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, nullptr);
+  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_,
+                                                       this->entry_point_name_.data(),
+                                                       &count,
+                                                       nullptr);
   AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
   if (count > 1) {
     throw std::runtime_error("unhandled");
   }
 
   std::vector<SpvReflectDescriptorSet *> sets(count);
-  result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
+  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_,
+                                                       this->entry_point_name_.data(),
+                                                       &count,
+                                                       sets.data());
   AssertThat(result, snowhouse::Is().EqualTo(SPV_REFLECT_RESULT_SUCCESS));
 
-  for (auto set:sets) {
+  if (count == 1) {
+    auto set = sets[0];
     bindings_.resize(set->binding_count);
     for (uint32_t i_binding = 0; i_binding < set->binding_count; ++i_binding) {
       const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(set->bindings[i_binding]);

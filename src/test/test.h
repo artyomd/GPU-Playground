@@ -17,16 +17,16 @@ class Test {
       rendering_context_(std::move(rendering_context)) {}
 
  public:
-  virtual void OnUpdate(float delta_time) {};
+  virtual void OnUpdate(float delta_time) {}
 
-  virtual void OnRender() {};
+  virtual void OnRender() {}
 
-  virtual void OnImGuiRender() {};
+  virtual void OnImGuiRender() {}
 
   virtual void OnViewportChange(size_t width, size_t height) {
     size_[0] = width;
     size_[1] = height;
-  };
+  }
 
   virtual ~Test() = default;
 };

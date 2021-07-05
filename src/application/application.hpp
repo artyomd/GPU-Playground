@@ -33,5 +33,7 @@ class Application {
   virtual void DestroyContext() = 0;
 
   virtual void DestroyWindow() = 0;
+
+  virtual ~Application() = default;
 };
 }

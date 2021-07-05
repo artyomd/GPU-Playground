@@ -114,7 +114,9 @@ void api::opengl::OpenGlRenderingPipeline::SetViewPort(size_t width, size_t heig
 }
 
 void api::opengl::OpenGlRenderingPipeline::UpdateUniformBuffer(unsigned int binding_point, void *data) {
-  ubos_[binding_point]->Update(data);
+  if (ubos_.find(binding_point) != ubos_.end()) {
+    ubos_[binding_point]->Update(data);
+  }
 }
 
 void api::opengl::OpenGlRenderingPipeline::SetTexture(unsigned int binding_point,

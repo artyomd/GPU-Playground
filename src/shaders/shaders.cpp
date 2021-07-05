@@ -10,6 +10,8 @@ std::string default_empty_vertex_shader;
 std::string default_mvp_color_vertex_shader;
 std::string gltf_fragment;
 std::string gltf_vertex;
+std::string obj_fragment;
+std::string obj_vertex;
 std::string raymarched_reflections;
 std::string seascape_fragment_shader;
 std::string shaping_function_fragment_shader;
@@ -57,6 +59,16 @@ void LoadShaders() {
 #include SHADER(gltf_vertex)
   };
   gltf_vertex = SHADER_TO_STRING(gltf_vertex_source);
+
+  const unsigned char obj_fragment_source[] = {
+#include SHADER(obj_fragment)
+  };
+  obj_fragment = SHADER_TO_STRING(obj_fragment_source);
+
+  const unsigned char obj_vertex_source[] = {
+#include SHADER(obj_vertex)
+  };
+  obj_vertex = SHADER_TO_STRING(obj_vertex_source);
 
   const unsigned char raymarched_reflections_source[] = {
 #include SHADER(raymarched_reflections)

@@ -5,7 +5,6 @@
 #include "src/api/rendering_pipeline.hpp"
 #include "src/api/shader.hpp"
 #include "src/api/texture_2d.hpp"
-#include "src/api/uniform_buffer.hpp"
 #include "src/api/vertex_buffer.hpp"
 #include "src/api/vertex_buffer_layout.hpp"
 
