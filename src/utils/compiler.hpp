@@ -4,11 +4,11 @@
 
 #pragma once
 
-#ifndef __has_builtin
-#define __has_builtin(x) 0
+#ifndef HAS_BUILTIN
+#define HAS_BUILTIN(x) 0
 #endif
 
-#if __has_builtin(__builtin_expect)
+#if HAS_BUILTIN(__builtin_expect)
 #   ifdef __cplusplus
 #      define UTILS_LIKELY( exp )    (__builtin_expect( !!(exp), true ))
 #      define UTILS_UNLIKELY( exp )  (__builtin_expect( !!(exp), false ))

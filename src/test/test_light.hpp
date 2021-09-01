@@ -9,10 +9,16 @@
 #include "src/test/test_model.hpp"
 
 namespace test {
-class TestObj : public TestModel {
+struct ViewBuffer {
+  glm::vec4 eye;
+  glm::vec4 light;
+};
+class TestLight : public TestModel {
  public:
-  explicit TestObj(std::shared_ptr<api::RenderingContext> renderer);
+  explicit TestLight(std::shared_ptr<api::RenderingContext> renderer);
 
   void OnRender() override;
+ private:
+  ViewBuffer buffer_{};
 };
 }
