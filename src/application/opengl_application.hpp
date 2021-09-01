@@ -9,27 +9,20 @@
 
 namespace application {
 class OpenGlApplication : public GlfwApplication {
+ private:
+  void InitImGui();
+  static void DestroyImGui();
+
  protected:
   void SetupWindowHints() final;
-
+  void InitContext() final;
   bool PrepareFrame() final;
-
-  void CreateImGuiFrame() final;
-
+  void PrepareImGuiFrame() final;
   void RenderImGui() final;
+  void RenderFrame() final;
+  void DestroyContext() override;
 
-  void DrawFrame() final;
-
-  void PrepareForShutdown() final;
  public:
   OpenGlApplication();
-
-  void InitContext() final;
-
-  void InitImGui() final;
-
-  void DestroyImGui() final;
-
-  void DestroyContext() override;
 };
 }

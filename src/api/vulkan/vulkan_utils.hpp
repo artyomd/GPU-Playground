@@ -15,7 +15,7 @@ namespace api::vulkan {
 
 VkIndexType GetVkType(api::DataType type);
 
-VkFormat GetVkFormat(api::DataType type, unsigned int count);
+VkFormat GetVkFormat(api::DataType type, uint32_t count);
 
 VkFilter GetVkFilter(api::Filter filter);
 

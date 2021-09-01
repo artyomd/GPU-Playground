@@ -6,7 +6,7 @@
 
 #include "src/api/opengl/opengl_utils.hpp"
 
-api::opengl::OpenGlIndexBuffer::OpenGlIndexBuffer(unsigned int item_count, enum DataType type)
+api::opengl::OpenGlIndexBuffer::OpenGlIndexBuffer(uint32_t item_count, enum DataType type)
     : Buffer(item_count * GetDataTypeSizeInBytes(type)),
       OpenGlBuffer(item_count * GetDataTypeSizeInBytes(type)),
       IndexBuffer(item_count, type) {

@@ -13,14 +13,15 @@
 #include "src/api/opengl/opengl_utils.hpp"
 #include "src/api/opengl/opengl_rendering_context.hpp"
 
+namespace {
 void GLAPIENTRY
 MessageCallback(GLenum source,
                 GLenum type,
-                GLuint id,
+                GLuint,
                 GLenum severity,
-                GLsizei length,
+                GLsizei,
                 const GLchar *message,
-                const void *user_param) {
+                const void *) {
   std::string msg_source;
   switch (source) {
     case GL_DEBUG_SOURCE_API:msg_source = "WINDOW_SYSTEM";
@@ -74,10 +75,11 @@ MessageCallback(GLenum source,
          msg_severity.c_str());
 
 }
+}
 
 application::OpenGlApplication::OpenGlApplication()
-    : GlfwApplication(std::make_shared<api::opengl::OpenGlRenderingContext>()) {
-
+    : GlfwApplication() {
+  SetContext(std::make_shared<api::opengl::OpenGlRenderingContext>());
 }
 void application::OpenGlApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -88,6 +90,7 @@ void application::OpenGlApplication::SetupWindowHints() {
 }
 
 void application::OpenGlApplication::InitContext() {
+  GlfwApplication::InitContext();
   glfwMakeContextCurrent(window_);
   glfwSwapInterval(1);
   if (glewInit() != GLEW_OK) {
@@ -98,7 +101,7 @@ void application::OpenGlApplication::InitContext() {
   GL_CALL(glEnable(GL_DEBUG_OUTPUT));
   GL_CALL(glDebugMessageCallback(MessageCallback, nullptr));
   GL_CALL(glEnable(GL_MULTISAMPLE));
-  PrepareTestMenu();
+  InitImGui();
 }
 
 void application::OpenGlApplication::InitImGui() {
@@ -115,7 +118,7 @@ bool application::OpenGlApplication::PrepareFrame() {
   return true;
 }
 
-void application::OpenGlApplication::CreateImGuiFrame() {
+void application::OpenGlApplication::PrepareImGuiFrame() {
   ImGui_ImplOpenGL3_NewFrame();
 }
 
@@ -123,12 +126,8 @@ void application::OpenGlApplication::RenderImGui() {
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void application::OpenGlApplication::DrawFrame() {
+void application::OpenGlApplication::RenderFrame() {
   glfwSwapBuffers(window_);
-}
-
-void application::OpenGlApplication::PrepareForShutdown() {
-  glFinish();
 }
 
 void application::OpenGlApplication::DestroyImGui() {
@@ -138,5 +137,7 @@ void application::OpenGlApplication::DestroyImGui() {
 }
 
 void application::OpenGlApplication::DestroyContext() {
+  DestroyImGui();
   glfwMakeContextCurrent(nullptr);
+  GlfwApplication::DestroyContext();
 }

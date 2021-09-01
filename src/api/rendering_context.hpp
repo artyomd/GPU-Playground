@@ -13,7 +13,7 @@ class RenderingContext {
  public:
   RenderingContext() = default;
 
-  virtual std::shared_ptr<IndexBuffer> CreateIndexBuffer(unsigned int count, DataType type) = 0;
+  virtual std::shared_ptr<IndexBuffer> CreateIndexBuffer(uint32_t count, DataType type) = 0;
 
   virtual std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) = 0;
 
@@ -23,7 +23,7 @@ class RenderingContext {
                                                std::string entry_point_name,
                                                api::ShaderType type) = 0;
 
-  virtual std::shared_ptr<Texture2D> CreateTexture2D(size_t width, size_t height, PixelFormat pixel_format) = 0;
+  virtual std::shared_ptr<Texture2D> CreateTexture2D(uint32_t width, uint32_t height, PixelFormat pixel_format) = 0;
 
   virtual std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(
       std::shared_ptr<VertexBuffer> vertex_binding,

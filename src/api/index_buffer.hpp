@@ -19,7 +19,7 @@ class IndexBuffer : virtual public Buffer {
       Buffer(item_count * GetDataTypeSizeInBytes(type)),
       count_(item_count),
       data_type_(type) {
-    if (type != DataType::DATA_TYPE_UINT_16 && type != DataType::DATA_TYPE_UINT_32) {
+    if (type != DataType::UINT_16 && type != DataType::UINT_32) {
       throw std::runtime_error("unsupported type for index buffer");
     }
   }

@@ -37,7 +37,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   std::vector<VkDescriptorSet> descriptor_sets_{};
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;
 
-  void CreateUniformBuffers(std::shared_ptr<VulkanShader> shader);
+  void CreateUniformBuffers(const std::shared_ptr<VulkanShader>& shader);
   void DestroyPipeline();
   void CreatePipeline();
 
@@ -52,7 +52,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   void Render() override;
   void UpdateUniformBuffer(unsigned int binding_point, void *data) override;
   void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) override;
-  void SetViewPort(size_t width, size_t height) override;
+  void SetViewPort(uint32_t width, uint32_t height) override;
   ~VulkanRenderingPipeline() override;
 };
 }

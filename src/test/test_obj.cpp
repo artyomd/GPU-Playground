@@ -48,14 +48,14 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
     for (const auto &index : shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
-          attrib.vertices[3 * index.vertex_index + 0],
-          attrib.vertices[3 * index.vertex_index + 1],
-          attrib.vertices[3 * index.vertex_index + 2]
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 0],
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 2]
       };
       vertex.normal = {
-          attrib.normals[3 * index.vertex_index + 0],
-          attrib.normals[3 * index.vertex_index + 1],
-          attrib.normals[3 * index.vertex_index + 2]
+          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 0],
+          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 1],
+          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 2]
       };
       if (unique_vertices.count(vertex) == 0) {
         unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
@@ -66,21 +66,22 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   }
 
   api::VertexBufferLayout vertex_buffer_layout;
-  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
-  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 3});
+  vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::FLOAT, 3});
   auto
       vertex_buffer = rendering_context_->CreateVertexBuffer(6 * vertices.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(vertices.data());
 
-  auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
+  auto index_buffer =
+      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_32);
   index_buffer->Update(indices.data());
 
   auto vertex_shader = rendering_context_->CreateShader(obj_vertex,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(obj_fragment,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
 
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
                                                          vertex_shader, fragment_shader,

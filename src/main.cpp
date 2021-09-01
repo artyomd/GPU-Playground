@@ -20,9 +20,6 @@ int main() {
   try {
     LoadShaders();
     application::VulkanApplication test_application;
-    test_application.InitWindow();
-    test_application.InitContext();
-    test_application.InitImGui();
     test_application.RegisterTest<test::TestTriangle>("Triangle");
     test_application.RegisterTest<test::TestRaymarching>("Reflections");
     test_application.RegisterTest<test::TestSeascapeShader>("Seascape");
@@ -36,9 +33,6 @@ int main() {
     test_application.RegisterTest<test::TestSphere>("Sphere");
     test_application.RegisterTest<test::TestGltf>("gltf");
     test_application.Run();
-    test_application.DestroyImGui();
-    test_application.DestroyContext();
-    test_application.DestroyWindow();
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;

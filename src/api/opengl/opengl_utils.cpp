@@ -4,6 +4,8 @@
 
 #include "src/api/opengl/opengl_utils.hpp"
 
+#include "src/utils/compiler.hpp"
+
 #include <iostream>
 
 void api::opengl::GlClearError() {
@@ -11,7 +13,8 @@ void api::opengl::GlClearError() {
 }
 
 bool api::opengl::GlLogCall(const char *function, const char *file, int line) {
-  if (GLenum error = glGetError()) {
+  GLenum error = glGetError();
+  if (UTILS_UNLIKELY(error != GL_NO_ERROR)) {
     std::cout << "[OpenGL error] (" << std::hex << error << std::dec << "): "
               << function << " "
               << file << ":"
@@ -23,18 +26,18 @@ bool api::opengl::GlLogCall(const char *function, const char *file, int line) {
 
 GLenum api::opengl::GetGlType(api::DataType type) {
   switch (type) {
-    case api::DataType::DATA_TYPE_BYTE:return GL_UNSIGNED_BYTE;
-    case api::DataType::DATA_TYPE_UINT_16:return GL_UNSIGNED_SHORT;
-    case api::DataType::DATA_TYPE_UINT_32:return GL_UNSIGNED_INT;
-    case api::DataType::DATA_TYPE_FLOAT:return GL_FLOAT;
+    case api::DataType::BYTE:return GL_UNSIGNED_BYTE;
+    case api::DataType::UINT_16:return GL_UNSIGNED_SHORT;
+    case api::DataType::UINT_32:return GL_UNSIGNED_INT;
+    case api::DataType::FLOAT:return GL_FLOAT;
     default:throw std::runtime_error("unsupported enum");
   }
 }
 
 GLint api::opengl::GetShaderGlType(api::ShaderType shader_type) {
   switch (shader_type) {
-    case api::ShaderType::SHADER_TYPE_VERTEX:return GL_VERTEX_SHADER;
-    case api::ShaderType::SHADER_TYPE_FRAGMENT:return GL_FRAGMENT_SHADER;
+    case api::ShaderType::VERTEX:return GL_VERTEX_SHADER;
+    case api::ShaderType::FRAGMENT:return GL_FRAGMENT_SHADER;
     default:throw std::runtime_error("invalid shader type");
   }
 }

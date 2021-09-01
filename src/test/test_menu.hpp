@@ -6,6 +6,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "src/test/test.h"
@@ -20,13 +21,15 @@ class TestMenu : public Test {
 
   void OnImGuiRender() override;
 
+  void SetRenderingContext(const std::shared_ptr<api::RenderingContext> &context) {
+    this->rendering_context_ = context;
+  }
+
   template<typename T>
   void RegisterTest(const std::string &name) {
     std::cout << "Registering test: " << name << std::endl;
     m_tests_.push_back(std::make_pair(name, [this]() {
-      auto test = std::make_shared<T>(rendering_context_);
-      test->OnViewportChange(this->size_[0], this->size_[1]);
-      return test;
+      return std::make_shared<T>(rendering_context_);
     }));
   }
 };

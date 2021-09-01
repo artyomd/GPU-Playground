@@ -1,25 +1,26 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace api {
 enum class DataType {
-  DATA_TYPE_BYTE,
-  DATA_TYPE_UINT_16,//SHORT
-  DATA_TYPE_UINT_32,
-  DATA_TYPE_FLOAT,
+  BYTE,
+  UINT_16,//SHORT
+  UINT_32,
+  FLOAT,
   COUNT,
 };
 
 enum class PixelFormat {
-  PIXEL_FORMAT_R8G8B8A8_UNORM,
-  PIXEL_FORMAT_R8G8B8A8_SRGB,
+  RGBA_8_UNORM,
+  RGBA_8_SRGB,
   COUNT,
 };
 
 struct Size {
-  int width = 0;
-  int height = 0;
+  uint32_t width = 0;
+  uint32_t height = 0;
 };
 
 size_t GetDataTypeSizeInBytes(DataType type);

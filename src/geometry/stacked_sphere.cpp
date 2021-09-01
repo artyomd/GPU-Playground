@@ -38,13 +38,12 @@ geometry::StackedSphere::StackedSphere(const std::shared_ptr<api::RenderingConte
   }
 
   api::VertexBufferLayout layout;
-  size_t stride = sizeof(float) * 7;
-  layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
-  layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 4});
+  layout.Push({0, api::DataType::FLOAT, 3});
+  layout.Push({1, api::DataType::FLOAT, 4});
   vertex_buffer_ = context->CreateVertexBuffer(7 * geometry_data.size() * sizeof(float), layout);
   vertex_buffer_->Update(&geometry_data[0]);
 
-  index_buffer_ = context->CreateIndexBuffer(index_data.size(), api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_ = context->CreateIndexBuffer(static_cast<uint32_t>(index_data.size()), api::DataType::UINT_16);
   index_buffer_->Update(&index_data[0]);
 
 }

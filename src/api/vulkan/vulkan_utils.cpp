@@ -6,9 +6,9 @@
 
 #include <stdexcept>
 
-VkFormat api::vulkan::GetVkFormat(api::DataType type, unsigned int count) {
+VkFormat api::vulkan::GetVkFormat(api::DataType type, uint32_t count) {
   switch (type) {
-    case api::DataType::DATA_TYPE_BYTE:
+    case api::DataType::BYTE:
       switch (count) {
         case 1:return VK_FORMAT_R8_UNORM;
         case 2:return VK_FORMAT_R8G8_UNORM;
@@ -16,7 +16,7 @@ VkFormat api::vulkan::GetVkFormat(api::DataType type, unsigned int count) {
         case 4:return VK_FORMAT_R8G8B8A8_UNORM;
         default:throw std::runtime_error("unsupported count");
       }
-    case api::DataType::DATA_TYPE_UINT_16:
+    case api::DataType::UINT_16:
       switch (count) {
         case 1:return VK_FORMAT_R16_UINT;
         case 2:return VK_FORMAT_R16G16_UINT;
@@ -24,7 +24,7 @@ VkFormat api::vulkan::GetVkFormat(api::DataType type, unsigned int count) {
         case 4: return VK_FORMAT_R16G16B16A16_UINT;
         default:throw std::runtime_error("unsupported count");
       }
-    case api::DataType::DATA_TYPE_UINT_32:
+    case api::DataType::UINT_32:
       switch (count) {
         case 1:return VK_FORMAT_R32_UINT;
         case 2:return VK_FORMAT_R32G32_UINT;
@@ -32,7 +32,7 @@ VkFormat api::vulkan::GetVkFormat(api::DataType type, unsigned int count) {
         case 4: return VK_FORMAT_R32G32B32A32_UINT;
         default:throw std::runtime_error("unsupported count");
       }
-    case api::DataType::DATA_TYPE_FLOAT:
+    case api::DataType::FLOAT:
       switch (count) {
         case 1:return VK_FORMAT_R32_SFLOAT;
         case 2:return VK_FORMAT_R32G32_SFLOAT;
@@ -46,16 +46,16 @@ VkFormat api::vulkan::GetVkFormat(api::DataType type, unsigned int count) {
 
 VkIndexType api::vulkan::GetVkType(api::DataType type) {
   switch (type) {
-    case api::DataType::DATA_TYPE_UINT_16:return VK_INDEX_TYPE_UINT16;
-    case api::DataType::DATA_TYPE_UINT_32:return VK_INDEX_TYPE_UINT32;
+    case api::DataType::UINT_16:return VK_INDEX_TYPE_UINT16;
+    case api::DataType::UINT_32:return VK_INDEX_TYPE_UINT32;
     default:throw std::runtime_error("unsupported enum");
   }
 }
 
 VkShaderStageFlagBits api::vulkan::GetVkShaderStageFlag(api::ShaderType shader_type) {
   switch (shader_type) {
-    case api::ShaderType::SHADER_TYPE_VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
-    case api::ShaderType::SHADER_TYPE_FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
+    case api::ShaderType::VERTEX:return VK_SHADER_STAGE_VERTEX_BIT;
+    case api::ShaderType::FRAGMENT:return VK_SHADER_STAGE_FRAGMENT_BIT;
     default: throw std::runtime_error("invalid shader type");
   }
 }
@@ -109,8 +109,8 @@ VkFrontFace api::vulkan::GetVkFrontFace(api::FrontFace front_face) {
 
 VkFormat api::vulkan::GetVkFormat(api::PixelFormat pixel_format) {
   switch (pixel_format) {
-    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_UNORM:return VK_FORMAT_R8G8B8A8_UNORM;
-    case PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB:return VK_FORMAT_R8G8B8A8_SRGB;
+    case PixelFormat::RGBA_8_UNORM:return VK_FORMAT_R8G8B8A8_UNORM;
+    case PixelFormat::RGBA_8_SRGB:return VK_FORMAT_R8G8B8A8_SRGB;
     default: throw std::runtime_error("unsupported pixel format");
   }
 }

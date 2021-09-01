@@ -15,7 +15,7 @@ class OpenGlIndexBuffer :
   GLenum index_type_ = 0;
 
  public:
-  OpenGlIndexBuffer(unsigned int item_count, enum DataType type);
+  OpenGlIndexBuffer(uint32_t item_count, enum DataType type);
 
   [[nodiscard]] GLenum GetIndexType() const;
 

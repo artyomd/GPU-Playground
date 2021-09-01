@@ -32,14 +32,14 @@ api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(const std::shared_
   fragment_shader_ = std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
 
   GL_CALL(program_id_ = glCreateProgram());
-  AssertThat(program_id_, snowhouse::Is().Not().EqualTo(0));
+  AssertThat(program_id_, snowhouse::Is().Not().EqualTo(0u));
 
   GL_CALL(glAttachShader(program_id_, vertex_shader_->GetShaderId()));
   GL_CALL(glAttachShader(program_id_, fragment_shader_->GetShaderId()));
   GL_CALL(glLinkProgram(program_id_));
 
   GLint link_status;
-  glGetProgramiv(program_id_, GL_LINK_STATUS, (int *) &link_status);
+  glGetProgramiv(program_id_, GL_LINK_STATUS, &link_status);
   if (link_status == GL_FALSE) {
     GetProgramInfoLog(program_id_);
     GL_CALL(glDetachShader(program_id_, vertex_shader_->GetShaderId()));
@@ -108,7 +108,7 @@ void api::opengl::OpenGlRenderingPipeline::Render() {
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-void api::opengl::OpenGlRenderingPipeline::SetViewPort(size_t width, size_t height) {
+void api::opengl::OpenGlRenderingPipeline::SetViewPort(uint32_t width, uint32_t height) {
   this->width_ = static_cast<GLsizei>(width);
   this->height_ = static_cast<GLsizei>(height);
 }

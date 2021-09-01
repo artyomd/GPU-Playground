@@ -16,10 +16,9 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
   VkCommandPool graphics_pool_;
   VkDescriptorPool descriptor_pool_;
 
-  int image_count_;
-  int current_image_index_ = 0;
+  uint32_t image_count_;
+  uint32_t current_image_index_ = 0;
   VkRenderPass vk_render_pass_ = nullptr;
-  VkExtent2D swap_chain_extent_{};
   VkCommandBuffer current_command_buffer_ = nullptr;
   VkSampleCountFlagBits msaa_samples_;
 
@@ -30,13 +29,13 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
                          VkQueue graphics_queue,
                          VkCommandPool graphics_pool,
                          VkDescriptorPool descriptor_pool,
-                         int image_count);
+                         uint32_t image_count);
 
   [[nodiscard]] VkDevice GetDevice() const;
 
   std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) override;
 
-  std::shared_ptr<IndexBuffer> CreateIndexBuffer(unsigned int count, DataType type) override;
+  std::shared_ptr<IndexBuffer> CreateIndexBuffer(uint32_t count, DataType type) override;
 
   std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) override;
 
@@ -53,7 +52,7 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   void WaitForGpuIdle() const override;
 
-  std::shared_ptr<Texture2D> CreateTexture2D(size_t width, size_t height, PixelFormat pixel_format) override;
+  std::shared_ptr<Texture2D> CreateTexture2D(uint32_t width, uint32_t height, PixelFormat pixel_format) override;
 
   ~VulkanRenderingContext() override = default;
 
@@ -100,15 +99,13 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] VkCommandBuffer GetCurrentCommandBuffer() const;
 
-  [[nodiscard]] VkExtent2D GetSwapChainExtent() const;
-
   VkDescriptorPool GetDescriptorPool();
 
-  [[nodiscard]] int GetImageCount() const;
+  [[nodiscard]] uint32_t GetImageCount() const;
 
-  void SetCurrentImageIndex(int current_image_index);
+  void SetCurrentImageIndex(uint32_t current_image_index);
 
-  [[nodiscard]] int GetCurrentImageIndex() const;
+  [[nodiscard]] uint32_t GetCurrentImageIndex() const;
 
   [[nodiscard]] VkFormat FindDepthFormat() const;
 

@@ -36,7 +36,7 @@ class TestModel : public Test {
 
   void OnImGuiRender() override;
 
-  void OnViewportChange(size_t width, size_t height) override;
+  void OnViewportChange(uint32_t width, uint32_t height) override;
 
   ~TestModel() override = default;
 };

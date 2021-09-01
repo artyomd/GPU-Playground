@@ -21,7 +21,7 @@ class RenderingPipeline {
 
   virtual void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) = 0;
 
-  virtual void SetViewPort(size_t width, size_t height) = 0;
+  virtual void SetViewPort(uint32_t width, uint32_t height) = 0;
 
   virtual void Render() = 0;
 

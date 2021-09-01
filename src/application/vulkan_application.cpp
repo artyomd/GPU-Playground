@@ -12,13 +12,16 @@
 
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 
+namespace {
 VkResult CreateDebugUtilsMessengerExt(
     VkInstance instance,
     const VkDebugUtilsMessengerCreateInfoEXT *p_create_info,
     const VkAllocationCallbacks *p_allocator,
     VkDebugUtilsMessengerEXT *p_debug_messenger
 ) {
-  auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+  auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+      vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT")
+  );
   if (func != nullptr) {
     return func(instance, p_create_info, p_allocator, p_debug_messenger);
   } else {
@@ -31,30 +34,44 @@ void DestroyDebugUtilsMessengerExt(
     VkDebugUtilsMessengerEXT debug_messenger,
     const VkAllocationCallbacks *p_allocator
 ) {
-  auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+  auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+      vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")
+  );
   if (func != nullptr) {
     func(instance, debug_messenger, p_allocator);
   }
 }
 
-inline void CheckVkResult(VkResult result) {
+void CheckVkResult(VkResult result) {
   if (result == VK_SUCCESS) {
     return;
   }
   throw std::runtime_error("imgui vk error");
 }
 
+std::vector<VkExtensionProperties> GetDeviceExtensions(VkPhysicalDevice device) {
+  uint32_t extension_count;
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+  std::vector<VkExtensionProperties> available_extensions(extension_count);
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+  return available_extensions;
+}
+}
+
 application::VulkanApplication::VulkanApplication()
-    : GlfwApplication(nullptr) {}
+    : GlfwApplication() {}
+
 void application::VulkanApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 }
 
-void application::VulkanApplication::OnWindowSizeChanged() {
+void application::VulkanApplication::OnWindowSizeChanged(int width, int height) {
   this->framebuffer_resized_ = true;
+  this->framebuffer_empty_ = width == 0 || height == 0;
 }
 
 void application::VulkanApplication::InitContext() {
+  GlfwApplication::InitContext();
   CreateInstance();
   SetupDebugMessenger();
   CreateSurface();
@@ -69,7 +86,7 @@ void application::VulkanApplication::InitContext() {
       graphics_command_pool_,
       descriptor_pool_,
       max_frames_in_flight_);
-  Application::context_ = this->context_;
+  SetContext(this->context_);
   CreateSwapChain();
   CreateImageViews();
   CreateRenderPass();
@@ -79,12 +96,12 @@ void application::VulkanApplication::InitContext() {
   CreateCommandBuffers();
 
   CreateSyncObjects();
-  PrepareTestMenu();
+
+  InitImGui();
 }
 
 void application::VulkanApplication::RecreateSwapChain() {
-  while (window_width_ == 0 || window_height_ == 0) {
-    glfwGetFramebufferSize(window_, &window_width_, &window_height_);
+  while (framebuffer_empty_) {
     glfwWaitEvents();
   }
   context_->WaitForGpuIdle();
@@ -167,11 +184,11 @@ void application::VulkanApplication::SetupDebugMessenger() {
   create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT;
   create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
   create_info.pfnUserCallback = [](VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-                                   VkDebugUtilsMessageTypeFlagsEXT message_type,
+                                   VkDebugUtilsMessageTypeFlagsEXT,
                                    const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
-                                   void *p_user_data) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
-    if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-        | message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+                                   void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
+    if ((message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        | (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) {
       std::cerr << "validation layer: " << p_callback_data->pMessage << std::endl;
     } else {
       std::cout << "validation layer: " << p_callback_data->pMessage << std::endl;
@@ -229,7 +246,7 @@ application::VulkanApplication::QueueFamilyIndices application::VulkanApplicatio
   std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
 
-  int i = 0;
+  unsigned int i = 0;
   for (const auto &queue_family :queue_families) {
     if (queue_family.queueCount > 0 && queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       indices.graphics_family = i;
@@ -254,14 +271,6 @@ bool application::VulkanApplication::CheckDeviceExtensionSupport(VkPhysicalDevic
     required_extensions.erase(extension.extensionName);
   }
   return required_extensions.empty();
-}
-
-std::vector<VkExtensionProperties> application::VulkanApplication::GetDeviceExtensions(VkPhysicalDevice device) {
-  uint32_t extension_count;
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
-  std::vector<VkExtensionProperties> available_extensions(extension_count);
-  vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
-  return available_extensions;
 }
 
 application::VulkanApplication::SwapChainSupportDetails application::VulkanApplication::QuerySwapChainSupport(
@@ -351,7 +360,7 @@ void application::VulkanApplication::CreateDescriptorPool() {
   pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
   pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
   pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-  pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
+  pool_info.poolSizeCount = static_cast<uint32_t>(IM_ARRAYSIZE(pool_sizes));
   pool_info.pPoolSizes = pool_sizes;
   if (vkCreateDescriptorPool(device_, &pool_info, nullptr, &descriptor_pool_) !=
       VK_SUCCESS) {
@@ -595,7 +604,7 @@ void application::VulkanApplication::CreateCommandBuffers() {
   alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   alloc_info.commandPool = graphics_command_pool_;
   alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  alloc_info.commandBufferCount = (uint32_t) graphics_command_buffers_.size();
+  alloc_info.commandBufferCount = static_cast<uint32_t>(graphics_command_buffers_.size());
   if (vkAllocateCommandBuffers(device_, &alloc_info, graphics_command_buffers_.data()) != VK_SUCCESS) {
     throw std::runtime_error("failed to allocate command buffers!");
   }
@@ -680,7 +689,7 @@ bool application::VulkanApplication::PrepareFrame() {
   render_pass_info.renderArea.extent = swap_chain_extent_;
 
   std::array<VkClearValue, 2> clear_values = {};
-  clear_values[0].color = {0.0, 0.0, 0.0, 1.0};
+  clear_values[0].color = {{0.0, 0.0, 0.0, 1.0}};
   clear_values[1].depthStencil = {1.0f, 0};
   render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
   render_pass_info.pClearValues = clear_values.data();
@@ -689,7 +698,7 @@ bool application::VulkanApplication::PrepareFrame() {
   return true;
 }
 
-void application::VulkanApplication::CreateImGuiFrame() {
+void application::VulkanApplication::PrepareImGuiFrame() {
   ImGui_ImplVulkan_NewFrame();
 }
 
@@ -697,7 +706,7 @@ void application::VulkanApplication::RenderImGui() {
   ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), graphics_command_buffers_[current_frame_]);
 }
 
-void application::VulkanApplication::DrawFrame() {
+void application::VulkanApplication::RenderFrame() {
   vkCmdEndRenderPass(graphics_command_buffers_[current_frame_]);
   vkEndCommandBuffer(graphics_command_buffers_[current_frame_]);
   context_->SetCurrentCommandBuffer(nullptr);
@@ -738,10 +747,6 @@ void application::VulkanApplication::DrawFrame() {
   context_->SetCurrentImageIndex(current_frame_);
 }
 
-void application::VulkanApplication::PrepareForShutdown() {
-  context_->WaitForGpuIdle();
-}
-
 void application::VulkanApplication::DestroyImGui() {
   ImGui_ImplVulkan_Shutdown();
   ImGui_ImplGlfw_Shutdown();
@@ -771,7 +776,7 @@ void application::VulkanApplication::CleanupSwapChain() {
 }
 
 void application::VulkanApplication::DestroyContext() {
-  this->ResetMenu();
+  DestroyImGui();
   CleanupSwapChain();
   for (size_t i = 0; i < max_frames_in_flight_; i++) {
     vkDestroySemaphore(device_, render_finished_semaphores_[i], nullptr);
@@ -786,4 +791,5 @@ void application::VulkanApplication::DestroyContext() {
     DestroyDebugUtilsMessengerExt(vulkan_instance_, debug_messenger_, nullptr);
   }
   vkDestroyInstance(vulkan_instance_, nullptr);
+  GlfwApplication::DestroyContext();
 }

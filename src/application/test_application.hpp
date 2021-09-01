@@ -9,31 +9,27 @@
 
 namespace application {
 class TestApplication : public Application {
-
-  std::shared_ptr<test::TestMenu> test_menu_ = nullptr;
-  bool return_pressed_ = false;
-
- protected:
+ private:
+  std::shared_ptr<api::RenderingContext> context_ = nullptr;
   std::shared_ptr<test::Test> current_test_ = nullptr;
-
-  explicit TestApplication(const std::shared_ptr<api::RenderingContext> &context);
+  std::shared_ptr<test::TestMenu> test_menu_ = nullptr;
 
  protected:
-
-  void PrepareTestMenu();
-
-  virtual void RenderMenu() final;
-
-  void PostRender();
-
-  void ResetMenu();
-
+  TestApplication();
+  virtual void OnTestChanged(std::shared_ptr<test::Test> current_test) = 0;
+  [[nodiscard]] std::shared_ptr<api::RenderingContext> GetContext() const;
+  void SetContext(const std::shared_ptr<api::RenderingContext> &context);
+  [[nodiscard]] const std::shared_ptr<test::Test> &GetCurrentTest() const;
+  void InitTestMenu();
+  void RenderMenu();
+  void CleanupTestMenu();
  public:
   template<typename T>
   void RegisterTest(const std::string &name) {
-    if (test_menu_ != nullptr) {
-      test_menu_->RegisterTest<T>(name);
+    if (test_menu_ == nullptr) {
+      InitTestMenu();
     }
+    test_menu_->RegisterTest<T>(name);
   }
 };
 }

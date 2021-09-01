@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19.7)
+cmake_minimum_required(VERSION 3.20)
 
 project(playground)
 
@@ -54,18 +54,6 @@ ENDIF (USE_OPENGL)
 
 add_definitions(-DIMGUI_DISABLE_DEMO_WINDOWS)
 
-include_directories("${PROJECT_SOURCE_DIR}")
-include_directories(SYSTEM ${GLEW_INCLUDE_DIRS})
-include_directories(SYSTEM external/glm)
-include_directories(SYSTEM external/stb)
-include_directories(SYSTEM external/tinyobjloader)
-include_directories(SYSTEM external/src)
-include_directories(SYSTEM external/src/imgui)
-include_directories(SYSTEM external/json/single_include/)
-include_directories(SYSTEM external)
-
-include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
-
 add_subdirectory(external/snowhouse)
 
 FUNCTION(CONVERT_SPV result)
@@ -79,7 +67,7 @@ FUNCTION(CONVERT_SPV result)
 ENDFUNCTION(CONVERT_SPV)
 
 file(GLOB_RECURSE GLSL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/glsl460/*.glsl")
-message("${GLSL_FILES}")
+
 CONVERT_SPV(SPV_FILES ${GLSL_FILES})
 
 add_custom_command(
@@ -88,7 +76,25 @@ add_custom_command(
         DEPENDS ${GLSL_FILES}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
 )
-add_custom_target(shaders DEPENDS ${SPV_FILES})
-add_executable(playground ${SOURCE_FILES} ${EXTERNAL_SOURCE_FILES})
-add_dependencies(playground shaders)
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse)
+
+set_source_files_properties(
+        ${SOURCE_FILES}
+        PROPERTIES
+        COMPILE_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wfloat-equal -Wold-style-cast"
+)
+
+add_executable(playground ${SOURCE_FILES} ${SPV_FILES} ${EXTERNAL_SOURCE_FILES})
+
+target_include_directories(playground PRIVATE "${PROJECT_SOURCE_DIR}")
+target_include_directories(playground SYSTEM PRIVATE ${GLEW_INCLUDE_DIRS})
+target_include_directories(playground SYSTEM PRIVATE external/glm)
+target_include_directories(playground SYSTEM PRIVATE external/stb)
+target_include_directories(playground SYSTEM PRIVATE external/tinyobjloader)
+target_include_directories(playground SYSTEM PRIVATE external/src)
+target_include_directories(playground SYSTEM PRIVATE external/src/imgui)
+target_include_directories(playground SYSTEM PRIVATE external/json/single_include/)
+target_include_directories(playground SYSTEM PRIVATE external)
+
+target_include_directories(playground SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
+
+target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse ${CMAKE_DL_LIBS})
