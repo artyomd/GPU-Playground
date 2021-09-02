@@ -12,18 +12,8 @@
 #include "src/geometry/gltf_model_defaults.hpp"
 #include "src/shaders/shaders.hpp"
 
-namespace geometry {
-struct ParsedAttribute {
-  unsigned char *data = nullptr;
-  size_t stride = 0;
-  size_t instance_count = 0;
-  unsigned int element_count = 0;
-  api::DataType element_type = api::DataType::FLOAT;
-  size_t element_size = 0;
-};
-}
-
-static api::DataType GetType(int type) {
+namespace {
+api::DataType GetType(int type) {
   switch (type) {
     case TINYGLTF_COMPONENT_TYPE_BYTE:return api::DataType::BYTE;
     case TINYGLTF_COMPONENT_TYPE_FLOAT:return api::DataType::FLOAT;
@@ -33,7 +23,7 @@ static api::DataType GetType(int type) {
   }
 }
 
-static unsigned int GetElementCount(int type) {
+unsigned int GetElementCount(int type) {
   switch (type) {
     case TINYGLTF_TYPE_SCALAR:return 1;
     case TINYGLTF_TYPE_VEC2:return 2;
@@ -43,7 +33,7 @@ static unsigned int GetElementCount(int type) {
   }
 }
 
-static api::DrawMode GetMode(int mode) {
+api::DrawMode GetMode(int mode) {
   switch (mode) {
     case TINYGLTF_MODE_POINTS:return api::DrawMode::POINT_LIST;
     case TINYGLTF_MODE_LINE:return api::DrawMode::LINE_LIST;
@@ -55,7 +45,7 @@ static api::DrawMode GetMode(int mode) {
   }
 }
 
-static api::Filter GetFilter(int filter) {
+api::Filter GetFilter(int filter) {
   switch (filter) {
     case TINYGLTF_TEXTURE_FILTER_LINEAR:
     case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:
@@ -68,7 +58,7 @@ static api::Filter GetFilter(int filter) {
   }
 }
 
-static api::AddressMode GetAddressMode(int address_mode) {
+api::AddressMode GetAddressMode(int address_mode) {
   switch (address_mode) {
     case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:return api::AddressMode::CLAMP_TO_EDGE;
     case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT:return api::AddressMode::MIRRORED_REPEAT;
@@ -77,7 +67,17 @@ static api::AddressMode GetAddressMode(int address_mode) {
   }
 }
 
-static api::Sampler GetSampler(const tinygltf::Sampler &sampler) {
+api::PixelFormat GetPixelFormat(bool srgb, const tinygltf::Image &image) {
+  AssertThat(image.pixel_type, snowhouse::Equals(TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE));
+  AssertThat(image.component, snowhouse::Equals(4));
+  if (srgb) {
+    return api::PixelFormat::RGBA_8_SRGB;
+  } else {
+    return api::PixelFormat::RGBA_8_UNORM;
+  }
+}
+
+api::Sampler GetSampler(const tinygltf::Sampler &sampler) {
   return {
       GetFilter(sampler.magFilter),
       GetFilter(sampler.minFilter),
@@ -86,8 +86,16 @@ static api::Sampler GetSampler(const tinygltf::Sampler &sampler) {
       api::AddressMode::REPEAT
   };
 }
-
+}
 namespace geometry {
+struct ParsedAttribute {
+  unsigned char *data = nullptr;
+  size_t stride = 0;
+  size_t instance_count = 0;
+  unsigned int element_count = 0;
+  api::DataType element_type = api::DataType::FLOAT;
+  size_t element_size = 0;
+};
 struct MVP {
   alignas(16) glm::mat4 model;
   alignas(16) glm::mat4 view;
@@ -129,32 +137,40 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context, c
     throw std::runtime_error("Failed to parse glTF\n");
   }
 
-  for (const auto &tex:model_.textures) {
-    auto image = model_.images[tex.source];
-//    auto texture = context_->CreateTexture2D();
-//    texture->Load(static_cast<size_t>(image.width), static_cast<size_t>(image.height), image.image.data());
-//    texture->SetSampler(GetSampler(model_.samplers[tex.sampler]));
-//    textures_.emplace_back(texture);
+  for (const auto &camera: model_.cameras) {
+    glm::mat4 camera_matrix = glm::mat4(1.0);
+    if (camera.type == "perspective") {
+      auto data = camera.perspective;
+      camera_matrix = glm::perspective(data.yfov, data.aspectRatio, data.znear, data.zfar);
+    } else {
+      auto data = camera.orthographic;
+      camera_matrix[0][0] = static_cast<float>(1.0F / data.xmag);
+      camera_matrix[1][1] = static_cast<float>(1.0F / data.ymag);
+      camera_matrix[2][2] = static_cast<float>(2.0F / (data.znear - data.zfar));
+      camera_matrix[3][2] = static_cast<float>((data.zfar + data.znear) / (data.znear - data.zfar));
+    }
+    cameras_.emplace_back(camera_matrix);
+  }
+  for (const auto &tex: model_.textures) {
+    auto image = this->model_.images[static_cast<size_t>(tex.source)];
+    auto texture = context_->CreateTexture2D(static_cast<uint32_t>(image.width),
+                                             static_cast<uint32_t>(image.height), GetPixelFormat(true, image));
+    texture->Load(image.image.data());
+    texture->SetSampler(GetSampler(this->model_.samplers[static_cast<size_t>(tex.sampler)]));
+    textures_.push_back(texture);
   }
 }
 
-static api::PixelFormat GetPixelFormat(bool srgb, const tinygltf::Image &image) {
-  AssertThat(image.pixel_type, snowhouse::Equals(TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE));
-  AssertThat(image.component, snowhouse::Equals(4));
-  if (srgb) {
-    return api::PixelFormat::RGBA_8_SRGB;
-  } else {
-    return api::PixelFormat::RGBA_8_UNORM;
-  }
-}
-
-void geometry::GltfModel::LoadScene() {
+void geometry::GltfModel::LoadScene(int scene_index) {
+  context_->WaitForGpuIdle();
   current_pipelines_.clear();
-  auto default_scene = model_.scenes[model_.defaultScene];
-  for (auto node:default_scene.nodes) {
-    LoadNode(model_.nodes[node]);
+  snowhouse::Assert::That(scene_index, snowhouse::IsGreaterThanOrEqualTo(0));
+  snowhouse::Assert::That(model_.scenes.size(), snowhouse::IsGreaterThanOrEqualTo(0u));
+  snowhouse::Assert::That(static_cast<size_t>(scene_index), snowhouse::IsLessThan(model_.scenes.size()));
+  auto default_scene = model_.scenes[static_cast<size_t>(scene_index)];
+  for (const auto &node: default_scene.nodes) {
+    LoadNode(model_.nodes[static_cast<size_t>(node)]);
   }
-  SetCamera(0);
 }
 
 void geometry::GltfModel::LoadNode(const tinygltf::Node &node, glm::mat4 parent_transform) {
@@ -180,34 +196,21 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node, glm::mat4 parent_
   }
   matrix = parent_transform * matrix;
   if (node.mesh != -1) {
-    auto pipes = LoadMesh(model_.meshes[node.mesh], matrix);
+    auto pipes = LoadMesh(model_.meshes[static_cast<size_t>(node.mesh)], matrix);
     current_pipelines_.insert(current_pipelines_.end(), pipes.begin(), pipes.end());
   }
   if (node.camera != -1) {
-    auto camera = model_.cameras[node.camera];
-    glm::mat4 camera_matrix = glm::mat4(1.0);
-    if (camera.type == "perspective") {
-      auto data = camera.perspective;
-      camera_matrix = glm::perspective(data.yfov, data.aspectRatio, data.znear, data.zfar);
-    } else {
-      auto data = camera.orthographic;
-      camera_matrix[0][0] = static_cast<float>(1.0F / data.xmag);
-      camera_matrix[1][1] = static_cast<float>(1.0F / data.ymag);
-      camera_matrix[2][2] = static_cast<float>(2.0F / (data.znear - data.zfar));
-      camera_matrix[3][2] = static_cast<float>((data.zfar + data.znear) / (data.znear - data.zfar));
-    }
-    Camera camera_obj{matrix, camera_matrix, camera.name};
-    cameras_.emplace_back(camera_obj);
+    SetCamera(static_cast<uint>(node.camera), glm::inverse(matrix));
   }
-  for (const auto &child:node.children) {
-    LoadNode(model_.nodes[child], matrix);
+  for (const auto &child: node.children) {
+    LoadNode(model_.nodes[static_cast<size_t>(child)], matrix);
   }
 }
 
 std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mesh &mesh,
                                                                    glm::mat4 model_matrix) {
   std::vector<geometry::RenderingUnit> pipelines{};
-  for (const auto &primitive:mesh.primitives) {
+  for (const auto &primitive: mesh.primitives) {
     auto ubo = std::make_shared<PrimitiveUbo>();
     ubo->mvp.model = model_matrix;
     ubo->mvp.normal = glm::inverseTranspose(model_matrix);
@@ -220,6 +223,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     bool has_color_0 = false;
     bool has_joints_0 = false;
     bool has_weights_0 = false;
+
     { //index buffer
       AssertThat(primitive.indices, snowhouse::Is().Not().EqualTo(-1)); //unhandled
       auto index = ParseAttribute("INDICES", primitive.indices);
@@ -296,7 +300,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
         has_weights_0 = true;
       }
       auto vertex_stride = vbl.GetElementSize();
-      char *vertex_data = new char[vertex_count * vertex_stride];
+      char *vertex_data = static_cast<char *>(malloc(vertex_count * vertex_stride));
       size_t vertex_data_offset = 0;
       for (unsigned long i = 0; i < vertex_count; i++) {
         memcpy(vertex_data + vertex_data_offset,
@@ -348,7 +352,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
       }
       vertex_buffer = context_->CreateVertexBuffer(vertex_count * vertex_stride, vbl);
       vertex_buffer->Update(vertex_data);
-      delete[] vertex_data;
+      free(vertex_data);
     }
     auto vertex_shader = context_->CreateShader(gltf_vertex,
                                                 "main",
@@ -358,8 +362,9 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     vertex_shader->SetConstant(3, has_text_coord_0);
     vertex_shader->SetConstant(4, has_text_coord_1);
     vertex_shader->SetConstant(5, has_color_0);
-//    vertex_shader->SetConstant(6, has_joints_0);
-//    vertex_shader->SetConstant(7, has_weights_0);
+    vertex_shader->SetConstant(6, has_joints_0);
+    vertex_shader->SetConstant(7, has_weights_0);
+
     auto fragment_shader = context_->CreateShader(gltf_fragment,
                                                   "main",
                                                   api::ShaderType::FRAGMENT);
@@ -372,55 +377,30 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     ubo->material.base_color = glm::make_vec4<float>(std::vector<float>(pbr.baseColorFactor.begin(),
                                                                         pbr.baseColorFactor.end()).data());
     if (pbr.baseColorTexture.index > -1) {
-      auto base_texture = this->model_.textures[pbr.baseColorTexture.index];
-      auto image = this->model_.images[base_texture.source];
-      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(true, image));
-      texture->Load(image.image.data());
-      texture->SetSampler(GetSampler(this->model_.samplers[base_texture.sampler]));
       int base_texture_coords_index = pbr.baseColorTexture.texCoord; // 0 or 1
-      textures_mapping[2] = texture;
+      textures_mapping[2] = textures_[pbr.baseColorTexture.index];
       fragment_shader->SetConstant(2, base_texture_coords_index);
     }
     ubo->material.metallic_factor = static_cast<float>(pbr.metallicFactor);
     ubo->material.roughness_factor = static_cast<float>(pbr.roughnessFactor);
     if (pbr.metallicRoughnessTexture.index > -1) {
-      auto mr_texture = this->model_.textures[pbr.metallicRoughnessTexture.index];
-      auto image = this->model_.images[mr_texture.source];
-      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
-      texture->Load(image.image.data());
-      texture->SetSampler(GetSampler(this->model_.samplers[mr_texture.sampler]));
       int mr_texture_coords_index = pbr.metallicRoughnessTexture.texCoord; // 0 or 1
-      textures_mapping[3] = texture;
+      textures_mapping[3] = textures_[pbr.metallicRoughnessTexture.index];
       fragment_shader->SetConstant(3, mr_texture_coords_index);
     }
     if (material.normalTexture.index > -1) {
-      auto normal_texture = this->model_.textures[material.normalTexture.index];
-      auto image = this->model_.images[normal_texture.source];
-      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
-      texture->Load(image.image.data());
-      texture->SetSampler(GetSampler(this->model_.samplers[normal_texture.sampler]));
       int normal_texture_coords_index = material.normalTexture.texCoord; // 0 or 1
-      textures_mapping[4] = texture;
+      textures_mapping[4] = textures_[material.normalTexture.index];
       fragment_shader->SetConstant(4, normal_texture_coords_index);
     }
     if (material.occlusionTexture.index > -1) {
-      auto occlusion_texture = this->model_.textures[material.occlusionTexture.index];
-      auto image = this->model_.images[occlusion_texture.source];
-      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(false, image));
-      texture->Load(image.image.data());
-      texture->SetSampler(GetSampler(this->model_.samplers[occlusion_texture.sampler]));
       int occlusion_texture_texture_coords_index = material.occlusionTexture.texCoord; // 0 or 1
-      textures_mapping[5] = texture;
+      textures_mapping[5] = textures_[material.occlusionTexture.index];
       fragment_shader->SetConstant(5, occlusion_texture_texture_coords_index);
     }
     if (material.emissiveTexture.index > -1) {
-      auto emissive_texture = this->model_.textures[material.emissiveTexture.index];
-      auto image = this->model_.images[emissive_texture.source];
-      auto texture = context_->CreateTexture2D(image.width, image.height, GetPixelFormat(true, image));
-      texture->Load(image.image.data());
-      texture->SetSampler(GetSampler(this->model_.samplers[emissive_texture.sampler]));
       int emissive_texture_coords_index = material.emissiveTexture.texCoord; // 0 or 1
-      textures_mapping[6] = texture;
+      textures_mapping[6] = textures_[material.emissiveTexture.index];
       fragment_shader->SetConstant(6, emissive_texture_coords_index);
     }
     ubo->material.emissive_factor =
@@ -445,22 +425,22 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 }
 
 void geometry::GltfModel::Render() {
-  for (const auto &unit:current_pipelines_) {
+  for (const auto &unit: current_pipelines_) {
     unit.pipeline->UpdateUniformBuffer(0, &unit.ubo->mvp);
     unit.pipeline->Render();
   }
 }
 void geometry::GltfModel::SetViewport(uint32_t width, uint32_t height) {
-  for (const auto &unit:current_pipelines_) {
+  for (const auto &unit: current_pipelines_) {
     unit.pipeline->SetViewPort(width, height);
   }
 }
 
-void geometry::GltfModel::SetCamera(uint camera_index) {
+void geometry::GltfModel::SetCamera(uint camera_index, glm::mat4 view) {
   auto camera = cameras_[camera_index];
-  for (const auto &unit:current_pipelines_) {
-    unit.ubo->mvp.projection = camera.proj;
-    unit.ubo->mvp.view = glm::inverse(camera.view);
+  for (const auto &unit: current_pipelines_) {
+    unit.ubo->mvp.projection = camera;
+    unit.ubo->mvp.view = view;
   }
 }
 geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string &attribute_name,
@@ -469,7 +449,7 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string 
   auto attr_defaults = geometry::kPrimitiveTypes.find(attribute_name);
   auto expected_count = attr_defaults->second.element_count;
   bool matched = false;
-  for (auto type:expected_count) {
+  for (auto type: expected_count) {
     if (accessor.type == type) {
       matched = true;
       break;
@@ -478,7 +458,7 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string 
   AssertThat(matched, snowhouse::IsTrue());
   auto expected_data_types = attr_defaults->second.element_type;
   matched = false;
-  for (auto type:expected_data_types) {
+  for (auto type: expected_data_types) {
     if (accessor.componentType == type) {
       matched = true;
       break;
@@ -504,4 +484,21 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(const std::string 
           data_type,
           element_size
   };
+}
+
+std::vector<std::string> geometry::GltfModel::GetScenes() {
+  std::vector<std::string> scenes;
+  for (size_t i = 0; i < model_.scenes.size(); i++) {
+    auto scene = model_.scenes[i];
+    if (scene.name.empty()) {
+      scenes.push_back(std::to_string(i));
+    } else {
+      scenes.push_back(scene.name);
+    }
+  }
+  return scenes;
+}
+
+int geometry::GltfModel::GetDefaultSceneIndex() const {
+  return model_.defaultScene;
 }

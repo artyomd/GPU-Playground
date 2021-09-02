@@ -12,12 +12,6 @@
 
 namespace geometry {
 
-struct Camera {
-  glm::mat4 view = glm::mat4(1.0);
-  glm::mat4 proj = glm::mat4(1.0);
-  std::string name;
-};
-
 struct PrimitiveUbo;
 struct ParsedAttribute;
 
@@ -30,8 +24,10 @@ class GltfModel {
  public:
   GltfModel() = delete;
   GltfModel(std::shared_ptr<api::RenderingContext> context, const std::string &path);
-  void LoadScene();
-  void SetCamera(uint camera_index);
+  std::vector<std::string> GetScenes();
+  int GetDefaultSceneIndex() const;
+  void LoadScene(int scene_index);
+  void SetCamera(uint camera_index, glm::mat4 view);
   void Render();
   void SetViewport(uint32_t width, uint32_t height);
  private:
@@ -41,8 +37,9 @@ class GltfModel {
                                  int accessor_id);
  private:
   std::shared_ptr<api::RenderingContext> context_;
-  tinygltf::Model model_{};
-  std::vector<RenderingUnit> current_pipelines_{};
-  std::vector<Camera> cameras_{};
+  tinygltf::Model model_;
+  std::vector<RenderingUnit> current_pipelines_;
+  std::vector<glm::mat4> cameras_;
+  std::vector<std::shared_ptr<api::Texture2D>> textures_;
 };
 }
