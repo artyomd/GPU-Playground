@@ -11,7 +11,7 @@
 api::opengl::OpenGlBuffer::OpenGlBuffer(const size_t &length) :
     Buffer(length) {
   GL_CALL(glCreateBuffers(1, &buffer_id_));
-  AssertThat(buffer_id_, snowhouse::Is().Not().EqualTo(0));
+  AssertThat(buffer_id_, snowhouse::Is().Not().EqualTo(0u));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, buffer_id_));
   GL_CALL(glBufferData(GL_ARRAY_BUFFER, size_in_bytes_, nullptr, GL_STATIC_DRAW));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));

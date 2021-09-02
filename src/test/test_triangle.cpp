@@ -19,10 +19,10 @@ test::TestTriangle::TestTriangle(std::shared_ptr<api::RenderingContext> renderin
   auto triangle = std::make_shared<geometry::Triangle>(rendering_context_, point_0, point_1, point_2);
   auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(default_color_fragment_shader,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(triangle->GetVertexBuffer(),
                                                          triangle->GetIndexBuffer(),
                                                          vertex_shader,

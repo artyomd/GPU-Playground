@@ -18,12 +18,9 @@ class GeometryItem {
  public:
   explicit GeometryItem(std::shared_ptr<api::RenderingContext> context) : context_(std::move(context)) {}
 
-  [[nodiscard]] inline std::shared_ptr<api::VertexBuffer> GetVertexBuffer() const {
-    return vertex_buffer_;
-  }
+  [[nodiscard]] std::shared_ptr<api::VertexBuffer> GetVertexBuffer() const;
 
-  [[nodiscard]] inline std::shared_ptr<api::IndexBuffer> GetIndexBuffer() const {
-    return index_buffer_;
-  }
+  [[nodiscard]] std::shared_ptr<api::IndexBuffer> GetIndexBuffer() const;
+  virtual ~GeometryItem() = 0;
 };
 }

@@ -8,8 +8,8 @@
 
 namespace api {
 enum class ShaderType {
-  SHADER_TYPE_VERTEX,
-  SHADER_TYPE_FRAGMENT,
+  VERTEX,
+  FRAGMENT,
   COUNT,
 };
 
@@ -31,6 +31,14 @@ class Shader {
  public:
   template<typename T>
   void SetConstant(unsigned int constant_id, T constant_value) {
+    static_assert(
+        std::is_same<T, bool>::value or
+            std::is_same<T, int>::value or
+            std::is_same<T, unsigned int>::value or
+            std::is_same<T, float>::value or
+            std::is_same<T, double>::value,
+        "type is not supported by spir-v spec"
+    );
     constants_changed_ = true;
     specs_.insert_or_assign(constant_id, constant_value);
   }

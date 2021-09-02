@@ -19,8 +19,8 @@ class VulkanTexture2D : public Texture2D {
 
  public:
   VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
-                  size_t width,
-                  size_t height,
+                  uint32_t width,
+                  uint32_t height,
                   PixelFormat pixel_format);
   void SetSampler(api::Sampler sampler) override;
   void Load(const void *data) override;

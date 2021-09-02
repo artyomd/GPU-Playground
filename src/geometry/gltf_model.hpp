@@ -31,9 +31,9 @@ class GltfModel {
   GltfModel() = delete;
   GltfModel(std::shared_ptr<api::RenderingContext> context, const std::string &path);
   void LoadScene();
-  void SetCamera(int camera_index);
+  void SetCamera(uint camera_index);
   void Render();
-  void SetViewport(size_t width, size_t height);
+  void SetViewport(uint32_t width, uint32_t height);
  private:
   void LoadNode(const tinygltf::Node &node, glm::mat4 parent_transform = glm::identity<glm::mat4>());
   std::vector<geometry::RenderingUnit> LoadMesh(tinygltf::Mesh &mesh, glm::mat4 model_matrix);

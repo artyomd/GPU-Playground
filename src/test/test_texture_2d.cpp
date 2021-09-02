@@ -26,22 +26,21 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   };
 
   api::VertexBufferLayout vertex_buffer_layout;
-  size_t stride = sizeof(float) * 4;
-  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 2});
-  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 2});
+  vertex_buffer_layout.Push({0, api::DataType::FLOAT, 2});
+  vertex_buffer_layout.Push({1, api::DataType::FLOAT, 2});
 
   auto vertex_buffer = rendering_context_->CreateVertexBuffer(4 * 4 * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(&positions[0]);
 
-  auto index_buffer = rendering_context_->CreateIndexBuffer(6, api::DataType::DATA_TYPE_UINT_16);
+  auto index_buffer = rendering_context_->CreateIndexBuffer(6, api::DataType::UINT_16);
   index_buffer->Update(&indices[0]);
 
   auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(texture2d_fragment,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
                                                          index_buffer,
                                                          vertex_shader,
@@ -61,7 +60,7 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
     throw std::runtime_error("failed to load texture image!");
   }
   auto texture_2_d =
-      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB);
+      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::RGBA_8_SRGB);
   texture_2_d->Load(pixels);
   stbi_image_free(pixels);
   texture_2_d->SetSampler({api::Filter::LINEAR,

@@ -12,7 +12,7 @@ class TestGltf : public TestModel {
   geometry::GltfModel model_;
  public:
   explicit TestGltf(std::shared_ptr<api::RenderingContext> rendering_context);
-  void OnViewportChange(size_t width, size_t height) override;
+  void OnViewportChange(uint32_t width, uint32_t height) override;
   void OnRender() override;
 };
 }

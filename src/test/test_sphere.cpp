@@ -14,10 +14,10 @@ test::TestSphere::TestSphere(std::shared_ptr<api::RenderingContext> rendering_co
   auto sphere = std::make_shared<geometry::SpiralSphere>(rendering_context_, 1.0F, 32, 64);
   auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(default_color_fragment_shader,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
   pipeline_ = rendering_context_->CreateGraphicsPipeline(sphere->GetVertexBuffer(),
                                                          sphere->GetIndexBuffer(),
                                                          vertex_shader, fragment_shader,

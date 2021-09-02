@@ -42,7 +42,7 @@ class OpenGlRenderingPipeline : public RenderingPipeline {
                           api::RenderingPipelineConfig config);
   void UpdateUniformBuffer(unsigned int binding_point, void *data) override;
   void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) override;
-  void SetViewPort(size_t width, size_t height) override;
+  void SetViewPort(uint32_t width, uint32_t height) override;
   void Render() override;
   ~OpenGlRenderingPipeline() override;
 };

@@ -18,17 +18,17 @@ struct ParsedAttribute {
   size_t stride = 0;
   size_t instance_count = 0;
   unsigned int element_count = 0;
-  api::DataType element_type = api::DataType::DATA_TYPE_FLOAT;
+  api::DataType element_type = api::DataType::FLOAT;
   size_t element_size = 0;
 };
 }
 
 static api::DataType GetType(int type) {
   switch (type) {
-    case TINYGLTF_COMPONENT_TYPE_BYTE:return api::DataType::DATA_TYPE_BYTE;
-    case TINYGLTF_COMPONENT_TYPE_FLOAT:return api::DataType::DATA_TYPE_FLOAT;
-    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:return api::DataType::DATA_TYPE_UINT_16;
-    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:return api::DataType::DATA_TYPE_UINT_32;
+    case TINYGLTF_COMPONENT_TYPE_BYTE:return api::DataType::BYTE;
+    case TINYGLTF_COMPONENT_TYPE_FLOAT:return api::DataType::FLOAT;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:return api::DataType::UINT_16;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:return api::DataType::UINT_32;
     default: throw std::runtime_error("unknown type");
   }
 }
@@ -142,9 +142,9 @@ static api::PixelFormat GetPixelFormat(bool srgb, const tinygltf::Image &image) 
   AssertThat(image.pixel_type, snowhouse::Equals(TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE));
   AssertThat(image.component, snowhouse::Equals(4));
   if (srgb) {
-    return api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB;
+    return api::PixelFormat::RGBA_8_SRGB;
   } else {
-    return api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_UNORM;
+    return api::PixelFormat::RGBA_8_UNORM;
   }
 }
 
@@ -231,7 +231,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
                index.element_size);
         offset += index.element_size;
       }
-      index_buffer = context_->CreateIndexBuffer(index.instance_count, index.element_type);
+      index_buffer = context_->CreateIndexBuffer(static_cast<uint32_t>(index.instance_count), index.element_type);
       index_buffer->Update(data);
       delete[] data;
     }
@@ -352,7 +352,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     }
     auto vertex_shader = context_->CreateShader(gltf_vertex,
                                                 "main",
-                                                api::ShaderType::SHADER_TYPE_VERTEX);
+                                                api::ShaderType::VERTEX);
     vertex_shader->SetConstant(1, has_normals);
     vertex_shader->SetConstant(2, has_tangents);
     vertex_shader->SetConstant(3, has_text_coord_0);
@@ -362,7 +362,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 //    vertex_shader->SetConstant(7, has_weights_0);
     auto fragment_shader = context_->CreateShader(gltf_fragment,
                                                   "main",
-                                                  api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                  api::ShaderType::FRAGMENT);
 
     std::map<unsigned int, std::shared_ptr<api::Texture2D>> textures_mapping{};
 
@@ -450,13 +450,13 @@ void geometry::GltfModel::Render() {
     unit.pipeline->Render();
   }
 }
-void geometry::GltfModel::SetViewport(size_t width, size_t height) {
+void geometry::GltfModel::SetViewport(uint32_t width, uint32_t height) {
   for (const auto &unit:current_pipelines_) {
     unit.pipeline->SetViewPort(width, height);
   }
 }
 
-void geometry::GltfModel::SetCamera(int camera_index) {
+void geometry::GltfModel::SetCamera(uint camera_index) {
   auto camera = cameras_[camera_index];
   for (const auto &unit:current_pipelines_) {
     unit.ubo->mvp.projection = camera.proj;

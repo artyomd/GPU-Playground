@@ -19,7 +19,7 @@ api::opengl::OpenGlVertexBuffer::OpenGlVertexBuffer(size_t size_in_bytes, const 
   for (auto element : elements) {
     GL_CALL(glEnableVertexAttribArray(element.binding_index));
     GL_CALL(glVertexAttribPointer(element.binding_index,
-                                  element.count,
+                                  static_cast<GLint>(element.count),
                                   GetGlType(element.type), GL_FALSE,
                                   stride,
                                   reinterpret_cast<void *> (offset)));

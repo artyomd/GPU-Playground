@@ -11,31 +11,36 @@
 namespace application {
 class GlfwApplication : public TestApplication {
  private:
-  const float delta_time_ = 0.03333333333f;
+  int window_width_ = 640;
+  int window_height_ = 480;
+
+  void InitWindow();
+
+  void DestroyWindow();
+
  protected:
   GLFWwindow *window_ = nullptr;
 
-  explicit GlfwApplication(const std::shared_ptr<api::RenderingContext> &context);
+  GlfwApplication();
+
+  void InitContext() override;
 
   virtual void SetupWindowHints() = 0;
 
-  virtual void OnWindowSizeChanged() {};
+  virtual void OnWindowSizeChanged([[maybe_unused]] int width, [[maybe_unused]] int height) {};
+
+  void OnTestChanged(std::shared_ptr<test::Test> current_test) override;
 
   virtual bool PrepareFrame() = 0;
 
-  virtual void CreateImGuiFrame() = 0;
+  virtual void RenderFrame() = 0;
+
+  virtual void PrepareImGuiFrame() = 0;
 
   virtual void RenderImGui() = 0;
 
-  virtual void DrawFrame() = 0;
+  void DestroyContext() override;
 
-  virtual void PrepareForShutdown() = 0;
-
- public:
-  void InitWindow() final;
-
-  void Run() final;
-
-  void DestroyWindow() final;
+  void Loop() final;
 };
 }

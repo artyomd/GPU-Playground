@@ -17,8 +17,8 @@ class VulkanIndexBuffer :
  public:
   VulkanIndexBuffer() = delete;
   VulkanIndexBuffer(const VulkanIndexBuffer &) = delete;
-  VulkanIndexBuffer(std::shared_ptr<VulkanRenderingContext> context,
-                    unsigned int item_count,
+  VulkanIndexBuffer(const std::shared_ptr<VulkanRenderingContext>& context,
+                    uint32_t item_count,
                     enum DataType type);
   [[nodiscard]] VkIndexType GetIndexType() const;
   ~VulkanIndexBuffer() override = default;

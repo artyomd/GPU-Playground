@@ -18,7 +18,7 @@ void test::TestGltf::OnRender() {
   model_.Render();
 }
 
-void test::TestGltf::OnViewportChange(size_t width, size_t height) {
+void test::TestGltf::OnViewportChange(uint32_t width, uint32_t height) {
   TestModel::OnViewportChange(width, height);
   model_.SetViewport(width, height);
 }

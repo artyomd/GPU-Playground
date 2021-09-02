@@ -10,11 +10,10 @@ geometry::Quad::Quad(const std::shared_ptr<api::RenderingContext> &context,
                      geometry::Point &bottom_right,
                      geometry::Point &bottom_left) : GeometryItem(context) {
   api::VertexBufferLayout layout;
-  size_t stride = sizeof(float) * 7;
-  layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
-  layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 4});
+  layout.Push({0, api::DataType::FLOAT, 3});
+  layout.Push({1, api::DataType::FLOAT, 4});
   vertex_buffer_ = context->CreateVertexBuffer(4 * 7 * sizeof(float), layout);
-  index_buffer_ = context->CreateIndexBuffer(6, api::DataType::DATA_TYPE_UINT_16);
+  index_buffer_ = context->CreateIndexBuffer(6, api::DataType::UINT_16);
 
   float positions[] = {
       top_left.x, top_left.y, top_left.z, top_left.r, top_left.g, top_left.b, top_left.a,

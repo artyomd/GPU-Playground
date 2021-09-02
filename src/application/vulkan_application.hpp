@@ -28,39 +28,39 @@ class VulkanApplication : public GlfwApplication {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_MAINTENANCE1_EXTENSION_NAME
   };
 
-  const int max_frames_in_flight_ = 2;
+  const uint32_t max_frames_in_flight_ = 2;
 
-  VkInstance vulkan_instance_;
-  VkDebugUtilsMessengerEXT debug_messenger_;
+  VkInstance vulkan_instance_{};
+  VkDebugUtilsMessengerEXT debug_messenger_{};
 
-  VkSurfaceKHR surface_;
+  VkSurfaceKHR surface_{};
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
-  VkDevice device_;
+  VkDevice device_{};
 
-  VkRenderPass render_pass_;
+  VkRenderPass render_pass_{};
 
-  VkQueue graphics_queue_;
-  VkCommandPool graphics_command_pool_;
+  VkQueue graphics_queue_{};
+  VkCommandPool graphics_command_pool_{};
   std::vector<VkCommandBuffer> graphics_command_buffers_;
 
-  VkQueue present_queue_;
+  VkQueue present_queue_{};
 
-  VkSwapchainKHR swap_chain_;
-  VkExtent2D swap_chain_extent_;
-  VkFormat swap_chain_image_format_;
+  VkSwapchainKHR swap_chain_{};
+  VkExtent2D swap_chain_extent_{};
+  VkFormat swap_chain_image_format_ = VK_FORMAT_UNDEFINED;
   std::vector<VkImage> swap_chain_images_;
   std::vector<VkImageView> swap_chain_image_views_;
   std::vector<VkFramebuffer> swap_chain_frame_buffers_;
 
-  VkImage color_image_;
-  VkDeviceMemory color_image_memory_;
-  VkImageView color_image_view_;
+  VkImage color_image_{};
+  VkDeviceMemory color_image_memory_{};
+  VkImageView color_image_view_{};
 
-  VkImage depth_image_;
-  VkDeviceMemory depth_image_memory_;
-  VkImageView depth_image_view_;
+  VkImage depth_image_{};
+  VkDeviceMemory depth_image_memory_{};
+  VkImageView depth_image_view_{};
 
-  VkDescriptorPool descriptor_pool_;
+  VkDescriptorPool descriptor_pool_{};
 
   std::vector<VkSemaphore> image_available_semaphores_;
   std::vector<VkSemaphore> render_finished_semaphores_;
@@ -68,7 +68,9 @@ class VulkanApplication : public GlfwApplication {
   std::vector<VkFence> images_in_flight_;
 
   bool framebuffer_resized_ = false;
-  int current_frame_ = 0;
+  bool framebuffer_empty_ = false;
+
+  uint32_t current_frame_ = 0;
   uint32_t current_image_ = 0;
 
   struct QueueFamilyIndices {
@@ -105,8 +107,6 @@ class VulkanApplication : public GlfwApplication {
 
   QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
-  std::vector<VkExtensionProperties> GetDeviceExtensions(VkPhysicalDevice device);
-
   bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
   SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
@@ -141,30 +141,28 @@ class VulkanApplication : public GlfwApplication {
 
   void CleanupSwapChain();
 
+  void InitImGui();
+
+  static void DestroyImGui();
  protected:
-  void SetupWindowHints() final;
-
-  void OnWindowSizeChanged() final;
-
-  bool PrepareFrame() final;
-
-  void CreateImGuiFrame() final;
-
-  void RenderImGui() final;
-
-  void DrawFrame() final;
-
-  void PrepareForShutdown() final;
-
- public:
-  VulkanApplication();
 
   void InitContext() final;
 
-  void InitImGui() final;
+  void SetupWindowHints() final;
 
-  void DestroyImGui() final;
+  void OnWindowSizeChanged(int width, int height) final;
+
+  bool PrepareFrame() final;
+
+  void PrepareImGuiFrame() final;
+
+  void RenderImGui() final;
+
+  void RenderFrame() final;
 
   void DestroyContext() final;
+
+ public:
+  VulkanApplication();
 };
 }

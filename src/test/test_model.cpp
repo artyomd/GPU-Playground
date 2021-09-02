@@ -23,14 +23,15 @@ glm::mat4 test::TestModel::ComputeModelMatrix() {
   return model;
 }
 
-void test::TestModel::OnViewportChange(size_t width, size_t height) {
+void test::TestModel::OnViewportChange(uint32_t width, uint32_t height) {
   Test::OnViewportChange(width, height);
   float new_width = 4.0f;
-  float new_height = ((float) width * new_width) / (float) height;
+  float new_height = (static_cast<float>(width) * new_width) / static_cast<float>(height);
   max_side_ = std::fmax(new_width / 2, new_height / 2);
   if (!lock_projection_) {
     orthographic_projection_ = glm::ortho(-new_width, new_width, -new_height, new_height);
-    perspective_projection_ = glm::perspective(glm::radians(45.0f), ((float) width / (float) height), 0.1f, 10.0f);
+    perspective_projection_ =
+        glm::perspective(glm::radians(45.0f), (static_cast<float>(width) / static_cast<float>(height)), 0.1f, 10.0f);
   }
   if (pipeline_ != nullptr) {
     pipeline_->SetViewPort(size_[0], size_[1]);

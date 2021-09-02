@@ -47,7 +47,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
 
   VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info{};
   descriptor_set_layout_create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-  descriptor_set_layout_create_info.bindingCount = pipeline_bindings.size();
+  descriptor_set_layout_create_info.bindingCount = static_cast<uint32_t>(pipeline_bindings.size());
   descriptor_set_layout_create_info.pBindings = pipeline_bindings.data();
   if (vkCreateDescriptorSetLayout(device_, &descriptor_set_layout_create_info, nullptr, &layout_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
@@ -120,7 +120,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   dynamic_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
   std::vector<VkDynamicState> dynamic_states = {VkDynamicState::VK_DYNAMIC_STATE_VIEWPORT,
                                                 VkDynamicState::VK_DYNAMIC_STATE_SCISSOR};
-  dynamic_state_create_info.dynamicStateCount = dynamic_states.size();
+  dynamic_state_create_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
   dynamic_state_create_info.pDynamicStates = dynamic_states.data();
 
   VkGraphicsPipelineCreateInfo pipeline_info = {};
@@ -161,7 +161,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   CreateUniformBuffers(fragment_shader_);
 }
 
-void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(std::shared_ptr<VulkanShader> shader) {
+void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(const std::shared_ptr<VulkanShader> &shader) {
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
   for (auto binding:shader->GetBindings()) {
     if (binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
@@ -169,7 +169,7 @@ void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(std::shared_ptr<
       auto size = shader->DescriptorSizeInBytes(binding.binding);
       std::vector<std::shared_ptr<VulkanBuffer>> buffers;
       buffers.reserve(context_->GetImageCount());
-      for (auto i = 0; i < context_->GetImageCount(); i++) {
+      for (uint32_t i = 0; i < context_->GetImageCount(); i++) {
         auto vulkan_buffer = std::make_shared<VulkanBuffer>(context_,
                                                             size,
                                                             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
@@ -233,10 +233,27 @@ void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int bind
 
 void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point,
                                                       std::shared_ptr<api::Texture2D> texture) {
+  bool binding_available = false;
+  for (auto binding :fragment_shader_->GetBindings()) {
+    if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+      binding_available = true;
+    }
+  }
+  if (!binding_available) {
+    for (auto binding :vertex_shader_->GetBindings()) {
+      if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
+        binding_available = true;
+      }
+    }
+  }
+  if (!binding_available) {
+    std::cout << "warning: entry point " << binding_point << " does not exists in shaders" << std::endl;
+    return;
+  }
   auto vk_uniform = std::dynamic_pointer_cast<VulkanTexture2D>(texture);
   this->textures_[binding_point] = vk_uniform;
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
-  for (size_t i = 0; i < context_->GetImageCount(); i++) {
+  for (uint32_t i = 0; i < context_->GetImageCount(); i++) {
     auto descriptor_write = vk_uniform->GetWriteDescriptorSetFor(i, binding_point);
     descriptor_write.dstSet = descriptor_sets_[i];
     descriptor_writes.push_back(descriptor_write);
@@ -248,7 +265,7 @@ void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point
                          nullptr);
 }
 
-void api::vulkan::VulkanRenderingPipeline::SetViewPort(size_t width, size_t height) {
+void api::vulkan::VulkanRenderingPipeline::SetViewPort(uint32_t width, uint32_t height) {
   viewport_.width = static_cast<float>(width);
   viewport_.height = -static_cast<float>(height);
   viewport_.x = 0.0F;
@@ -257,7 +274,11 @@ void api::vulkan::VulkanRenderingPipeline::SetViewPort(size_t width, size_t heig
 }
 
 api::vulkan::VulkanRenderingPipeline::~VulkanRenderingPipeline() {
-  vkFreeDescriptorSets(device_, context_->GetDescriptorPool(), descriptor_sets_.size(), descriptor_sets_.data());
+  context_->WaitForGpuIdle();
+  vkFreeDescriptorSets(device_,
+                       context_->GetDescriptorPool(),
+                       static_cast<uint32_t>(descriptor_sets_.size()),
+                       descriptor_sets_.data());
   vkDestroyDescriptorSetLayout(device_, layout_, nullptr);
   vkDestroyPipelineLayout(device_, pipeline_layout_, nullptr);
   DestroyPipeline();

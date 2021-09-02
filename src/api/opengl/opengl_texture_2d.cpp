@@ -9,7 +9,7 @@
 
 #include "src/api/opengl/opengl_utils.hpp"
 
-api::opengl::OpenglTexture2D::OpenglTexture2D(size_t width, size_t height, PixelFormat pixel_format)
+api::opengl::OpenglTexture2D::OpenglTexture2D(uint32_t width, uint32_t height, PixelFormat pixel_format)
     : Texture2D(width, height, pixel_format) {
 }
 
@@ -42,7 +42,7 @@ void api::opengl::OpenglTexture2D::Bind(GLuint binding_point) const {
   GL_CALL(glBindTexture(GL_TEXTURE_2D, texture_id_));
 }
 
-void api::opengl::OpenglTexture2D::Unbind(GLuint binding_point) const {
+void api::opengl::OpenglTexture2D::Unbind(GLuint binding_point) {
   glActiveTexture(GL_TEXTURE0 + binding_point);
   GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 }

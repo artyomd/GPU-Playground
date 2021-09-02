@@ -8,6 +8,8 @@ std::string default_color_fragment_shader;
 std::string default_color_vertex_shader;
 std::string default_empty_vertex_shader;
 std::string default_mvp_color_vertex_shader;
+std::string light_fragment;
+std::string light_vertex;
 std::string gltf_fragment;
 std::string gltf_vertex;
 std::string raymarched_reflections;
@@ -47,6 +49,16 @@ void LoadShaders() {
 #include SHADER(default_mvp_color_vertex_shader)
   };
   default_mvp_color_vertex_shader = SHADER_TO_STRING(default_mvp_color_vertex);
+
+  const unsigned char light_fragment_source[] = {
+#include SHADER(light_fragment)
+  };
+  light_fragment = SHADER_TO_STRING(light_fragment_source);
+
+  const unsigned char light_vertex_source[] = {
+#include SHADER(light_vertex)
+  };
+  light_vertex = SHADER_TO_STRING(light_vertex_source);
 
   const unsigned char gltf_fragment_source[] = {
 #include SHADER(gltf_fragment)

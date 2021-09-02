@@ -4,11 +4,9 @@
 
 #include "src/api/vulkan/vulkan_vertex_buffer.hpp"
 
-#include <utility>
-
 #include "src/api/vulkan/vulkan_utils.hpp"
 
-api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(std::shared_ptr<VulkanRenderingContext> context,
+api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(const std::shared_ptr<VulkanRenderingContext> &context,
                                                     size_t size_in_bytes,
                                                     const VertexBufferLayout &layout)
     : Buffer(size_in_bytes),
@@ -31,8 +29,8 @@ api::vulkan::VulkanVertexBuffer::VulkanVertexBuffer(std::shared_ptr<VulkanRender
     VkVertexInputAttributeDescription description{};
     description.binding = i;
     description.location = element.binding_index;
-    description.format = GetVkFormat(element.type, element.count);
-    description.offset = offset;
+    description.format = GetVkFormat(element.type, static_cast<uint32_t>(element.count));
+    description.offset = static_cast<uint32_t>(offset);
     attribute_descriptions_.push_back(description);
     offset += element.count * GetDataTypeSizeInBytes(element.type);
   }
@@ -50,7 +48,7 @@ VkPipelineVertexInputStateCreateInfo api::vulkan::VulkanVertexBuffer::GetVertexI
 
 void api::vulkan::VulkanVertexBuffer::BindBuffer(const VkCommandBuffer &command_buffer) {
   VkDeviceSize offsets[] = {0};
-  for (int i = 0; i < vertex_input_binding_descriptions_.size(); i++) {
+  for (uint32_t i = 0; i < vertex_input_binding_descriptions_.size(); i++) {
     vkCmdBindVertexBuffers(command_buffer, i, 1, &buffer_, offsets);
   }
 }

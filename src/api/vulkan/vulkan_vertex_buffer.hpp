@@ -16,7 +16,7 @@ class VulkanVertexBuffer : public VulkanBuffer,
 
  public:
   VulkanVertexBuffer() = delete;
-  VulkanVertexBuffer(std::shared_ptr<VulkanRenderingContext> context,
+  VulkanVertexBuffer(const std::shared_ptr<VulkanRenderingContext>& context,
                      size_t size_in_bytes,
                      const VertexBufferLayout &layout);
 

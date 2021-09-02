@@ -20,15 +20,15 @@ struct Point {
     return point;
   }
 
-  Point operator/(const int &number) const {
+  Point operator/(const float &number) const {
     Point point{};
-    point.x = this->x / (float) number;
-    point.y = this->y / (float) number;
-    point.z = this->z / (float) number;
-    point.a = this->a / (float) number;
-    point.r = this->r / (float) number;
-    point.g = this->g / (float) number;
-    point.b = this->b / (float) number;
+    point.x = x / number;
+    point.y = y / number;
+    point.z = z / number;
+    point.a = a / number;
+    point.r = r / number;
+    point.g = g / number;
+    point.b = b / number;
     return point;
   }
 };

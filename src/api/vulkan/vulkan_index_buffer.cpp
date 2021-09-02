@@ -7,8 +7,8 @@
 #include "src/api/vulkan/vulkan_utils.hpp"
 #include "vulkan_buffer.hpp"
 
-api::vulkan::VulkanIndexBuffer::VulkanIndexBuffer(std::shared_ptr<VulkanRenderingContext> context,
-                                                  unsigned int item_count,
+api::vulkan::VulkanIndexBuffer::VulkanIndexBuffer(const std::shared_ptr<VulkanRenderingContext> &context,
+                                                  uint32_t item_count,
                                                   enum DataType type)
     : Buffer(item_count * GetDataTypeSizeInBytes(type)),
       VulkanBuffer(context, item_count * GetDataTypeSizeInBytes(type),

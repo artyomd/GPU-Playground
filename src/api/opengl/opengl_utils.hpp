@@ -12,9 +12,10 @@
 #include "src/api/sampler.hpp"
 #include "src/api/shader.hpp"
 
-#define GL_CALL(x) api::opengl::GlClearError;\
-    x;\
-    AssertThat(api::opengl::GlLogCall(#x, __FILE__, __LINE__), snowhouse::Is().True())
+#define GL_CALL(x) \
+  api::opengl::GlClearError();\
+  x;\
+  AssertThat(api::opengl::GlLogCall(#x, __FILE__, __LINE__), snowhouse::Is().True())
 
 namespace api::opengl {
 void GlClearError();

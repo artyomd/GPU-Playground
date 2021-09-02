@@ -12,8 +12,8 @@
 
 api::vulkan::VulkanTexture2D::VulkanTexture2D(
     std::shared_ptr<VulkanRenderingContext> context,
-    size_t width,
-    size_t height,
+    uint32_t width,
+    uint32_t height,
     PixelFormat pixel_format)
     : Texture2D(width, height, pixel_format),
       context_(std::move(context)), device_(context_->GetDevice()) {

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stb_image.h>
 
+namespace {
 struct Vertex {
   glm::vec3 position;
   glm::vec2 tex_coord;
@@ -18,9 +19,11 @@ struct Vertex {
     return position == other.position && tex_coord == other.tex_coord;
   }
 };
+}
 
+namespace std {
 template<>
-struct std::hash<Vertex> {
+struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
     glm::detail::hash_combine(seed, hash<glm::vec3>()(vertex.position));
@@ -28,7 +31,7 @@ struct std::hash<Vertex> {
     return seed;
   }
 };
-
+}
 test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
   tinyobj::attrib_t attrib;
@@ -42,19 +45,19 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   std::cout << "err:" << err << std::endl;
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indices;
-  std::unordered_map<Vertex, uint32_t> unique_vertices = {};
+  std::unordered_map<Vertex, uint32_t> unique_vertices;
 
-  for (const auto &shape : shapes) {
-    for (const auto &index : shape.mesh.indices) {
+  for (const auto &shape: shapes) {
+    for (const auto &index: shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
-          attrib.vertices[3 * index.vertex_index + 0],
-          attrib.vertices[3 * index.vertex_index + 1],
-          attrib.vertices[3 * index.vertex_index + 2]
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 0],
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 2]
       };
       vertex.tex_coord = {
-          attrib.texcoords[2 * index.texcoord_index + 0],
-          attrib.texcoords[2 * index.texcoord_index + 1]
+          attrib.texcoords[2 * static_cast<unsigned long>(index.texcoord_index) + 0],
+          attrib.texcoords[2 * static_cast<unsigned long>(index.texcoord_index) + 1]
       };
       if (unique_vertices.count(vertex) == 0) {
         unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
@@ -65,21 +68,22 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   }
 
   api::VertexBufferLayout vertex_buffer_layout;
-  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
-  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 2});
+  vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::FLOAT, 2});
   auto
       vertex_buffer = rendering_context_->CreateVertexBuffer(5 * vertices.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(vertices.data());
 
-  auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_32);
+  auto index_buffer =
+      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_32);
   index_buffer->Update(indices.data());
 
   auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(texture2d_fragment,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
 
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
                                                          vertex_shader, fragment_shader,
@@ -95,7 +99,9 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
     throw std::runtime_error("failed to load texture image!");
   }
   auto obj_texture =
-      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::PIXEL_FORMAT_R8G8B8A8_SRGB);
+      rendering_context_->CreateTexture2D(static_cast<uint32_t>(tex_width),
+                                          static_cast<uint32_t>(tex_height),
+                                          api::PixelFormat::RGBA_8_SRGB);
   obj_texture->Load(pixels);
   stbi_image_free(pixels);
   obj_texture->SetSampler({api::Filter::LINEAR,

@@ -19,7 +19,7 @@ api::vulkan::VulkanRenderingContext::VulkanRenderingContext(
     VkQueue graphics_queue,
     VkCommandPool graphics_pool,
     VkDescriptorPool descriptor_pool,
-    int image_count) :
+    uint32_t image_count) :
     RenderingContext(),
     physical_device_(physical_device),
     device_(device),
@@ -61,13 +61,14 @@ VkDevice api::vulkan::VulkanRenderingContext::GetDevice() const {
   return device_;
 }
 
-std::shared_ptr<api::IndexBuffer> api::vulkan::VulkanRenderingContext::CreateIndexBuffer(unsigned int count,
+std::shared_ptr<api::IndexBuffer> api::vulkan::VulkanRenderingContext::CreateIndexBuffer(uint32_t count,
                                                                                          api::DataType type) {
   return std::make_shared<VulkanIndexBuffer>(shared_from_this(), count, type);
 }
 
-std::shared_ptr<api::VertexBuffer> api::vulkan::VulkanRenderingContext::CreateVertexBuffer(size_t size_in_bytes,
-                                                                                           api::VertexBufferLayout layout) {
+std::shared_ptr<api::VertexBuffer> api::vulkan::VulkanRenderingContext::CreateVertexBuffer(
+    size_t size_in_bytes,
+    api::VertexBufferLayout layout) {
   return std::make_shared<VulkanVertexBuffer>(shared_from_this(), size_in_bytes, layout);
 }
 
@@ -94,8 +95,8 @@ std::shared_ptr<api::Shader> api::vulkan::VulkanRenderingContext::CreateShader(s
                                         type);
 }
 
-std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(size_t width,
-                                                                                     size_t height,
+std::shared_ptr<api::Texture2D> api::vulkan::VulkanRenderingContext::CreateTexture2D(uint32_t width,
+                                                                                     uint32_t height,
                                                                                      PixelFormat pixel_format) {
   return std::make_shared<VulkanTexture2D>(shared_from_this(), width, height, pixel_format);
 }
@@ -104,11 +105,11 @@ void api::vulkan::VulkanRenderingContext::WaitForGpuIdle() const {
   vkDeviceWaitIdle(device_);
 }
 
-int api::vulkan::VulkanRenderingContext::GetCurrentImageIndex() const {
+uint32_t api::vulkan::VulkanRenderingContext::GetCurrentImageIndex() const {
   return current_image_index_;
 }
 
-void api::vulkan::VulkanRenderingContext::SetCurrentImageIndex(int current_image_index) {
+void api::vulkan::VulkanRenderingContext::SetCurrentImageIndex(uint32_t current_image_index) {
   current_image_index_ = current_image_index;
 }
 
@@ -181,9 +182,7 @@ VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetMsaaSamples() cons
 VkRenderPass api::vulkan::VulkanRenderingContext::GetVkRenderPass() const {
   return vk_render_pass_;
 }
-VkExtent2D api::vulkan::VulkanRenderingContext::GetSwapChainExtent() const {
-  return swap_chain_extent_;
-}
+
 void api::vulkan::VulkanRenderingContext::CopyBufferToImage(VkBuffer buffer,
                                                             VkImage image,
                                                             size_t width,
@@ -294,7 +293,7 @@ void api::vulkan::VulkanRenderingContext::CreateBuffer(VkDeviceSize size,
 VkDescriptorPool api::vulkan::VulkanRenderingContext::GetDescriptorPool() {
   return descriptor_pool_;
 }
-int api::vulkan::VulkanRenderingContext::GetImageCount() const {
+uint32_t api::vulkan::VulkanRenderingContext::GetImageCount() const {
   return image_count_;
 }
 

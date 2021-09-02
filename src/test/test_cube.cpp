@@ -38,21 +38,21 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
   };
 
   api::VertexBufferLayout vertex_buffer_layout;
-  size_t stride = sizeof(float) * 6;
-  vertex_buffer_layout.Push({0, api::DataType::DATA_TYPE_FLOAT, 3});
-  vertex_buffer_layout.Push({1, api::DataType::DATA_TYPE_FLOAT, 3});
+  vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
+  vertex_buffer_layout.Push({1, api::DataType::FLOAT, 3});
   auto vertex_buffer = rendering_context_->CreateVertexBuffer(positions.size() * sizeof(float), vertex_buffer_layout);
   vertex_buffer->Update(positions.data());
 
-  auto index_buffer = rendering_context_->CreateIndexBuffer(indices.size(), api::DataType::DATA_TYPE_UINT_16);
+  auto index_buffer =
+      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_16);
   index_buffer->Update(indices.data());
 
   auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
-                                                        api::ShaderType::SHADER_TYPE_VERTEX);
+                                                        api::ShaderType::VERTEX);
   auto fragment_shader = rendering_context_->CreateShader(default_color_fragment_shader,
                                                           "main",
-                                                          api::ShaderType::SHADER_TYPE_FRAGMENT);
+                                                          api::ShaderType::FRAGMENT);
 
   pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
                                                          index_buffer,

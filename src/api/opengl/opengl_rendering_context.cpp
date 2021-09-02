@@ -18,13 +18,14 @@ std::shared_ptr<api::Buffer> api::opengl::OpenGlRenderingContext::CreateBuffer(s
   return std::make_shared<api::opengl::OpenGlBuffer>(size_in_bytes);
 }
 
-std::shared_ptr<api::IndexBuffer> api::opengl::OpenGlRenderingContext::CreateIndexBuffer(unsigned int count,
+std::shared_ptr<api::IndexBuffer> api::opengl::OpenGlRenderingContext::CreateIndexBuffer(uint32_t count,
                                                                                          api::DataType type) {
   return std::make_shared<api::opengl::OpenGlIndexBuffer>(count, type);
 }
 
-std::shared_ptr<api::VertexBuffer> api::opengl::OpenGlRenderingContext::CreateVertexBuffer(size_t size_in_bytes,
-                                                                                           api::VertexBufferLayout layout) {
+std::shared_ptr<api::VertexBuffer> api::opengl::OpenGlRenderingContext::CreateVertexBuffer(
+    size_t size_in_bytes,
+    api::VertexBufferLayout layout) {
   return std::make_shared<OpenGlVertexBuffer>(size_in_bytes, layout);
 }
 
@@ -34,8 +35,8 @@ std::shared_ptr<api::Shader> api::opengl::OpenGlRenderingContext::CreateShader(s
   return std::make_shared<OpenGlShader>(sipr_v_shader_location, entry_point_name, type);
 }
 
-std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(size_t width,
-                                                                                     size_t height,
+std::shared_ptr<api::Texture2D> api::opengl::OpenGlRenderingContext::CreateTexture2D(uint32_t width,
+                                                                                     uint32_t height,
                                                                                      PixelFormat pixel_format) {
   return std::make_shared<OpenglTexture2D>(width, height, pixel_format);
 }
@@ -52,16 +53,6 @@ std::shared_ptr<api::RenderingPipeline> api::opengl::OpenGlRenderingContext::Cre
                                                                 fragment_shader,
                                                                 config);
 }
-
-//void api::opengl::OpenGlRenderingContext::SetViewportSize(int width, int height) {
-//  viewport_width_ = width;
-//  viewport_height_ = height;
-//  float new_width = 4.0f;
-//  float new_height = ((float) width * new_width) / (float) height;
-//  orthographic_projection_ = (glm::ortho(-new_width, new_width, -new_height, new_height));
-//  perspective_projection_ =
-//      glm::perspective(glm::radians(45.0f), (float) viewport_width_ / (float) viewport_height_, 0.1f, 10.0f);
-//}
 
 void api::opengl::OpenGlRenderingContext::WaitForGpuIdle() const {
   GL_CALL(glFinish());

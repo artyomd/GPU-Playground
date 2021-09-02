@@ -27,7 +27,7 @@ void api::vulkan::VulkanBuffer::Update(const void *data) {
   if (host_visible_) {
     void *mapped_data;
     CheckVkResult(vkMapMemory(device_, memory_, 0, size_in_bytes_, 0, &mapped_data));
-    memcpy(mapped_data, data, size_in_bytes_); // NOLINT(clion-misra-cpp2008-0-1-7)
+    memcpy(mapped_data, data, size_in_bytes_);
     vkUnmapMemory(device_, memory_);
   } else {
     VulkanBuffer tmp_buffer(this->context_, this->size_in_bytes_);
