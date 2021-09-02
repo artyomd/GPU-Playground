@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stb_image.h>
 
+namespace {
 struct Vertex {
   glm::vec3 position;
   glm::vec3 normal;
@@ -18,9 +19,10 @@ struct Vertex {
     return position == other.position && normal == other.normal;
   }
 };
-
+}
+namespace std {
 template<>
-struct std::hash<Vertex> {
+struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
     glm::detail::hash_combine(seed, hash<glm::vec3>()(vertex.position));
@@ -28,6 +30,7 @@ struct std::hash<Vertex> {
     return seed;
   }
 };
+}
 
 test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
@@ -44,8 +47,8 @@ test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_cont
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices = {};
 
-  for (const auto &shape : shapes) {
-    for (const auto &index : shape.mesh.indices) {
+  for (const auto &shape: shapes) {
+    for (const auto &index: shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
           attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 0],

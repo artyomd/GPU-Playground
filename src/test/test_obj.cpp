@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stb_image.h>
 
+namespace {
 struct Vertex {
   glm::vec3 position;
   glm::vec2 tex_coord;
@@ -18,9 +19,11 @@ struct Vertex {
     return position == other.position && tex_coord == other.tex_coord;
   }
 };
+}
 
+namespace std {
 template<>
-struct std::hash<Vertex> {
+struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
     glm::detail::hash_combine(seed, hash<glm::vec3>()(vertex.position));
@@ -28,7 +31,7 @@ struct std::hash<Vertex> {
     return seed;
   }
 };
-
+}
 test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
   tinyobj::attrib_t attrib;
@@ -42,7 +45,7 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   std::cout << "err:" << err << std::endl;
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indices;
-  std::unordered_map<Vertex, uint32_t> unique_vertices = {};
+  std::unordered_map<Vertex, uint32_t> unique_vertices;
 
   for (const auto &shape: shapes) {
     for (const auto &index: shape.mesh.indices) {
