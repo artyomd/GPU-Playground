@@ -30,7 +30,7 @@ GLuint api::opengl::OpenGlShader::GetShaderId() const {
     std::vector<GLuint> indices(specs_.size());
     size_t i = 0;
     spec_data_size_ = 0;
-    for (const auto &entry : specs_) {
+    for (const auto &entry: specs_) {
       indices[i] = entry.first;
       i++;
       auto value = entry.second;

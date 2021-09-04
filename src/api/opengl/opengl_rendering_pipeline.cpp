@@ -85,19 +85,19 @@ void api::opengl::OpenGlRenderingPipeline::Render() {
     GL_CALL(glCullFace(GetGlCullMode(config_.cull_mode)));
     GL_CALL(glFrontFace(GetGlFrontFace(config_.front_face)));
   }
-  for (const auto &texture : textures_) {
+  for (const auto &texture: textures_) {
     texture.second->Bind(texture.first);
   }
-  for (const auto &ubo : ubos_) {
+  for (const auto &ubo: ubos_) {
     GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, ubo.second->GetBufferId()));
   }
   GL_CALL(glDrawElements(draw_mode_,
                          static_cast<GLsizei>(index_buffer_->GetCount()),
                          index_buffer_->GetIndexType(), nullptr));
-  for (const auto &ubo : ubos_) {
+  for (const auto &ubo: ubos_) {
     GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, 0));
   }
-  for (const auto &texture : textures_) {
+  for (const auto &texture: textures_) {
     texture.second->Unbind(texture.first);
   }
   GL_CALL(glDisable(GL_DEPTH_TEST));

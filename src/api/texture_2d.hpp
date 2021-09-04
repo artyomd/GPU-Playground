@@ -37,5 +37,6 @@ class Texture2D {
   [[nodiscard]] size_t GetTextureSizeInBytes() const {
     return GetPixelFormatSizeInBytes(pixel_format_) * width_ * height_;
   }
+  virtual ~Texture2D() = default;
 };
 }

@@ -42,12 +42,12 @@ void application::GlfwApplication::InitWindow() {
     app->window_width_ = width;
     app->window_height_ = height;
     app->OnWindowSizeChanged(width, height);
-    app->GetCurrentTest()->OnViewportChange(width, height);
+    app->GetCurrentTest()->OnViewportChange(static_cast<uint32_t>(width), static_cast<uint32_t>(height));
   });
 }
 
 void application::GlfwApplication::Loop() {
-  while (!glfwWindowShouldClose(window_)) {
+  while (glfwWindowShouldClose(window_) == 0) {
     glfwPollEvents();
 
     if (!PrepareFrame()) {

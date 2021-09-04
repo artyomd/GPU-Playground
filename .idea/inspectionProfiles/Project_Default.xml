@@ -79,9 +79,6 @@
     </inspection_tool>
     <inspection_tool class="LongLine" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="MagicNumberJS" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="Misra" enabled="false" level="WARNING" enabled_by_default="false">
-      <option name="myMisraCPPChecks" value="clion-misra-cpp2008-*,-clion-misra-cpp2008-0-1-7,-clion-misra-cpp2008-10-3-2,-clion-misra-cpp2008-11-0-1,-clion-misra-cpp2008-2-13-4" />
-    </inspection_tool>
     <inspection_tool class="NegatedConditionalExpressionJS" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NegatedIfStatementJS" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="NestedAssignmentJS" enabled="true" level="WARNING" enabled_by_default="true" />

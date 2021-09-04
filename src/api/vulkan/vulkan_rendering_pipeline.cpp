@@ -163,7 +163,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
 
 void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(const std::shared_ptr<VulkanShader> &shader) {
   std::vector<VkWriteDescriptorSet> descriptor_writes{};
-  for (auto binding:shader->GetBindings()) {
+  for (auto binding: shader->GetBindings()) {
     if (binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
         && uniform_buffers_.find(binding.binding) == uniform_buffers_.end()) {
       auto size = shader->DescriptorSizeInBytes(binding.binding);
@@ -226,7 +226,7 @@ void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int bind
   if (uniform_buffers_.find(binding_point) == uniform_buffers_.end()) {
     throw std::runtime_error("invalid binding point");
   }
-  for (const auto &buffer : uniform_buffers_[binding_point]) {
+  for (const auto &buffer: uniform_buffers_[binding_point]) {
     buffer->Update(data);
   }
 }
@@ -234,13 +234,13 @@ void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int bind
 void api::vulkan::VulkanRenderingPipeline::SetTexture(unsigned int binding_point,
                                                       std::shared_ptr<api::Texture2D> texture) {
   bool binding_available = false;
-  for (auto binding :fragment_shader_->GetBindings()) {
+  for (auto binding: fragment_shader_->GetBindings()) {
     if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
       binding_available = true;
     }
   }
   if (!binding_available) {
-    for (auto binding :vertex_shader_->GetBindings()) {
+    for (auto binding: vertex_shader_->GetBindings()) {
       if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
         binding_available = true;
       }

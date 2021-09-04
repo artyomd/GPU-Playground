@@ -78,7 +78,7 @@ VkPipelineShaderStageCreateInfo api::vulkan::VulkanShader::GetShaderStageInfo() 
     shader_specialization_info_.mapEntryCount = static_cast<uint32_t>(specs_.size());
     specialization_map_entries_.clear();
     spec_data_size_ = 0;
-    for (const auto &entry:specs_) {
+    for (const auto &entry: specs_) {
       VkSpecializationMapEntry specialization_map_entry{};
       specialization_map_entry.constantID = entry.first;
       specialization_map_entry.offset = static_cast<uint32_t>(spec_data_size_);

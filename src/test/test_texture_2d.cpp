@@ -6,7 +6,6 @@
 
 #include <utility>
 #include <stb_image.h>
-#include <snowhouse/snowhouse.h>
 
 #include "src/shaders/shaders.hpp"
 
@@ -60,7 +59,9 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
     throw std::runtime_error("failed to load texture image!");
   }
   auto texture_2_d =
-      rendering_context_->CreateTexture2D(tex_width, tex_height, api::PixelFormat::RGBA_8_SRGB);
+      rendering_context_->CreateTexture2D(static_cast<uint32_t>(tex_width),
+                                          static_cast<uint32_t>(tex_height),
+                                          api::PixelFormat::RGBA_8_SRGB);
   texture_2_d->Load(pixels);
   stbi_image_free(pixels);
   texture_2_d->SetSampler({api::Filter::LINEAR,

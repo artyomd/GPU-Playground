@@ -155,8 +155,8 @@ bool application::VulkanApplication::CheckValidationLayerSupport() {
   std::vector<VkLayerProperties> available_layers(layer_count);
   vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
 
-  for (const char *layer_name : validation_layers_) {
-    for (const auto &layer_properties : available_layers) {
+  for (const char *layer_name: validation_layers_) {
+    for (const auto &layer_properties: available_layers) {
       if (strcmp(layer_name, layer_properties.layerName) == 0) {
         return true;
       }
@@ -214,7 +214,7 @@ void application::VulkanApplication::PickPhysicalDevice() {
   }
   std::vector<VkPhysicalDevice> devices(device_count);
   vkEnumeratePhysicalDevices(vulkan_instance_, &device_count, devices.data());
-  for (const auto &device : devices) {
+  for (const auto &device: devices) {
     if (IsDeviceSuitable(device)) {
       physical_device_ = device;
       break;
@@ -247,7 +247,7 @@ application::VulkanApplication::QueueFamilyIndices application::VulkanApplicatio
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
 
   unsigned int i = 0;
-  for (const auto &queue_family :queue_families) {
+  for (const auto &queue_family: queue_families) {
     if (queue_family.queueCount > 0 && queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       indices.graphics_family = i;
     }
@@ -267,7 +267,7 @@ application::VulkanApplication::QueueFamilyIndices application::VulkanApplicatio
 bool application::VulkanApplication::CheckDeviceExtensionSupport(VkPhysicalDevice device) {
   auto available_extensions = GetDeviceExtensions(device);
   std::set<std::string> required_extensions(device_extensions_.begin(), device_extensions_.end());
-  for (const auto &extension : available_extensions) {
+  for (const auto &extension: available_extensions) {
     required_extensions.erase(extension.extensionName);
   }
   return required_extensions.empty();
@@ -300,7 +300,7 @@ void application::VulkanApplication::CreateLogicalDevice() {
       indices.present_family.value()
   };
   float queue_priority = 1.0f;
-  for (uint32_t queue_family : unique_queue_families) {
+  for (uint32_t queue_family: unique_queue_families) {
     VkDeviceQueueCreateInfo queue_create_info = {};
     queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queue_create_info.queueFamilyIndex = queue_family;
@@ -313,7 +313,7 @@ void application::VulkanApplication::CreateLogicalDevice() {
 
   auto device_extensions = GetDeviceExtensions(physical_device_);
   std::vector<const char *> extensions_to_enable(device_extensions_.begin(), device_extensions_.end());
-  for (auto ext:device_extensions) {
+  for (auto ext: device_extensions) {
     if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
       extensions_to_enable.emplace_back("VK_KHR_portability_subset");
     }
@@ -427,7 +427,7 @@ void application::VulkanApplication::CreateSwapChain() {
 
 VkSurfaceFormatKHR
 application::VulkanApplication::ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available_formats) {
-  for (const auto &available_format : available_formats) {
+  for (const auto &available_format: available_formats) {
     if (available_format.format == VK_FORMAT_B8G8R8A8_UNORM &&
         available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
       return available_format;
@@ -438,7 +438,7 @@ application::VulkanApplication::ChooseSwapSurfaceFormat(const std::vector<VkSurf
 
 VkPresentModeKHR
 application::VulkanApplication::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &available_present_modes) {
-  for (const auto &available_present_mode : available_present_modes) {
+  for (const auto &available_present_mode: available_present_modes) {
     if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
       return available_present_mode;
     }
@@ -760,7 +760,7 @@ void application::VulkanApplication::CleanupSwapChain() {
   vkDestroyImageView(device_, depth_image_view_, nullptr);
   vkDestroyImage(device_, depth_image_, nullptr);
   vkFreeMemory(device_, depth_image_memory_, nullptr);
-  for (auto framebuffer : swap_chain_frame_buffers_) {
+  for (auto framebuffer: swap_chain_frame_buffers_) {
     vkDestroyFramebuffer(device_, framebuffer, nullptr);
   }
   vkFreeCommandBuffers(device_,
@@ -769,7 +769,7 @@ void application::VulkanApplication::CleanupSwapChain() {
                        graphics_command_buffers_.data());
   vkDestroyRenderPass(device_, render_pass_, nullptr);
   context_->SetVkRenderPass(nullptr);
-  for (auto image_view : swap_chain_image_views_) {
+  for (auto image_view: swap_chain_image_views_) {
     vkDestroyImageView(device_, image_view, nullptr);
   }
   vkDestroySwapchainKHR(device_, swap_chain_, nullptr);

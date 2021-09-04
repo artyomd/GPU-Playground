@@ -12,7 +12,7 @@ test::TestMenu::TestMenu(std::shared_ptr<api::RenderingContext> context,
     : Test(std::move(context)), test_change_listener_(std::move(test_change_listener)) {
 }
 void test::TestMenu::OnImGuiRender() {
-  for (auto &test : m_tests_) {
+  for (auto &test: m_tests_) {
     if (ImGui::Button(test.first.c_str())) {
       test_change_listener_(test.second());
     }

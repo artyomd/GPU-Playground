@@ -17,6 +17,6 @@
 #      define UTILS_UNLIKELY( exp )  (__builtin_expect( !!(exp), 0 ))
 #   endif
 #else
-#   define UTILS_LIKELY( exp )    (!!(exp))
-#   define UTILS_UNLIKELY( exp )  (!!(exp))
+#   define UTILS_LIKELY(exp)    (!!(exp))
+#   define UTILS_UNLIKELY(exp)  (!!(exp))
 #endif

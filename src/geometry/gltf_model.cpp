@@ -371,36 +371,36 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 
     std::map<unsigned int, std::shared_ptr<api::Texture2D>> textures_mapping{};
 
-    auto material = this->model_.materials[primitive.material];
+    auto material = this->model_.materials[static_cast<size_t>(primitive.material)];
     auto pbr = material.pbrMetallicRoughness;
 
     ubo->material.base_color = glm::make_vec4<float>(std::vector<float>(pbr.baseColorFactor.begin(),
                                                                         pbr.baseColorFactor.end()).data());
     if (pbr.baseColorTexture.index > -1) {
       int base_texture_coords_index = pbr.baseColorTexture.texCoord; // 0 or 1
-      textures_mapping[2] = textures_[pbr.baseColorTexture.index];
+      textures_mapping[2] = textures_[static_cast<size_t>(pbr.baseColorTexture.index)];
       fragment_shader->SetConstant(2, base_texture_coords_index);
     }
     ubo->material.metallic_factor = static_cast<float>(pbr.metallicFactor);
     ubo->material.roughness_factor = static_cast<float>(pbr.roughnessFactor);
     if (pbr.metallicRoughnessTexture.index > -1) {
       int mr_texture_coords_index = pbr.metallicRoughnessTexture.texCoord; // 0 or 1
-      textures_mapping[3] = textures_[pbr.metallicRoughnessTexture.index];
+      textures_mapping[3] = textures_[static_cast<size_t>(pbr.metallicRoughnessTexture.index)];
       fragment_shader->SetConstant(3, mr_texture_coords_index);
     }
     if (material.normalTexture.index > -1) {
       int normal_texture_coords_index = material.normalTexture.texCoord; // 0 or 1
-      textures_mapping[4] = textures_[material.normalTexture.index];
+      textures_mapping[4] = textures_[static_cast<size_t>(material.normalTexture.index)];
       fragment_shader->SetConstant(4, normal_texture_coords_index);
     }
     if (material.occlusionTexture.index > -1) {
       int occlusion_texture_texture_coords_index = material.occlusionTexture.texCoord; // 0 or 1
-      textures_mapping[5] = textures_[material.occlusionTexture.index];
+      textures_mapping[5] = textures_[static_cast<size_t>(material.occlusionTexture.index)];
       fragment_shader->SetConstant(5, occlusion_texture_texture_coords_index);
     }
     if (material.emissiveTexture.index > -1) {
       int emissive_texture_coords_index = material.emissiveTexture.texCoord; // 0 or 1
-      textures_mapping[6] = textures_[material.emissiveTexture.index];
+      textures_mapping[6] = textures_[static_cast<size_t>(material.emissiveTexture.index)];
       fragment_shader->SetConstant(6, emissive_texture_coords_index);
     }
     ubo->material.emissive_factor =

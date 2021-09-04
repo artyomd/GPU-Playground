@@ -16,7 +16,7 @@ class OpenglTexture2D : public Texture2D {
   void SetSampler(api::Sampler sampler) override;
   void Load(const void *data) override;
   void Bind(GLuint binding_point) const;
-  static void Unbind(GLuint binding_point) ;
+  static void Unbind(GLuint binding_point);
   ~OpenglTexture2D();
  private:
   GLuint texture_id_ = 0;

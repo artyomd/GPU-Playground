@@ -37,7 +37,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   std::vector<VkDescriptorSet> descriptor_sets_{};
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;
 
-  void CreateUniformBuffers(const std::shared_ptr<VulkanShader>& shader);
+  void CreateUniformBuffers(const std::shared_ptr<VulkanShader> &shader);
   void DestroyPipeline();
   void CreatePipeline();
 

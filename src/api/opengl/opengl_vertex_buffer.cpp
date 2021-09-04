@@ -16,7 +16,7 @@ api::opengl::OpenGlVertexBuffer::OpenGlVertexBuffer(size_t size_in_bytes, const 
   const auto &elements = layout.GetElements();
   auto stride = static_cast<GLsizei>(layout.GetElementSize());
   size_t offset = 0;
-  for (auto element : elements) {
+  for (auto element: elements) {
     GL_CALL(glEnableVertexAttribArray(element.binding_index));
     GL_CALL(glVertexAttribPointer(element.binding_index,
                                   static_cast<GLint>(element.count),
