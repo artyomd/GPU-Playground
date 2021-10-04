@@ -27,10 +27,9 @@ test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_co
                                                           "main",
                                                           api::ShaderType::FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(quad->GetVertexBuffer(),
-                                                         quad->GetIndexBuffer(),
-                                                         vertex_shader,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
                                                          fragment_shader,
+                                                         quad->GetVbl(),
                                                          {
                                                              api::DrawMode::TRIANGLE_STRIP,
                                                              api::CullMode::NONE,
@@ -38,12 +37,16 @@ test::TestShader::TestShader(std::shared_ptr<api::RenderingContext> rendering_co
                                                              false,
                                                              api::CompareOp::LESS
                                                          });
+  pipeline_->SetIndexBuffer(quad->GetIndexBuffer(), quad->GetIndexBufferDataType());
+  pipeline_->SetVertexBuffer(quad->GetVertexBuffer());
   pipeline_->SetViewPort(size_[0], size_[1]);
+
+  index_count_ = quad->GetIndexCount();
 }
 
 void test::TestShader::OnRender() {
   pipeline_->UpdateUniformBuffer(0, &ubo_);
-  pipeline_->Render();
+  pipeline_->Draw(index_count_, 0);
 }
 
 void test::TestShader::OnUpdate(float delta_time) {

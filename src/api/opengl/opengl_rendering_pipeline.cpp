@@ -5,6 +5,7 @@
 #include "src/api/opengl/opengl_rendering_pipeline.hpp"
 
 #include <iostream>
+#include <utility>
 
 #include "src/api/opengl/opengl_utils.hpp"
 
@@ -19,38 +20,36 @@ static inline void GetProgramInfoLog(GLuint id) {
   }
 }
 
-api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(const std::shared_ptr<VertexBuffer> &vertex_buffer,
-                                                              const std::shared_ptr<IndexBuffer> &index_buffer,
-                                                              const std::shared_ptr<Shader> &vertex_shader,
-                                                              const std::shared_ptr<Shader> &fragment_shader,
+api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(std::shared_ptr<Shader> vertex_shader,
+                                                              std::shared_ptr<Shader> fragment_shader,
+                                                              api::VertexBufferLayout vbl,
                                                               api::RenderingPipelineConfig config) :
     RenderingPipeline(),
+    vbl_(std::move(vbl)),
     config_(config) {
-  vertex_buffer_ = std::dynamic_pointer_cast<OpenGlVertexBuffer>(vertex_buffer);
-  index_buffer_ = std::dynamic_pointer_cast<OpenGlIndexBuffer>(index_buffer);
-  vertex_shader_ = std::dynamic_pointer_cast<OpenGlShader>(vertex_shader);
-  fragment_shader_ = std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
+  auto gl_vertex_shader = std::dynamic_pointer_cast<OpenGlShader>(vertex_shader);
+  auto gl_fragment_shader = std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
 
   GL_CALL(program_id_ = glCreateProgram());
   AssertThat(program_id_, snowhouse::Is().Not().EqualTo(0u));
 
-  GL_CALL(glAttachShader(program_id_, vertex_shader_->GetShaderId()));
-  GL_CALL(glAttachShader(program_id_, fragment_shader_->GetShaderId()));
+  GL_CALL(glAttachShader(program_id_, gl_vertex_shader->GetShaderId()));
+  GL_CALL(glAttachShader(program_id_, gl_fragment_shader->GetShaderId()));
   GL_CALL(glLinkProgram(program_id_));
 
   GLint link_status;
   glGetProgramiv(program_id_, GL_LINK_STATUS, &link_status);
   if (link_status == GL_FALSE) {
     GetProgramInfoLog(program_id_);
-    GL_CALL(glDetachShader(program_id_, vertex_shader_->GetShaderId()));
-    GL_CALL(glDetachShader(program_id_, fragment_shader_->GetShaderId()));
+    GL_CALL(glDetachShader(program_id_, gl_vertex_shader->GetShaderId()));
+    GL_CALL(glDetachShader(program_id_, gl_fragment_shader->GetShaderId()));
     throw std::runtime_error("unable to link Gl program");
   }
 
   GL_CALL(glValidateProgram(program_id_));
   GetProgramInfoLog(program_id_);
-  GL_CALL(glDetachShader(program_id_, vertex_shader_->GetShaderId()));
-  GL_CALL(glDetachShader(program_id_, fragment_shader_->GetShaderId()));
+  GL_CALL(glDetachShader(program_id_, gl_vertex_shader->GetShaderId()));
+  GL_CALL(glDetachShader(program_id_, gl_fragment_shader->GetShaderId()));
 
   GLint active_uniform_blocks = 0;
   GL_CALL(glGetProgramiv(program_id_, GL_ACTIVE_UNIFORM_BLOCKS, &active_uniform_blocks));
@@ -68,11 +67,37 @@ api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(const std::shared_
   draw_mode_ = GetGlDrawMode(config_.draw_mode);
 }
 
-void api::opengl::OpenGlRenderingPipeline::Render() {
-  GL_CALL(glViewport(0, 0, width_, height_));
-  GL_CALL(glScissor(0, 0, width_, height_));
+void api::opengl::OpenGlRenderingPipeline::SetIndexBuffer(std::shared_ptr<Buffer> buffer, api::DataType element_type) {
+  this->index_buffer_ = std::dynamic_pointer_cast<OpenGlBuffer>(buffer);
+  this->index_type_ = api::opengl::GetGlType(element_type);
+}
+
+void api::opengl::OpenGlRenderingPipeline::SetVertexBuffer(std::shared_ptr<Buffer> buffer) {
+  this->vertex_buffer_ = std::dynamic_pointer_cast<OpenGlBuffer>(buffer);
+}
+
+void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count, size_t offset) {
+  GL_CALL(glViewport(0, 0, viewport_width_, viewport_height_));
+  GL_CALL(glScissor(0, 0, viewport_width_, viewport_height_));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_->GetBufferId()));
-  GL_CALL(glBindVertexArray(vertex_buffer_->GetVertexArrayId()));
+  if (vertex_array_ == 0) {
+    GL_CALL(glGenVertexArrays(1, &vertex_array_));
+    GL_CALL(glBindVertexArray(vertex_array_));
+    const auto &elements = vbl_.GetElements();
+    auto stride = static_cast<GLsizei>(vbl_.GetElementSize());
+    size_t vertex_offset = 0;
+    for (auto element: elements) {
+      GL_CALL(glEnableVertexAttribArray(element.binding_index));
+      GL_CALL(glVertexAttribPointer(element.binding_index,
+                                    static_cast<GLint>(element.count),
+                                    GetGlType(element.type), GL_FALSE,
+                                    stride,
+                                    reinterpret_cast<void *> (vertex_offset)));
+      vertex_offset += element.count * api::GetDataTypeSizeInBytes(element.type);
+    }
+  } else {
+    GL_CALL(glBindVertexArray(vertex_array_));
+  }
   GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_->GetBufferId()));
   GL_CALL(glUseProgram(program_id_));
   if (config_.enable_depth_test) {
@@ -92,8 +117,9 @@ void api::opengl::OpenGlRenderingPipeline::Render() {
     GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, ubo.second->GetBufferId()));
   }
   GL_CALL(glDrawElements(draw_mode_,
-                         static_cast<GLsizei>(index_buffer_->GetCount()),
-                         index_buffer_->GetIndexType(), nullptr));
+                         static_cast<GLsizei>(index_count),
+                         index_type_,
+                         reinterpret_cast<void *> (offset)));
   for (const auto &ubo: ubos_) {
     GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, 0));
   }
@@ -103,14 +129,14 @@ void api::opengl::OpenGlRenderingPipeline::Render() {
   GL_CALL(glDisable(GL_DEPTH_TEST));
   GL_CALL(glDisable(GL_CULL_FACE));
   GL_CALL(glUseProgram(0));
-  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
   GL_CALL(glBindVertexArray(0));
+  GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
 void api::opengl::OpenGlRenderingPipeline::SetViewPort(uint32_t width, uint32_t height) {
-  this->width_ = static_cast<GLsizei>(width);
-  this->height_ = static_cast<GLsizei>(height);
+  this->viewport_width_ = static_cast<GLsizei>(width);
+  this->viewport_height_ = static_cast<GLsizei>(height);
 }
 
 void api::opengl::OpenGlRenderingPipeline::UpdateUniformBuffer(unsigned int binding_point, void *data) {
@@ -126,4 +152,7 @@ void api::opengl::OpenGlRenderingPipeline::SetTexture(unsigned int binding_point
 
 api::opengl::OpenGlRenderingPipeline::~OpenGlRenderingPipeline() {
   GL_CALL(glDeleteProgram(program_id_));
+  if (vertex_array_ != 0) {
+    GL_CALL(glDeleteVertexArrays(1, &vertex_array_));
+  }
 }

@@ -9,7 +9,6 @@
 #include <tinyobjloader/tiny_obj_loader.h>
 #include <unordered_map>
 #include <iostream>
-#include <stb_image.h>
 
 namespace {
 struct Vertex {
@@ -72,11 +71,16 @@ test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_cont
   vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
   vertex_buffer_layout.Push({1, api::DataType::FLOAT, 3});
   auto
-      vertex_buffer = rendering_context_->CreateVertexBuffer(6 * vertices.size() * sizeof(float), vertex_buffer_layout);
+      vertex_buffer = rendering_context_->CreateBuffer(6 * vertices.size() * sizeof(float),
+                                                       api::BufferUsage::VERTEX_BUFFER,
+                                                       api::MemoryType::DEVICE_LOCAL);
   vertex_buffer->Update(vertices.data());
 
   auto index_buffer =
-      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_32);
+      rendering_context_->CreateBuffer(indices.size() * sizeof(uint32_t),
+                                       api::BufferUsage::INDEX_BUFFER,
+                                       api::MemoryType::DEVICE_LOCAL);
+  index_count_ = indices.size();
   index_buffer->Update(indices.data());
 
   auto vertex_shader = rendering_context_->CreateShader(light_vertex,
@@ -86,13 +90,16 @@ test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_cont
                                                           "main",
                                                           api::ShaderType::FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
-                                                         vertex_shader, fragment_shader,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
+                                                         fragment_shader,
+                                                         vertex_buffer_layout,
                                                          {api::DrawMode::TRIANGLE_LIST,
                                                           api::CullMode::BACK,
                                                           api::FrontFace::CCW,
                                                           true,
                                                           api::CompareOp::LESS});
+  pipeline_->SetVertexBuffer(vertex_buffer);
+  pipeline_->SetIndexBuffer(index_buffer, api::DataType::UINT_32);
   buffer_.eye = glm::vec4(0.0, 8.0, 0.0, 0.0);
   buffer_.light = glm::vec4(3.0, 0.0, 1.0, 0.0);
   pipeline_->UpdateUniformBuffer(1, &buffer_);
@@ -104,5 +111,5 @@ void test::TestLight::OnRender() {
   ubo_.proj = perspective_projection_;
   ubo_.view = glm::lookAt(glm::vec3(0.0F, 8.0F, 0.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
   pipeline_->UpdateUniformBuffer(0, &ubo_);
-  pipeline_->Render();
+  pipeline_->Draw(index_count_, 0);
 }

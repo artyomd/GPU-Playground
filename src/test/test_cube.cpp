@@ -40,12 +40,16 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
   api::VertexBufferLayout vertex_buffer_layout;
   vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
   vertex_buffer_layout.Push({1, api::DataType::FLOAT, 3});
-  auto vertex_buffer = rendering_context_->CreateVertexBuffer(positions.size() * sizeof(float), vertex_buffer_layout);
+  auto vertex_buffer = rendering_context_->CreateBuffer(positions.size() * sizeof(float),
+                                                        api::BufferUsage::VERTEX_BUFFER,
+                                                        api::MemoryType::DEVICE_LOCAL);
   vertex_buffer->Update(positions.data());
 
-  auto index_buffer =
-      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_16);
+  auto index_buffer = rendering_context_->CreateBuffer(indices.size() * sizeof(unsigned short),
+                                                       api::BufferUsage::INDEX_BUFFER,
+                                                       api::MemoryType::DEVICE_LOCAL);
   index_buffer->Update(indices.data());
+  index_count_ = indices.size();
 
   auto vertex_shader = rendering_context_->CreateShader(default_mvp_color_vertex_shader,
                                                         "main",
@@ -54,16 +58,17 @@ test::TestCube::TestCube(std::shared_ptr<api::RenderingContext> rendering_contex
                                                           "main",
                                                           api::ShaderType::FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
-                                                         index_buffer,
-                                                         vertex_shader,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
                                                          fragment_shader,
+                                                         vertex_buffer_layout,
                                                          {
                                                              api::DrawMode::TRIANGLE_LIST,
                                                              api::CullMode::BACK,
                                                              api::FrontFace::CCW,
                                                              true,
                                                              api::CompareOp::LESS});
+  pipeline_->SetVertexBuffer(vertex_buffer);
+  pipeline_->SetIndexBuffer(index_buffer, api::DataType::UINT_16);
 }
 
 void test::TestCube::OnRender() {
@@ -71,5 +76,5 @@ void test::TestCube::OnRender() {
   ubo_.proj = perspective_projection_;
   ubo_.view = glm::lookAt(glm::vec3(2.0, 2.0, 0.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
   pipeline_->UpdateUniformBuffer(0, &ubo_);
-  pipeline_->Render();
+  pipeline_->Draw(index_count_, 0);
 }

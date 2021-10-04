@@ -6,10 +6,9 @@
 #include <utility>
 #include <memory>
 
-#include "src/api/index_buffer.hpp"
+#include "src/api/buffer.hpp"
 #include "src/api/redering_pipeline_config.hpp"
 #include "src/api/shader.hpp"
-#include "src/api/vertex_buffer.hpp"
 #include "src/api/texture_2d.hpp"
 
 namespace api {
@@ -19,11 +18,16 @@ class RenderingPipeline {
  public:
   virtual void UpdateUniformBuffer(unsigned int binding_point, void *data) = 0;
 
-  virtual void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) = 0;
+  virtual void SetIndexBuffer(std::shared_ptr<Buffer> buffer,
+                              DataType element_type) = 0;
+
+  virtual void SetVertexBuffer(std::shared_ptr<Buffer> buffer) = 0;
+
+  virtual void SetTexture(unsigned int binding_point, std::shared_ptr<Texture2D> texture) = 0;
 
   virtual void SetViewPort(uint32_t width, uint32_t height) = 0;
 
-  virtual void Render() = 0;
+  virtual void Draw(size_t index_count, size_t offset) = 0;
 
   virtual ~RenderingPipeline() = default;
 };

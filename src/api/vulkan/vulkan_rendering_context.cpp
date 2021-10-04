@@ -6,12 +6,10 @@
 
 #include <stdexcept>
 
-#include "src/api/vulkan/vulkan_index_buffer.hpp"
 #include "src/api/vulkan/vulkan_rendering_pipeline.hpp"
 #include "src/api/vulkan/vulkan_shader.hpp"
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
-#include "src/api/vulkan/vulkan_vertex_buffer.hpp"
-#include "vulkan_buffer.hpp"
+#include "src/api/vulkan/vulkan_buffer.hpp"
 
 api::vulkan::VulkanRenderingContext::VulkanRenderingContext(
     VkPhysicalDevice physical_device,
@@ -61,28 +59,24 @@ VkDevice api::vulkan::VulkanRenderingContext::GetDevice() const {
   return device_;
 }
 
-std::shared_ptr<api::IndexBuffer> api::vulkan::VulkanRenderingContext::CreateIndexBuffer(uint32_t count,
-                                                                                         api::DataType type) {
-  return std::make_shared<VulkanIndexBuffer>(shared_from_this(), count, type);
-}
-
-std::shared_ptr<api::VertexBuffer> api::vulkan::VulkanRenderingContext::CreateVertexBuffer(
-    size_t size_in_bytes,
-    api::VertexBufferLayout layout) {
-  return std::make_shared<VulkanVertexBuffer>(shared_from_this(), size_in_bytes, layout);
+std::shared_ptr<api::Buffer> api::vulkan::VulkanRenderingContext::CreateBuffer(size_t size_in_bytes,
+                                                                               api::BufferUsage usage,
+                                                                               api::MemoryType memory_type) {
+  return std::make_shared<VulkanBuffer>(shared_from_this(),
+                                       size_in_bytes,
+                                       GetVkBufferUsage(usage),
+                                       GetVkMemoryType(memory_type));
 }
 
 std::shared_ptr<api::RenderingPipeline> api::vulkan::VulkanRenderingContext::CreateGraphicsPipeline(
-    std::shared_ptr<VertexBuffer> vertex_buffer,
-    std::shared_ptr<IndexBuffer> index_buffer,
     std::shared_ptr<Shader> vertex_shader,
     std::shared_ptr<Shader> fragment_shader,
-    RenderingPipelineConfig config) {
+    const api::VertexBufferLayout &vbl,
+    api::RenderingPipelineConfig config) {
   return std::make_shared<VulkanRenderingPipeline>(shared_from_this(),
-                                                   vertex_buffer,
-                                                   index_buffer,
                                                    vertex_shader,
                                                    fragment_shader,
+                                                   vbl,
                                                    config);
 }
 
@@ -382,8 +376,4 @@ void api::vulkan::VulkanRenderingContext::SetCurrentCommandBuffer(VkCommandBuffe
 
 void api::vulkan::VulkanRenderingContext::SetVkRenderPass(VkRenderPass vk_render_pass) {
   vk_render_pass_ = vk_render_pass;
-}
-
-std::shared_ptr<api::Buffer> api::vulkan::VulkanRenderingContext::CreateBuffer(size_t size_in_bytes) {
-  return std::make_shared<VulkanBuffer>(shared_from_this(), size_in_bytes);
 }

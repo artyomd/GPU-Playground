@@ -214,8 +214,11 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
     auto ubo = std::make_shared<PrimitiveUbo>();
     ubo->mvp.model = model_matrix;
     ubo->mvp.normal = glm::inverseTranspose(model_matrix);
-    std::shared_ptr<api::IndexBuffer> index_buffer;
-    std::shared_ptr<api::VertexBuffer> vertex_buffer;
+    std::shared_ptr<api::Buffer> index_buffer;
+    api::DataType index_buffer_type;
+    size_t index_count;
+    std::shared_ptr<api::Buffer> vertex_buffer;
+    auto vbl = api::VertexBufferLayout();
     bool has_normals = false;
     bool has_tangents = false;
     bool has_text_coord_0 = false;
@@ -235,13 +238,17 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
                index.element_size);
         offset += index.element_size;
       }
-      index_buffer = context_->CreateIndexBuffer(static_cast<uint32_t>(index.instance_count), index.element_type);
+      index_buffer = context_->CreateBuffer(
+          static_cast<uint32_t>(index.instance_count) * api::GetDataTypeSizeInBytes(index.element_type),
+          api::BufferUsage::INDEX_BUFFER,
+          api::MemoryType::DEVICE_LOCAL);
+      index_buffer_type = index.element_type;
+      index_count = index.instance_count;
       index_buffer->Update(data);
       delete[] data;
     }
     {
       auto attributes = primitive.attributes;
-      auto vbl = api::VertexBufferLayout();
       ParsedAttribute position{};
       ParsedAttribute normal{};
       ParsedAttribute tangent{};
@@ -350,7 +357,9 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
           vertex_data_offset += weights_0.element_size;
         }
       }
-      vertex_buffer = context_->CreateVertexBuffer(vertex_count * vertex_stride, vbl);
+      vertex_buffer = context_->CreateBuffer(vertex_count * vertex_stride,
+                                             api::BufferUsage::VERTEX_BUFFER,
+                                             api::MemoryType::DEVICE_LOCAL);
       vertex_buffer->Update(vertex_data);
       free(vertex_data);
     }
@@ -407,18 +416,24 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
         glm::make_vec3(std::vector<float>(material.emissiveFactor.begin(), material.emissiveFactor.end()).data());
     ubo->material.alpha_cutoff = static_cast<float>(material.alphaCutoff);
     ubo->material.double_sided = material.doubleSided;
-    auto pipe = context_->CreateGraphicsPipeline(vertex_buffer, index_buffer, vertex_shader, fragment_shader, {
-        GetMode(primitive.mode),
-        api::CullMode::BACK,
-        api::FrontFace::CCW,
-        true,
-        api::CompareOp::LESS,
-    });
+    auto pipe = context_->CreateGraphicsPipeline(
+        vertex_shader,
+        fragment_shader,
+        vbl,
+        {
+            GetMode(primitive.mode),
+            api::CullMode::BACK,
+            api::FrontFace::CCW,
+            true,
+            api::CompareOp::LESS,
+        });
+    pipe->SetVertexBuffer(vertex_buffer);
+    pipe->SetIndexBuffer(index_buffer, index_buffer_type);
     for (const auto &entry: textures_mapping) {
       pipe->SetTexture(entry.first, entry.second);
     }
     pipe->UpdateUniformBuffer(1, &ubo->material);
-    RenderingUnit unit{pipe, ubo};
+    RenderingUnit unit{pipe, index_count, ubo};
     pipelines.emplace_back(unit);
   }
   return pipelines;
@@ -427,7 +442,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(tinygltf::Mes
 void geometry::GltfModel::Render() {
   for (const auto &unit: current_pipelines_) {
     unit.pipeline->UpdateUniformBuffer(0, &unit.ubo->mvp);
-    unit.pipeline->Render();
+    unit.pipeline->Draw(unit.index_count, 0);
   }
 }
 void geometry::GltfModel::SetViewport(uint32_t width, uint32_t height) {

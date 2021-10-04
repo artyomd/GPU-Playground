@@ -17,7 +17,7 @@ class OpenglTexture2D : public Texture2D {
   void Load(const void *data) override;
   void Bind(GLuint binding_point) const;
   static void Unbind(GLuint binding_point);
-  ~OpenglTexture2D();
+  ~OpenglTexture2D() override;
  private:
   GLuint texture_id_ = 0;
 };

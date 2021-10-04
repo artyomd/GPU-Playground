@@ -13,6 +13,10 @@
 
 namespace api::vulkan {
 
+VkBufferUsageFlags GetVkBufferUsage(api::BufferUsage buffer_usage);
+
+VkMemoryPropertyFlags GetVkMemoryType(api::MemoryType memory_property);
+
 VkIndexType GetVkType(api::DataType type);
 
 VkFormat GetVkFormat(api::DataType type, uint32_t count);

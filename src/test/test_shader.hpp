@@ -16,6 +16,7 @@ struct UniformBufferObjectShader {
 class TestShader : public Test {
  private:
   UniformBufferObjectShader ubo_{};
+  size_t index_count_ = 0;
   std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
 
  public:

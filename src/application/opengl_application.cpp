@@ -11,7 +11,6 @@
 #include <imgui/imgui_impl_glfw.h>
 
 #include "src/api/opengl/opengl_utils.hpp"
-#include "src/api/opengl/opengl_rendering_context.hpp"
 
 namespace {
 void GLAPIENTRY
@@ -79,7 +78,7 @@ MessageCallback(GLenum source,
 
 application::OpenGlApplication::OpenGlApplication()
     : GlfwApplication() {
-  SetContext(std::make_shared<api::opengl::OpenGlRenderingContext>());
+  SetContext(api::CreateOpenGlRenderingContext());
 }
 void application::OpenGlApplication::SetupWindowHints() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

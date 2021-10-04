@@ -4,7 +4,6 @@
 
 #include "src/api/opengl/opengl_texture_2d.hpp"
 
-#include <stb_image.h>
 #include <snowhouse/snowhouse.h>
 
 #include "src/api/opengl/opengl_utils.hpp"

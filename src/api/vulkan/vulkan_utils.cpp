@@ -135,3 +135,31 @@ void api::vulkan::CheckVkResult(VkResult result) {
   }
   throw std::runtime_error("vk error");
 }
+
+VkBufferUsageFlags api::vulkan::GetVkBufferUsage(api::BufferUsage buffer_usage) {
+  VkBufferUsageFlags vk_flag = 0;
+  if (buffer_usage & BufferUsage::TRANSFER_SRC) {
+    vk_flag |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+  }
+  if (buffer_usage & BufferUsage::TRANSFER_DST) {
+    vk_flag |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+  }
+  if (buffer_usage & BufferUsage::INDEX_BUFFER) {
+    vk_flag |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+  }
+  if (buffer_usage & BufferUsage::UNIFORM_BUFFER) {
+    vk_flag |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+  }
+  if (buffer_usage & BufferUsage::VERTEX_BUFFER) {
+    vk_flag |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+  }
+  return vk_flag;
+}
+
+VkMemoryPropertyFlags api::vulkan::GetVkMemoryType(api::MemoryType memory_property) {
+  switch (memory_property) {
+    case MemoryType::DEVICE_LOCAL:return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+    case MemoryType::HOST_VISIBLE:return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    default:throw std::runtime_error("unknown memory type");
+  }
+}

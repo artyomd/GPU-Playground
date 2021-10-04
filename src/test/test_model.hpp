@@ -26,6 +26,7 @@ class TestModel : public Test {
  protected:
   UniformBufferObjectMvp ubo_{};
   std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
+  size_t index_count_ = 0;
   glm::mat4 ComputeModelMatrix();
   glm::mat4 orthographic_projection_{};
   bool lock_projection_ = false;

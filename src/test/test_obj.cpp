@@ -71,11 +71,15 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
   vertex_buffer_layout.Push({1, api::DataType::FLOAT, 2});
   auto
-      vertex_buffer = rendering_context_->CreateVertexBuffer(5 * vertices.size() * sizeof(float), vertex_buffer_layout);
+      vertex_buffer = rendering_context_->CreateBuffer(5 * vertices.size() * sizeof(float),
+                                                       api::BufferUsage::VERTEX_BUFFER,
+                                                       api::MemoryType::DEVICE_LOCAL);
   vertex_buffer->Update(vertices.data());
 
-  auto index_buffer =
-      rendering_context_->CreateIndexBuffer(static_cast<uint32_t>(indices.size()), api::DataType::UINT_32);
+  auto index_buffer = rendering_context_->CreateBuffer(indices.size() * sizeof(uint32_t),
+                                                       api::BufferUsage::INDEX_BUFFER,
+                                                       api::MemoryType::DEVICE_LOCAL);
+  index_count_ = indices.size();
   index_buffer->Update(indices.data());
 
   auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
@@ -85,13 +89,16 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
                                                           "main",
                                                           api::ShaderType::FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer, index_buffer,
-                                                         vertex_shader, fragment_shader,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
+                                                         fragment_shader,
+                                                         vertex_buffer_layout,
                                                          {api::DrawMode::TRIANGLE_LIST,
                                                           api::CullMode::BACK,
                                                           api::FrontFace::CCW,
                                                           true,
                                                           api::CompareOp::LESS});
+  pipeline_->SetVertexBuffer(vertex_buffer);
+  pipeline_->SetIndexBuffer(index_buffer, api::DataType::UINT_32);
   stbi_set_flip_vertically_on_load(true);
   int tex_width, tex_height, tex_channels;
   stbi_uc *pixels = stbi_load("../res/textures/chalet.jpg", &tex_width, &tex_height, &tex_channels, STBI_rgb_alpha);
@@ -117,5 +124,5 @@ void test::TestObj::OnRender() {
   ubo_.proj = perspective_projection_;
   ubo_.view = glm::lookAt(glm::vec3(2.0F, 2.0F, 2.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
   pipeline_->UpdateUniformBuffer(0, &ubo_);
-  pipeline_->Render();
+  pipeline_->Draw(index_count_, 0);
 }

@@ -28,10 +28,15 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   vertex_buffer_layout.Push({0, api::DataType::FLOAT, 2});
   vertex_buffer_layout.Push({1, api::DataType::FLOAT, 2});
 
-  auto vertex_buffer = rendering_context_->CreateVertexBuffer(4 * 4 * sizeof(float), vertex_buffer_layout);
+  auto vertex_buffer = rendering_context_->CreateBuffer(4 * 4 * sizeof(float),
+                                                        api::BufferUsage::VERTEX_BUFFER,
+                                                        api::MemoryType::DEVICE_LOCAL);
   vertex_buffer->Update(&positions[0]);
 
-  auto index_buffer = rendering_context_->CreateIndexBuffer(6, api::DataType::UINT_16);
+  auto index_buffer = rendering_context_->CreateBuffer(6 * sizeof(unsigned short),
+                                                       api::BufferUsage::INDEX_BUFFER,
+                                                       api::MemoryType::DEVICE_LOCAL);
+  index_count_ = 6;
   index_buffer->Update(&indices[0]);
 
   auto vertex_shader = rendering_context_->CreateShader(texture2d_vertex,
@@ -40,10 +45,9 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
   auto fragment_shader = rendering_context_->CreateShader(texture2d_fragment,
                                                           "main",
                                                           api::ShaderType::FRAGMENT);
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_buffer,
-                                                         index_buffer,
-                                                         vertex_shader,
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
                                                          fragment_shader,
+                                                         vertex_buffer_layout,
                                                          {
                                                              api::DrawMode::TRIANGLE_LIST,
                                                              api::CullMode::NONE,
@@ -51,6 +55,8 @@ test::TestTexture2D::TestTexture2D(std::shared_ptr<api::RenderingContext> render
                                                              false,
                                                              api::CompareOp::LESS
                                                          });
+  pipeline_->SetVertexBuffer(vertex_buffer);
+  pipeline_->SetIndexBuffer(index_buffer, api::DataType::UINT_16);
 
   stbi_set_flip_vertically_on_load(true);
   int tex_width, tex_height, tex_channels;
@@ -77,5 +83,5 @@ void test::TestTexture2D::OnRender() {
   ubo_.proj = orthographic_projection_;
   ubo_.view = glm::mat4(1.0F);
   pipeline_->UpdateUniformBuffer(0, &ubo_);
-  pipeline_->Render();
+  pipeline_->Draw(index_count_, 0);
 }

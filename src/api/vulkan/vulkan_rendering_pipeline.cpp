@@ -7,20 +7,16 @@
 #include <utility>
 
 #include "src/api/vulkan/vulkan_shader.hpp"
-#include "src/api/vulkan/vulkan_vertex_buffer.hpp"
 
 api::vulkan::VulkanRenderingPipeline::VulkanRenderingPipeline(std::shared_ptr<VulkanRenderingContext> context,
-                                                              const std::shared_ptr<VertexBuffer> &vertex_buffer,
-                                                              const std::shared_ptr<IndexBuffer> &index_buffer,
-                                                              const std::shared_ptr<Shader> &vertex_shader,
-                                                              const std::shared_ptr<Shader> &fragment_shader,
+                                                              std::shared_ptr<Shader> vertex_shader,
+                                                              std::shared_ptr<Shader> fragment_shader,
+                                                              const VertexBufferLayout &vbl,
                                                               RenderingPipelineConfig config) :
     RenderingPipeline(),
     context_(std::move(context)),
     device_(context_->GetDevice()),
     config_(config) {
-  this->vertex_buffer_ = std::dynamic_pointer_cast<VulkanVertexBuffer>(vertex_buffer);
-  this->index_buffer_ = std::dynamic_pointer_cast<VulkanIndexBuffer>(index_buffer);
   this->vertex_shader_ = std::dynamic_pointer_cast<VulkanShader>(vertex_shader);
   this->fragment_shader_ = std::dynamic_pointer_cast<VulkanShader>(fragment_shader);
   viewport_.x = 0.0F;
@@ -31,10 +27,19 @@ api::vulkan::VulkanRenderingPipeline::VulkanRenderingPipeline(std::shared_ptr<Vu
   viewport_.maxDepth = 1.0F;
   scissor_.offset = {0, 0};
   scissor_.extent = {0, 0};
-  CreatePipeline();
+  CreatePipeline(vbl);
 }
 
-void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
+void api::vulkan::VulkanRenderingPipeline::SetVertexBuffer(std::shared_ptr<Buffer> buffer) {
+  this->vertex_buffer_ = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
+}
+
+void api::vulkan::VulkanRenderingPipeline::SetIndexBuffer(std::shared_ptr<Buffer> buffer, api::DataType element_type) {
+  this->index_buffer_ = std::dynamic_pointer_cast<VulkanBuffer>(buffer);
+  this->index_type_ = GetVkType(element_type);
+}
+
+void api::vulkan::VulkanRenderingPipeline::CreatePipeline(const VertexBufferLayout &vbl) {
   VkPipelineShaderStageCreateInfo shader_stages[] = {
       vertex_shader_->GetShaderStageInfo(),
       fragment_shader_->GetShaderStageInfo()
@@ -52,8 +57,6 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   if (vkCreateDescriptorSetLayout(device_, &descriptor_set_layout_create_info, nullptr, &layout_) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module!");
   }
-
-  VkPipelineVertexInputStateCreateInfo vertex_input_info = vertex_buffer_->GetVertexInputInfo();
 
   VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
   input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -123,6 +126,32 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline() {
   dynamic_state_create_info.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
   dynamic_state_create_info.pDynamicStates = dynamic_states.data();
 
+  const auto &elements = vbl.GetElements();
+  auto stride = static_cast<uint32_t>(vbl.GetElementSize());
+  size_t offset = 0;
+  std::vector<VkVertexInputAttributeDescription> attribute_descriptions{};
+  for (auto element: elements) {
+    VkVertexInputAttributeDescription description{};
+    description.binding = 0;
+    description.location = element.binding_index;
+    description.format = GetVkFormat(element.type, static_cast<uint32_t>(element.count));
+    description.offset = static_cast<uint32_t>(offset);
+    attribute_descriptions.push_back(description);
+    offset += element.count * GetDataTypeSizeInBytes(element.type);
+  }
+
+  VkVertexInputBindingDescription vertex_input_binding_description{};
+  vertex_input_binding_description.binding = 0;
+  vertex_input_binding_description.stride = stride;
+  vertex_input_binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+  VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
+  vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertex_input_info.vertexBindingDescriptionCount = 1;
+  vertex_input_info.pVertexBindingDescriptions = &vertex_input_binding_description;
+  vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size());
+  vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
+
   VkGraphicsPipelineCreateInfo pipeline_info = {};
   pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipeline_info.stageCount = 2;
@@ -172,7 +201,8 @@ void api::vulkan::VulkanRenderingPipeline::CreateUniformBuffers(const std::share
       for (uint32_t i = 0; i < context_->GetImageCount(); i++) {
         auto vulkan_buffer = std::make_shared<VulkanBuffer>(context_,
                                                             size,
-                                                            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+                                                            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                                            GetVkMemoryType(MemoryType::HOST_VISIBLE));
         buffers.emplace_back(vulkan_buffer);
 
         VkDescriptorBufferInfo descriptor_buffer_info{};
@@ -204,13 +234,15 @@ void api::vulkan::VulkanRenderingPipeline::DestroyPipeline() {
   vkDestroyPipeline(device_, pipeline_, nullptr);
 }
 
-void api::vulkan::VulkanRenderingPipeline::Render() {
+void api::vulkan::VulkanRenderingPipeline::Draw(size_t index_count, size_t offset) {
   auto command_buffer = context_->GetCurrentCommandBuffer();
   vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
   vkCmdSetViewport(command_buffer, 0, 1, &this->viewport_);
   vkCmdSetScissor(command_buffer, 0, 1, &this->scissor_);
-  vertex_buffer_->BindBuffer(command_buffer);
-  vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), 0, index_buffer_->GetIndexType());
+  VkDeviceSize offsets[] = {0};
+  auto buffer = vertex_buffer_->GetBuffer();
+  vkCmdBindVertexBuffers(command_buffer, 0, 1, &buffer, offsets);
+  vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), offset, this->index_type_);
   vkCmdBindDescriptorSets(command_buffer,
                           VK_PIPELINE_BIND_POINT_GRAPHICS,
                           pipeline_layout_,
@@ -219,7 +251,7 @@ void api::vulkan::VulkanRenderingPipeline::Render() {
                           &descriptor_sets_[context_->GetCurrentImageIndex()],
                           0,
                           nullptr);
-  vkCmdDrawIndexed(context_->GetCurrentCommandBuffer(), index_buffer_->GetCount(), 1, 0, 0, 0);
+  vkCmdDrawIndexed(context_->GetCurrentCommandBuffer(), static_cast<uint32_t>(index_count), 1, 0, 0, 0);
 }
 
 void api::vulkan::VulkanRenderingPipeline::UpdateUniformBuffer(unsigned int binding_point, void *data) {

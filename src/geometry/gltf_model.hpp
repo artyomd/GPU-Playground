@@ -17,6 +17,7 @@ struct ParsedAttribute;
 
 struct RenderingUnit {
   std::shared_ptr<api::RenderingPipeline> pipeline;
+  size_t index_count;
   std::shared_ptr<geometry::PrimitiveUbo> ubo;
 };
 
@@ -25,7 +26,7 @@ class GltfModel {
   GltfModel() = delete;
   GltfModel(std::shared_ptr<api::RenderingContext> context, const std::string &path);
   std::vector<std::string> GetScenes();
-  int GetDefaultSceneIndex() const;
+  [[nodiscard]] int GetDefaultSceneIndex() const;
   void LoadScene(int scene_index);
   void SetCamera(uint camera_index, glm::mat4 view);
   void Render();

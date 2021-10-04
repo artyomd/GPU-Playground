@@ -33,18 +33,12 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] VkDevice GetDevice() const;
 
-  std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes) override;
+  std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes, BufferUsage usage, MemoryType memory_type) override;
 
-  std::shared_ptr<IndexBuffer> CreateIndexBuffer(uint32_t count, DataType type) override;
-
-  std::shared_ptr<VertexBuffer> CreateVertexBuffer(size_t size_in_bytes, VertexBufferLayout layout) override;
-
-  std::shared_ptr<RenderingPipeline> CreateGraphicsPipeline(
-      std::shared_ptr<VertexBuffer> vertex_binding,
-      std::shared_ptr<IndexBuffer> index_buffer,
-      std::shared_ptr<Shader> vertex_shader,
-      std::shared_ptr<Shader> fragment_shader,
-      RenderingPipelineConfig config) override;
+  std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(std::shared_ptr<Shader> vertex_shader,
+                                                                 std::shared_ptr<Shader> fragment_shader,
+                                                                 const VertexBufferLayout &vbl,
+                                                                 RenderingPipelineConfig config) override;
 
   std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_source,
                                        std::string entry_point_name,

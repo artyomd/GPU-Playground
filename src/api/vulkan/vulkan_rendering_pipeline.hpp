@@ -8,10 +8,9 @@
 #include <vulkan/vulkan.h>
 
 #include "src/api/rendering_pipeline.hpp"
-#include "src/api/vulkan/vulkan_index_buffer.hpp"
+#include "src/api/vulkan/vulkan_buffer.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
 #include "src/api/vulkan/vulkan_shader.hpp"
-#include "src/api/vulkan/vulkan_vertex_buffer.hpp"
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
 
 namespace api::vulkan {
@@ -26,8 +25,11 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   VkViewport viewport_ = {};
   VkRect2D scissor_ = {};
 
-  std::shared_ptr<VulkanVertexBuffer> vertex_buffer_ = nullptr;
-  std::shared_ptr<VulkanIndexBuffer> index_buffer_ = nullptr;
+  std::shared_ptr<VulkanBuffer> vertex_buffer_ = nullptr;
+
+  std::shared_ptr<VulkanBuffer> index_buffer_ = nullptr;
+  VkIndexType index_type_ = VkIndexType::VK_INDEX_TYPE_UINT16;
+
   std::shared_ptr<VulkanShader> vertex_shader_ = nullptr;
   std::shared_ptr<VulkanShader> fragment_shader_ = nullptr;
 
@@ -39,17 +41,18 @@ class VulkanRenderingPipeline : public RenderingPipeline {
 
   void CreateUniformBuffers(const std::shared_ptr<VulkanShader> &shader);
   void DestroyPipeline();
-  void CreatePipeline();
+  void CreatePipeline(const VertexBufferLayout& vbl);
 
  public:
   VulkanRenderingPipeline(std::shared_ptr<VulkanRenderingContext> context,
-                          const std::shared_ptr<VertexBuffer> &vertex_buffer,
-                          const std::shared_ptr<IndexBuffer> &index_buffer,
-                          const std::shared_ptr<Shader> &vertex_shader,
-                          const std::shared_ptr<Shader> &fragment_shader,
+                          std::shared_ptr<Shader> vertex_shader,
+                          std::shared_ptr<Shader> fragment_shader,
+                          const VertexBufferLayout &vbl,
                           RenderingPipelineConfig config);
 
-  void Render() override;
+  void SetIndexBuffer(std::shared_ptr<Buffer> buffer, DataType element_type) override;
+  void SetVertexBuffer(std::shared_ptr<Buffer> buffer) override;
+  void Draw(size_t index_count, size_t offset) override;
   void UpdateUniformBuffer(unsigned int binding_point, void *data) override;
   void SetTexture(unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) override;
   void SetViewPort(uint32_t width, uint32_t height) override;
