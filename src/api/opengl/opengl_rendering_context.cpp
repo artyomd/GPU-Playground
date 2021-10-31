@@ -43,5 +43,5 @@ void api::opengl::OpenGlRenderingContext::WaitForGpuIdle() const {
 }
 
 std::shared_ptr<api::RenderingContext> api::CreateOpenGlRenderingContext() {
-  return std::make_shared<api::opengl::OpenGlRenderingContext>()
+  return std::make_shared<api::opengl::OpenGlRenderingContext>();
 }

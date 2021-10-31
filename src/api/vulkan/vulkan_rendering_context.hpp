@@ -10,17 +10,22 @@
 
 namespace api::vulkan {
 class VulkanRenderingContext : public RenderingContext, public std::enable_shared_from_this<VulkanRenderingContext> {
+ private:
+  VkFormat color_attachment_format_ = VK_FORMAT_UNDEFINED;
+  VkFormat depth_attachment_format_ = VK_FORMAT_UNDEFINED;
+
   VkPhysicalDevice physical_device_;
   VkDevice device_;
   VkQueue graphics_queue_;
   VkCommandPool graphics_pool_;
-  VkDescriptorPool descriptor_pool_;
+  VkSampleCountFlagBits recommended_msaa_samples_;
+  VkDescriptorPool descriptor_pool_ = VK_NULL_HANDLE;
+  VkRenderPass render_pass_ = VK_NULL_HANDLE;
 
   uint32_t image_count_;
   uint32_t current_image_index_ = 0;
-  VkRenderPass vk_render_pass_ = nullptr;
-  VkCommandBuffer current_command_buffer_ = nullptr;
-  VkSampleCountFlagBits msaa_samples_;
+
+  VkCommandBuffer current_command_buffer_ = VK_NULL_HANDLE;
 
   VkSampleCountFlagBits GetMaxUsableSampleCount();
  public:
@@ -28,10 +33,13 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
                          VkDevice device,
                          VkQueue graphics_queue,
                          VkCommandPool graphics_pool,
-                         VkDescriptorPool descriptor_pool,
                          uint32_t image_count);
 
   [[nodiscard]] VkDevice GetDevice() const;
+
+  VkFormat GetColorAttachmentFormat() const;
+
+  VkFormat GetDepthAttachmentFormat() const;
 
   std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes, BufferUsage usage, MemoryType memory_type) override;
 
@@ -48,7 +56,7 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   std::shared_ptr<Texture2D> CreateTexture2D(uint32_t width, uint32_t height, PixelFormat pixel_format) override;
 
-  ~VulkanRenderingContext() override = default;
+  ~VulkanRenderingContext() override;
 
   void CreateBuffer(VkDeviceSize size,
                     VkBufferUsageFlags usage,
@@ -85,9 +93,7 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] uint32_t FindMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties) const;
 
-  void SetVkRenderPass(VkRenderPass vk_render_pass);
-
-  [[nodiscard]] VkRenderPass GetVkRenderPass() const;
+  [[nodiscard]] VkRenderPass GetRenderPass() const;
 
   void SetCurrentCommandBuffer(VkCommandBuffer current_command_buffer);
 
@@ -101,12 +107,10 @@ class VulkanRenderingContext : public RenderingContext, public std::enable_share
 
   [[nodiscard]] uint32_t GetCurrentImageIndex() const;
 
-  [[nodiscard]] VkFormat FindDepthFormat() const;
-
   [[nodiscard]] VkFormat FindSupportedFormat(const std::vector<VkFormat> &candidates,
                                              VkImageTiling tiling,
                                              VkFormatFeatureFlags features) const;
 
-  [[nodiscard]] VkSampleCountFlagBits GetMsaaSamples() const;
+  [[nodiscard]] VkSampleCountFlagBits GetRecommendedMsaaSamples() const;
 };
 }

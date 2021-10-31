@@ -14,7 +14,6 @@
 namespace application {
 class VulkanApplication : public GlfwApplication {
  private:
-  std::shared_ptr<api::vulkan::VulkanRenderingContext> context_ = nullptr;
 #ifdef NDEBUG
   const bool enable_validation_layers_ = false;
 #else
@@ -25,7 +24,7 @@ class VulkanApplication : public GlfwApplication {
   };
 
   const std::vector<const char *> device_extensions_ = {
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_MAINTENANCE1_EXTENSION_NAME
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME
   };
 
   const uint32_t max_frames_in_flight_ = 2;
@@ -36,8 +35,6 @@ class VulkanApplication : public GlfwApplication {
   VkSurfaceKHR surface_{};
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   VkDevice device_{};
-
-  VkRenderPass render_pass_{};
 
   VkQueue graphics_queue_{};
   VkCommandPool graphics_command_pool_{};
@@ -59,8 +56,6 @@ class VulkanApplication : public GlfwApplication {
   VkImage depth_image_{};
   VkDeviceMemory depth_image_memory_{};
   VkImageView depth_image_view_{};
-
-  VkDescriptorPool descriptor_pool_{};
 
   std::vector<VkSemaphore> image_available_semaphores_;
   std::vector<VkSemaphore> render_finished_semaphores_;
@@ -89,6 +84,8 @@ class VulkanApplication : public GlfwApplication {
     std::vector<VkPresentModeKHR> present_modes;
   };
 
+  std::shared_ptr<api::vulkan::VulkanRenderingContext> GetVulkanContext();
+
   void CreateInstance();
 
   void RecreateSwapChain();
@@ -113,13 +110,12 @@ class VulkanApplication : public GlfwApplication {
 
   void CreateLogicalDevice();
 
-  void CreateDescriptorPool();
-
   void CreateCommandPool();
 
   void CreateSwapChain();
 
-  static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available_formats);
+  static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available_formats,
+                                                    VkFormat desired_format);
 
   static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &available_present_modes);
 
@@ -130,8 +126,6 @@ class VulkanApplication : public GlfwApplication {
   void CreateColorResources();
 
   void CreateDepthResources();
-
-  void CreateRenderPass();
 
   void CreateFrameBuffers();
 

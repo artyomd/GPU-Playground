@@ -16,16 +16,113 @@ api::vulkan::VulkanRenderingContext::VulkanRenderingContext(
     VkDevice device,
     VkQueue graphics_queue,
     VkCommandPool graphics_pool,
-    VkDescriptorPool descriptor_pool,
     uint32_t image_count) :
     RenderingContext(),
     physical_device_(physical_device),
     device_(device),
     graphics_queue_(graphics_queue),
     graphics_pool_(graphics_pool),
-    descriptor_pool_(descriptor_pool),
-    image_count_(image_count),
-    msaa_samples_(GetMaxUsableSampleCount()) {
+    recommended_msaa_samples_(GetMaxUsableSampleCount()),
+    image_count_(image_count) {
+
+  color_attachment_format_ = VK_FORMAT_B8G8R8A8_UNORM;
+  depth_attachment_format_ = FindSupportedFormat(
+      {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+      VK_IMAGE_TILING_OPTIMAL,
+      VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+  );
+
+  /// descriptor pool
+  std::vector<VkDescriptorPoolSize> pool_sizes =
+      {
+          {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 50},
+          {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 50},
+          {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 50}
+      };
+  VkDescriptorPoolCreateInfo pool_info = {};
+  pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+  pool_info.maxSets = 50 * static_cast<uint32_t>(pool_sizes.size());
+  pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
+  pool_info.pPoolSizes = pool_sizes.data();
+  if (vkCreateDescriptorPool(device_, &pool_info, nullptr, &descriptor_pool_) !=
+      VK_SUCCESS) {
+    throw std::runtime_error("failed to create instance!");
+  }
+
+  ///render pass
+  VkAttachmentDescription depth_attachment = {};
+  depth_attachment.format = depth_attachment_format_;
+  depth_attachment.samples = recommended_msaa_samples_;
+  depth_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  depth_attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  depth_attachment.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+  depth_attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentReference depth_attachment_ref = {};
+  depth_attachment_ref.attachment = 1;
+  depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentDescription color_attachment = {};
+  color_attachment.format = color_attachment_format_;
+  color_attachment.samples = recommended_msaa_samples_;
+  color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+  color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference color_attachment_ref = {};
+  color_attachment_ref.attachment = 0;
+  color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkAttachmentDescription color_attachment_resolve = {};
+  color_attachment_resolve.format = color_attachment_format_;
+  color_attachment_resolve.samples = VK_SAMPLE_COUNT_1_BIT;
+  color_attachment_resolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  color_attachment_resolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+  color_attachment_resolve.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  color_attachment_resolve.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  color_attachment_resolve.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  color_attachment_resolve.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+  VkAttachmentReference color_attachment_resolve_ref = {};
+  color_attachment_resolve_ref.attachment = 2;
+  color_attachment_resolve_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+  VkSubpassDescription sub_pass = {};
+  sub_pass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  sub_pass.colorAttachmentCount = 1;
+  sub_pass.pColorAttachments = &color_attachment_ref;
+  sub_pass.pDepthStencilAttachment = &depth_attachment_ref;
+  sub_pass.pResolveAttachments = &color_attachment_resolve_ref;
+
+  VkSubpassDependency dependency = {};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+  dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+  std::array<VkAttachmentDescription, 3> attachments = {color_attachment, depth_attachment, color_attachment_resolve};
+
+  VkRenderPassCreateInfo render_pass_info = {};
+  render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  render_pass_info.attachmentCount = static_cast<uint32_t>(attachments.size());
+  render_pass_info.pAttachments = attachments.data();
+  render_pass_info.subpassCount = 1;
+  render_pass_info.pSubpasses = &sub_pass;
+  render_pass_info.dependencyCount = 1;
+  render_pass_info.pDependencies = &dependency;
+
+  if (vkCreateRenderPass(device_, &render_pass_info, nullptr, &render_pass_) != VK_SUCCESS) {
+    throw std::runtime_error("failed to create render pass!");
+  }
 }
 
 VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetMaxUsableSampleCount() {
@@ -34,18 +131,18 @@ VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetMaxUsableSampleCou
                                 &physical_device_properties);
   VkSampleCountFlags counts = std::min(physical_device_properties.limits.framebufferColorSampleCounts,
                                        physical_device_properties.limits.framebufferDepthSampleCounts);
-//  if (counts & VK_SAMPLE_COUNT_64_BIT) {
-//    return VK_SAMPLE_COUNT_64_BIT;
-//  }
-//  if (counts & VK_SAMPLE_COUNT_32_BIT) {
-//    return VK_SAMPLE_COUNT_32_BIT;
-//  }
-//  if (counts & VK_SAMPLE_COUNT_16_BIT) {
-//    return VK_SAMPLE_COUNT_16_BIT;
-//  }
-//  if (counts & VK_SAMPLE_COUNT_8_BIT) {
-//    return VK_SAMPLE_COUNT_8_BIT;
-//  }
+  if (counts & VK_SAMPLE_COUNT_64_BIT) {
+    return VK_SAMPLE_COUNT_64_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_32_BIT) {
+    return VK_SAMPLE_COUNT_32_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_16_BIT) {
+    return VK_SAMPLE_COUNT_16_BIT;
+  }
+  if (counts & VK_SAMPLE_COUNT_8_BIT) {
+    return VK_SAMPLE_COUNT_8_BIT;
+  }
   if (counts & VK_SAMPLE_COUNT_4_BIT) {
     return VK_SAMPLE_COUNT_4_BIT;
   }
@@ -63,9 +160,9 @@ std::shared_ptr<api::Buffer> api::vulkan::VulkanRenderingContext::CreateBuffer(s
                                                                                api::BufferUsage usage,
                                                                                api::MemoryType memory_type) {
   return std::make_shared<VulkanBuffer>(shared_from_this(),
-                                       size_in_bytes,
-                                       GetVkBufferUsage(usage),
-                                       GetVkMemoryType(memory_type));
+                                        size_in_bytes,
+                                        GetVkBufferUsage(usage),
+                                        GetVkMemoryType(memory_type));
 }
 
 std::shared_ptr<api::RenderingPipeline> api::vulkan::VulkanRenderingContext::CreateGraphicsPipeline(
@@ -107,13 +204,6 @@ void api::vulkan::VulkanRenderingContext::SetCurrentImageIndex(uint32_t current_
   current_image_index_ = current_image_index;
 }
 
-VkFormat api::vulkan::VulkanRenderingContext::FindDepthFormat() const {
-  return FindSupportedFormat(
-      {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-      VK_IMAGE_TILING_OPTIMAL,
-      VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-  );
-}
 VkFormat api::vulkan::VulkanRenderingContext::FindSupportedFormat(
     const std::vector<VkFormat> &candidates,
     VkImageTiling tiling,
@@ -169,12 +259,9 @@ void api::vulkan::VulkanRenderingContext::CreateImage(uint32_t width,
 
   vkBindImageMemory(device_, *image, *image_memory, 0);
 }
-VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetMsaaSamples() const {
-  return msaa_samples_;
-}
 
-VkRenderPass api::vulkan::VulkanRenderingContext::GetVkRenderPass() const {
-  return vk_render_pass_;
+VkRenderPass api::vulkan::VulkanRenderingContext::GetRenderPass() const {
+  return render_pass_;
 }
 
 void api::vulkan::VulkanRenderingContext::CopyBufferToImage(VkBuffer buffer,
@@ -218,7 +305,6 @@ void api::vulkan::VulkanRenderingContext::TransitionImageLayout(VkImage image,
   barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.image = image;
-  barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
   barrier.subresourceRange.baseMipLevel = 0;
   barrier.subresourceRange.levelCount = 1;
   barrier.subresourceRange.baseArrayLayer = 0;
@@ -226,24 +312,35 @@ void api::vulkan::VulkanRenderingContext::TransitionImageLayout(VkImage image,
   VkPipelineStageFlags source_stage;
   VkPipelineStageFlags destination_stage;
   if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     destination_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
   } else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
       new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
     source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     destination_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
   } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout ==
       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) {
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.srcAccessMask = 0;
     barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
         | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     destination_stage =
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout ==
+      VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) {
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    barrier.srcAccessMask = 0;
+    barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT
+        | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    destination_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
   } else {
     throw std::invalid_argument("unsupported layout transition!");
   }
@@ -374,6 +471,18 @@ void api::vulkan::VulkanRenderingContext::SetCurrentCommandBuffer(VkCommandBuffe
   current_command_buffer_ = current_command_buffer;
 }
 
-void api::vulkan::VulkanRenderingContext::SetVkRenderPass(VkRenderPass vk_render_pass) {
-  vk_render_pass_ = vk_render_pass;
+VkSampleCountFlagBits api::vulkan::VulkanRenderingContext::GetRecommendedMsaaSamples() const {
+  return recommended_msaa_samples_;
+}
+
+api::vulkan::VulkanRenderingContext::~VulkanRenderingContext() {
+  vkDestroyDescriptorPool(device_, descriptor_pool_, nullptr);
+  vkDestroyRenderPass(device_, render_pass_, nullptr);
+}
+
+VkFormat api::vulkan::VulkanRenderingContext::GetColorAttachmentFormat() const {
+  return color_attachment_format_;
+}
+VkFormat api::vulkan::VulkanRenderingContext::GetDepthAttachmentFormat() const {
+  return depth_attachment_format_;
 }

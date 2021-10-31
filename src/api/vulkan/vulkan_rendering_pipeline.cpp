@@ -84,7 +84,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline(const VertexBufferLayo
   multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
   multisampling.alphaToCoverageEnable = VK_FALSE;
-  multisampling.rasterizationSamples = context_->GetMsaaSamples();
+  multisampling.rasterizationSamples = context_->GetRecommendedMsaaSamples();
 
   VkPipelineColorBlendAttachmentState color_blend_attachment = {};
   color_blend_attachment.colorWriteMask =
@@ -166,7 +166,7 @@ void api::vulkan::VulkanRenderingPipeline::CreatePipeline(const VertexBufferLayo
   pipeline_info.pColorBlendState = &color_blending;
   pipeline_info.pDynamicState = VK_NULL_HANDLE;
   pipeline_info.layout = pipeline_layout_;
-  pipeline_info.renderPass = context_->GetVkRenderPass();
+  pipeline_info.renderPass = context_->GetRenderPass();
   pipeline_info.subpass = 0;
   pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
   pipeline_info.pDynamicState = &dynamic_state_create_info;
