@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "src/test/test.h"
-
 #include <glm/glm.hpp>
 #include <utility>
+
+#include "src/test/test.h"
 
 namespace test {
 struct UniformBufferObjectMvp {
@@ -33,7 +33,8 @@ class TestModel : public Test {
   glm::mat4 perspective_projection_ = glm::mat4(1.0);
 
  public:
-  explicit TestModel(std::shared_ptr<api::RenderingContext> rendering_context) : Test(std::move(rendering_context)) {};
+  explicit TestModel(std::shared_ptr<api::RenderingContext> rendering_context)
+      : Test(std::move(rendering_context)){};
 
   void OnImGuiRender() override;
 
@@ -41,4 +42,4 @@ class TestModel : public Test {
 
   ~TestModel() override = default;
 };
-}
+}  // namespace test

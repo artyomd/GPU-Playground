@@ -6,12 +6,12 @@
 namespace api {
 enum class DataType {
   BYTE,
-  UINT_16,//SHORT
+  UINT_16,  // SHORT
   UINT_32,
   FLOAT,
 };
 
-typedef enum BufferUsage{
+typedef enum BufferUsage {
   TRANSFER_SRC = 1,
   TRANSFER_DST = 2,
   UNIFORM_BUFFER = 4,
@@ -19,7 +19,7 @@ typedef enum BufferUsage{
   VERTEX_BUFFER = 16,
 } BufferUsage;
 
-enum class MemoryType{
+enum class MemoryType {
   DEVICE_LOCAL,
   HOST_VISIBLE,
 };
@@ -36,4 +36,4 @@ struct Size {
 
 size_t GetDataTypeSizeInBytes(DataType type);
 size_t GetPixelFormatSizeInBytes(PixelFormat type);
-}
+}  // namespace api

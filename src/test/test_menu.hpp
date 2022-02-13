@@ -3,8 +3,9 @@
 //
 #pragma once
 
+#include <spdlog/spdlog.h>
+
 #include <functional>
-#include <iostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -13,24 +14,27 @@
 
 namespace test {
 class TestMenu : public Test {
-  std::vector<std::pair<std::string, std::function<std::shared_ptr<Test>()>>> m_tests_;
+  std::vector<std::pair<std::string, std::function<std::shared_ptr<Test>()>>>
+      m_tests_;
   std::function<void(std::shared_ptr<test::Test>)> test_change_listener_;
+
  public:
-  TestMenu(std::shared_ptr<api::RenderingContext> context,
-           std::function<void(std::shared_ptr<test::Test>)> test_change_listener);
+  TestMenu(
+      std::shared_ptr<api::RenderingContext> context,
+      std::function<void(std::shared_ptr<test::Test>)> test_change_listener);
 
   void OnImGuiRender() override;
 
-  void SetRenderingContext(const std::shared_ptr<api::RenderingContext> &context) {
+  void SetRenderingContext(
+      const std::shared_ptr<api::RenderingContext> &context) {
     this->rendering_context_ = context;
   }
 
-  template<typename T>
+  template <typename T>
   void RegisterTest(const std::string &name) {
-    std::cout << "Registering test: " << name << std::endl;
-    m_tests_.push_back(std::make_pair(name, [this]() {
-      return std::make_shared<T>(rendering_context_);
-    }));
+    spdlog::info("Registering test: {}", name);
+    m_tests_.push_back(std::make_pair(
+        name, [this]() { return std::make_shared<T>(rendering_context_); }));
   }
 };
-}
+}  // namespace test

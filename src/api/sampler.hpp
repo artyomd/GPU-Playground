@@ -29,5 +29,5 @@ struct Sampler {
   AddressMode address_mode_v = AddressMode::REPEAT;
   AddressMode address_mode_w = AddressMode::REPEAT;
 };
-}
-#endif //PLAYGROUND_SRC_API_SAMPLER_HPP_
+}  // namespace api
+#endif  // PLAYGROUND_SRC_API_SAMPLER_HPP_

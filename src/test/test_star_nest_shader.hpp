@@ -10,7 +10,8 @@
 namespace test {
 class TestStarNestShader : public TestShader {
  public:
-  explicit TestStarNestShader(std::shared_ptr<api::RenderingContext> rendering_context) :
-      TestShader(std::move(rendering_context), start_nest_fragment_shader) {}
+  explicit TestStarNestShader(
+      std::shared_ptr<api::RenderingContext> rendering_context)
+      : TestShader(std::move(rendering_context), start_nest_fragment_shader) {}
 };
-}
+}  // namespace test

@@ -22,8 +22,8 @@ class VulkanRenderingPipeline : public RenderingPipeline {
 
   VkPipeline pipeline_{};
   VkPipelineLayout pipeline_layout_ = nullptr;
-  VkViewport viewport_ = {};
-  VkRect2D scissor_ = {};
+  VkViewport viewport_ = {0, 0, 0, 0, 0, 1.0};
+  VkRect2D scissor_ = {{0, 0}, {0, 0}};
 
   std::shared_ptr<VulkanBuffer> vertex_buffer_ = nullptr;
 
@@ -40,8 +40,7 @@ class VulkanRenderingPipeline : public RenderingPipeline {
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;
 
   void CreateUniformBuffers(const std::shared_ptr<VulkanShader> &shader);
-  void DestroyPipeline();
-  void CreatePipeline(const VertexBufferLayout& vbl);
+  void CreatePipeline(const VertexBufferLayout &vbl);
 
  public:
   VulkanRenderingPipeline(std::shared_ptr<VulkanRenderingContext> context,

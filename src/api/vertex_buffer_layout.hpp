@@ -18,6 +18,7 @@ struct VertexAttribute {
 class VertexBufferLayout {
  private:
   std::vector<VertexAttribute> elements_{};
+
  public:
   VertexBufferLayout() = default;
 
@@ -27,4 +28,4 @@ class VertexBufferLayout {
 
   [[nodiscard]] const std::vector<VertexAttribute> &GetElements() const;
 };
-}
+}  // namespace api

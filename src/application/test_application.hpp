@@ -23,8 +23,9 @@ class TestApplication : public Application {
   void InitTestMenu();
   void RenderMenu();
   void CleanupTestMenu();
+
  public:
-  template<typename T>
+  template <typename T>
   void RegisterTest(const std::string &name) {
     if (test_menu_ == nullptr) {
       InitTestMenu();
@@ -32,4 +33,4 @@ class TestApplication : public Application {
     test_menu_->RegisterTest<T>(name);
   }
 };
-}
+}  // namespace application

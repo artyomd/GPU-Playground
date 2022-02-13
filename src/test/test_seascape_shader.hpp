@@ -11,7 +11,8 @@
 namespace test {
 class TestSeascapeShader : public TestShader {
  public:
-  explicit TestSeascapeShader(std::shared_ptr<api::RenderingContext> rendering_context) :
-      TestShader(std::move(rendering_context), seascape_fragment_shader) {}
+  explicit TestSeascapeShader(
+      std::shared_ptr<api::RenderingContext> rendering_context)
+      : TestShader(std::move(rendering_context), seascape_fragment_shader) {}
 };
-}
+}  // namespace test

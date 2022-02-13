@@ -11,18 +11,20 @@ class RenderingContext {
  public:
   RenderingContext() = default;
 
-  virtual std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes, BufferUsage usage, MemoryType memory) = 0;
+  virtual std::shared_ptr<Buffer> CreateBuffer(size_t size_in_bytes,
+                                               BufferUsage usage,
+                                               MemoryType memory) = 0;
 
   virtual std::shared_ptr<Shader> CreateShader(std::string sipr_v_shader_source,
                                                std::string entry_point_name,
                                                api::ShaderType type) = 0;
 
-  virtual std::shared_ptr<Texture2D> CreateTexture2D(uint32_t width, uint32_t height, PixelFormat pixel_format) = 0;
+  virtual std::shared_ptr<Texture2D> CreateTexture2D(
+      uint32_t width, uint32_t height, PixelFormat pixel_format) = 0;
 
   virtual std::shared_ptr<api::RenderingPipeline> CreateGraphicsPipeline(
       std::shared_ptr<Shader> vertex_shader,
-      std::shared_ptr<Shader> fragment_shader,
-      const VertexBufferLayout &vbl,
+      std::shared_ptr<Shader> fragment_shader, const VertexBufferLayout &vbl,
       RenderingPipelineConfig config) = 0;
 
   virtual void WaitForGpuIdle() const = 0;
@@ -31,4 +33,4 @@ class RenderingContext {
 };
 
 std::shared_ptr<RenderingContext> CreateOpenGlRenderingContext();
-}
+}  // namespace api

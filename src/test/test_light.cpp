@@ -3,12 +3,13 @@
 //
 #include "src/test/test_light.hpp"
 
-#include "src/shaders/shaders.hpp"
+#include <spdlog/spdlog.h>
+#include <tinyobjloader/tiny_obj_loader.h>
 
 #include <glm/gtx/hash.hpp>
-#include <tinyobjloader/tiny_obj_loader.h>
 #include <unordered_map>
-#include <iostream>
+
+#include "src/shaders/shaders.hpp"
 
 namespace {
 struct Vertex {
@@ -18,9 +19,9 @@ struct Vertex {
     return position == other.position && normal == other.normal;
   }
 };
-}
+}  // namespace
 namespace std {
-template<>
+template <>
 struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
@@ -29,36 +30,42 @@ struct hash<Vertex> {
     return seed;
   }
 };
-}
+}  // namespace std
 
-test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_context)
+test::TestLight::TestLight(
+    std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;
   std::string warn, err;
-  if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, "../res/models/dragon.obj", "../res/models")) {
+  if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err,
+                        "../res/models/dragon.obj", "../res/models")) {
     throw std::runtime_error(warn + err);
   }
-  std::cout << "warn:" << warn << std::endl;
-  std::cout << "err:" << err << std::endl;
+  spdlog::warn(warn);
+  spdlog::error(err);
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices = {};
 
-  for (const auto &shape: shapes) {
-    for (const auto &index: shape.mesh.indices) {
+  for (const auto &shape : shapes) {
+    for (const auto &index : shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
-          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 0],
-          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
-          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) + 2]
-      };
+          attrib
+              .vertices[3 * static_cast<unsigned long>(index.vertex_index) + 0],
+          attrib
+              .vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
+          attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) +
+                          2]};
       vertex.normal = {
-          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 0],
-          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 1],
-          attrib.normals[3 * static_cast<unsigned long>(index.vertex_index) + 2]
-      };
+          attrib
+              .normals[3 * static_cast<unsigned long>(index.vertex_index) + 0],
+          attrib
+              .normals[3 * static_cast<unsigned long>(index.vertex_index) + 1],
+          attrib
+              .normals[3 * static_cast<unsigned long>(index.vertex_index) + 2]};
       if (unique_vertices.count(vertex) == 0) {
         unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
         vertices.push_back(vertex);
@@ -70,46 +77,39 @@ test::TestLight::TestLight(std::shared_ptr<api::RenderingContext> rendering_cont
   api::VertexBufferLayout vertex_buffer_layout;
   vertex_buffer_layout.Push({0, api::DataType::FLOAT, 3});
   vertex_buffer_layout.Push({1, api::DataType::FLOAT, 3});
-  auto
-      vertex_buffer = rendering_context_->CreateBuffer(6 * vertices.size() * sizeof(float),
-                                                       api::BufferUsage::VERTEX_BUFFER,
-                                                       api::MemoryType::DEVICE_LOCAL);
+  auto vertex_buffer = rendering_context_->CreateBuffer(
+      6 * vertices.size() * sizeof(float), api::BufferUsage::VERTEX_BUFFER,
+      api::MemoryType::DEVICE_LOCAL);
   vertex_buffer->Update(vertices.data());
 
-  auto index_buffer =
-      rendering_context_->CreateBuffer(indices.size() * sizeof(uint32_t),
-                                       api::BufferUsage::INDEX_BUFFER,
-                                       api::MemoryType::DEVICE_LOCAL);
+  auto index_buffer = rendering_context_->CreateBuffer(
+      indices.size() * sizeof(uint32_t), api::BufferUsage::INDEX_BUFFER,
+      api::MemoryType::DEVICE_LOCAL);
   index_count_ = indices.size();
   index_buffer->Update(indices.data());
 
-  auto vertex_shader = rendering_context_->CreateShader(light_vertex,
-                                                        "main",
-                                                        api::ShaderType::VERTEX);
-  auto fragment_shader = rendering_context_->CreateShader(light_fragment,
-                                                          "main",
-                                                          api::ShaderType::FRAGMENT);
+  auto vertex_shader = rendering_context_->CreateShader(
+      light_vertex, "main", api::ShaderType::VERTEX);
+  auto fragment_shader = rendering_context_->CreateShader(
+      light_fragment, "main", api::ShaderType::FRAGMENT);
 
-  pipeline_ = rendering_context_->CreateGraphicsPipeline(vertex_shader,
-                                                         fragment_shader,
-                                                         vertex_buffer_layout,
-                                                         {api::DrawMode::TRIANGLE_LIST,
-                                                          api::CullMode::BACK,
-                                                          api::FrontFace::CCW,
-                                                          true,
-                                                          api::CompareOp::LESS});
+  pipeline_ = rendering_context_->CreateGraphicsPipeline(
+      vertex_shader, fragment_shader, vertex_buffer_layout,
+      {api::DrawMode::TRIANGLE_LIST, api::CullMode::BACK, api::FrontFace::CCW,
+       true, api::CompareOp::LESS});
   pipeline_->SetVertexBuffer(vertex_buffer);
   pipeline_->SetIndexBuffer(index_buffer, api::DataType::UINT_32);
   buffer_.eye = glm::vec4(0.0, 8.0, 0.0, 0.0);
   buffer_.light = glm::vec4(3.0, 0.0, 1.0, 0.0);
   pipeline_->UpdateUniformBuffer(1, &buffer_);
-
 }
 
 void test::TestLight::OnRender() {
   ubo_.model = ComputeModelMatrix();
   ubo_.proj = perspective_projection_;
-  ubo_.view = glm::lookAt(glm::vec3(0.0F, 8.0F, 0.0F), glm::vec3(0.0F, 0.0F, 0.0F), glm::vec3(0.0F, 0.0F, 1.0F));
+  ubo_.view =
+      glm::lookAt(glm::vec3(0.0F, 8.0F, 0.0F), glm::vec3(0.0F, 0.0F, 0.0F),
+                  glm::vec3(0.0F, 0.0F, 1.0F));
   pipeline_->UpdateUniformBuffer(0, &ubo_);
   pipeline_->Draw(index_count_, 0);
 }

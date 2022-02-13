@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <string>
 #include <tinygltf/tiny_gltf.h>
+
 #include <glm/ext.hpp>
+#include <string>
 
 #include "src/api/rendering_context.hpp"
 
@@ -24,18 +25,23 @@ struct RenderingUnit {
 class GltfModel {
  public:
   GltfModel() = delete;
-  GltfModel(std::shared_ptr<api::RenderingContext> context, const std::string &path);
+  GltfModel(std::shared_ptr<api::RenderingContext> context,
+            const std::string &path);
   std::vector<std::string> GetScenes();
   [[nodiscard]] int GetDefaultSceneIndex() const;
   void LoadScene(int scene_index);
   void SetCamera(uint camera_index, glm::mat4 view);
   void Render();
   void SetViewport(uint32_t width, uint32_t height);
+
  private:
-  void LoadNode(const tinygltf::Node &node, glm::mat4 parent_transform = glm::identity<glm::mat4>());
-  std::vector<geometry::RenderingUnit> LoadMesh(tinygltf::Mesh &mesh, glm::mat4 model_matrix);
+  void LoadNode(const tinygltf::Node &node,
+                glm::mat4 parent_transform = glm::identity<glm::mat4>());
+  std::vector<geometry::RenderingUnit> LoadMesh(tinygltf::Mesh &mesh,
+                                                glm::mat4 model_matrix);
   ParsedAttribute ParseAttribute(const std::string &attribute_name,
                                  int accessor_id);
+
  private:
   std::shared_ptr<api::RenderingContext> context_;
   tinygltf::Model model_;
@@ -43,4 +49,4 @@ class GltfModel {
   std::vector<glm::mat4> cameras_;
   std::vector<std::shared_ptr<api::Texture2D>> textures_;
 };
-}
+}  // namespace geometry

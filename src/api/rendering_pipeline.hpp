@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include <utility>
 #include <memory>
+#include <utility>
 
 #include "src/api/buffer.hpp"
 #include "src/api/redering_pipeline_config.hpp"
@@ -15,6 +15,7 @@ namespace api {
 class RenderingPipeline {
  protected:
   explicit RenderingPipeline() = default;
+
  public:
   virtual void UpdateUniformBuffer(unsigned int binding_point, void *data) = 0;
 
@@ -23,7 +24,8 @@ class RenderingPipeline {
 
   virtual void SetVertexBuffer(std::shared_ptr<Buffer> buffer) = 0;
 
-  virtual void SetTexture(unsigned int binding_point, std::shared_ptr<Texture2D> texture) = 0;
+  virtual void SetTexture(unsigned int binding_point,
+                          std::shared_ptr<Texture2D> texture) = 0;
 
   virtual void SetViewPort(uint32_t width, uint32_t height) = 0;
 
@@ -31,4 +33,4 @@ class RenderingPipeline {
 
   virtual ~RenderingPipeline() = default;
 };
-}
+}  // namespace api

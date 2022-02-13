@@ -13,4 +13,4 @@ class TestSphere : public TestModel {
 
   void OnRender() override;
 };
-}
+}  // namespace test

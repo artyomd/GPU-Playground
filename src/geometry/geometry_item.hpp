@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "src/api/rendering_context.hpp"
-
 #include <utility>
+
+#include "src/api/rendering_context.hpp"
 
 namespace geometry {
 class GeometryItem {
@@ -19,8 +19,10 @@ class GeometryItem {
   size_t index_count_ = 0;
 
   std::shared_ptr<api::RenderingContext> context_;
+
  public:
-  explicit GeometryItem(std::shared_ptr<api::RenderingContext> context) : context_(std::move(context)) {}
+  explicit GeometryItem(std::shared_ptr<api::RenderingContext> context)
+      : context_(std::move(context)) {}
 
   [[nodiscard]] std::shared_ptr<api::Buffer> GetVertexBuffer() const;
 
@@ -34,4 +36,4 @@ class GeometryItem {
 
   virtual ~GeometryItem() = 0;
 };
-}
+}  // namespace geometry

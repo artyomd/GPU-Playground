@@ -54,8 +54,6 @@ ENDIF (USE_OPENGL)
 
 add_definitions(-DIMGUI_DISABLE_DEMO_WINDOWS)
 
-add_subdirectory(external/snowhouse)
-
 FUNCTION(CONVERT_SPV result)
     SET(spvs "")
     FOREACH (glsl ${ARGN})
@@ -87,14 +85,18 @@ add_executable(playground ${SOURCE_FILES} ${SPV_FILES} ${EXTERNAL_SOURCE_FILES})
 
 target_include_directories(playground PRIVATE "${PROJECT_SOURCE_DIR}")
 target_include_directories(playground SYSTEM PRIVATE ${GLEW_INCLUDE_DIRS})
-target_include_directories(playground SYSTEM PRIVATE external/glm)
 target_include_directories(playground SYSTEM PRIVATE external/stb)
 target_include_directories(playground SYSTEM PRIVATE external/tinyobjloader)
 target_include_directories(playground SYSTEM PRIVATE external/src)
 target_include_directories(playground SYSTEM PRIVATE external/src/imgui)
 target_include_directories(playground SYSTEM PRIVATE external/json/single_include/)
+add_compile_definitions(SPDLOG_FMT_EXTERNAL)
+target_include_directories(playground SYSTEM PRIVATE external/spdlog/include/)
 target_include_directories(playground SYSTEM PRIVATE external)
+
+add_subdirectory(external/fmt)
+add_subdirectory(external/glm)
 
 target_include_directories(playground SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
 
-target_link_libraries(playground glfw ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} snowhouse ${CMAKE_DL_LIBS})
+target_link_libraries(playground glfw glm fmt ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} ${CMAKE_DL_LIBS})

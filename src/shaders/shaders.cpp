@@ -21,8 +21,10 @@ std::string texture2d_fragment;
 std::string texture2d_vertex;
 
 #define STRINGIFY(_name_) #_name_
-#define SHADER(_name_)  STRINGIFY(_name_.spv)
-#define SHADER_TO_STRING(shader) std::string(reinterpret_cast<const char*>(shader), static_cast<size_t>(sizeof(shader)/sizeof(shader[0])))
+#define SHADER(_name_) STRINGIFY(_name_.spv)
+#define SHADER_TO_STRING(shader)                     \
+  std::string(reinterpret_cast<const char*>(shader), \
+              static_cast<size_t>(sizeof(shader) / sizeof(shader[0])))
 
 void LoadShaders() {
   const unsigned char color_fragment[] = {
@@ -83,7 +85,8 @@ void LoadShaders() {
   const unsigned char shaping_function_fragment[] = {
 #include SHADER(shaping_function_fragment_shader)
   };
-  shaping_function_fragment_shader = SHADER_TO_STRING(shaping_function_fragment);
+  shaping_function_fragment_shader =
+      SHADER_TO_STRING(shaping_function_fragment);
 
   const unsigned char squares_fragment[] = {
 #include SHADER(squares_fragment_shader)

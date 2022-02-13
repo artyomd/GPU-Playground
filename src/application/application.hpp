@@ -26,4 +26,4 @@ class Application {
 
   virtual ~Application() = default;
 };
-}
+}  // namespace application

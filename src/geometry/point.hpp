@@ -32,4 +32,4 @@ struct Point {
     return point;
   }
 };
-}
+}  // namespace geometry

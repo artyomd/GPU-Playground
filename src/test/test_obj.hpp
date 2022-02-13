@@ -15,4 +15,4 @@ class TestObj : public TestModel {
 
   void OnRender() override;
 };
-}
+}  // namespace test

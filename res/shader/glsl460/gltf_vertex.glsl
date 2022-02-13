@@ -31,60 +31,53 @@ layout(constant_id = 6) const bool has_joints_0 = false;
 layout(location = 7) in vec2 a_weights_0;
 layout(constant_id = 7) const bool has_weights_0 = false;
 
-
 layout(binding = 0, std140) uniform MVP {
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-    mat4 normal;
-} mvp;
-
-vec4 getPosition()
-{
-    return a_position;
+  mat4 model;
+  mat4 view;
+  mat4 proj;
+  mat4 normal;
 }
-vec3 getNormal()
-{
-    return normalize(a_normal);
-}
+mvp;
 
-vec3 getTangent()
-{
-    vec3 tangent = a_tangent.xyz;
-    return normalize(tangent);
+vec4 getPosition() { return a_position; }
+vec3 getNormal() { return normalize(a_normal); }
+
+vec3 getTangent() {
+  vec3 tangent = a_tangent.xyz;
+  return normalize(tangent);
 }
 
 void main() {
-    vec4 pos = mvp.model * getPosition();
-    v_position = vec3(pos.xyz) / pos.w;
+  vec4 pos = mvp.model * getPosition();
+  v_position = vec3(pos.xyz) / pos.w;
 
-    if (has_normal){
-        if (has_tangent){
-            vec3 tangent = getTangent();
-            vec3 normalW = normalize(vec3(mvp.normal * vec4(getNormal(), 0.0)));
-            vec3 tangentW = normalize(vec3(mvp.model * vec4(tangent, 0.0)));
-            vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
-            v_TBN = mat3(tangentW, bitangentW, normalW);
-        } else {
-            v_normal = normalize(vec3(mvp.normal * vec4(getNormal(), 0.0)));
-        }
-    }
-    if (has_textCoord_0){
-        v_texCoord_0 = a_textCoord_0;
+  if (has_normal) {
+    if (has_tangent) {
+      vec3 tangent = getTangent();
+      vec3 normalW = normalize(vec3(mvp.normal * vec4(getNormal(), 0.0)));
+      vec3 tangentW = normalize(vec3(mvp.model * vec4(tangent, 0.0)));
+      vec3 bitangentW = cross(normalW, tangentW) * a_tangent.w;
+      v_TBN = mat3(tangentW, bitangentW, normalW);
     } else {
-        v_texCoord_0 = vec2(0.0, 0.0);
+      v_normal = normalize(vec3(mvp.normal * vec4(getNormal(), 0.0)));
     }
-    if (has_textCoord_1){
-        v_texCoord_1 = a_textCoord_1;
-    } else {
-        v_texCoord_1 = vec2(0.0, 0.0);
-    }
+  }
+  if (has_textCoord_0) {
+    v_texCoord_0 = a_textCoord_0;
+  } else {
+    v_texCoord_0 = vec2(0.0, 0.0);
+  }
+  if (has_textCoord_1) {
+    v_texCoord_1 = a_textCoord_1;
+  } else {
+    v_texCoord_1 = vec2(0.0, 0.0);
+  }
 
-    if (has_color_0){
-        v_color_0 = a_color_0;
-    } else {
-        v_color_0 = vec4(1.0);
-    }
+  if (has_color_0) {
+    v_color_0 = a_color_0;
+  } else {
+    v_color_0 = vec4(1.0);
+  }
 
-    gl_Position = mvp.proj* mvp.view * pos;
+  gl_Position = mvp.proj * mvp.view * pos;
 }

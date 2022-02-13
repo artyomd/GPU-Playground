@@ -4,18 +4,21 @@
 
 #pragma once
 
+// clang-format off
 #include <GL/glew.h>
-#include <snowhouse/snowhouse.h>
+#include <GL/gl.h>
+// clang-format on
 
 #include "src/api/data_type.hpp"
 #include "src/api/redering_pipeline_config.hpp"
 #include "src/api/sampler.hpp"
 #include "src/api/shader.hpp"
+#include "src/utils/check.hpp"
 
-#define GL_CALL(x) \
-  api::opengl::GlClearError();\
-  x;\
-  AssertThat(api::opengl::GlLogCall(#x, __FILE__, __LINE__), snowhouse::Is().True())
+#define GL_CALL(x)             \
+  api::opengl::GlClearError(); \
+  x;                           \
+  CHECK(api::opengl::GlLogCall(#x, __FILE__, __LINE__), "opengl call failed")
 
 namespace api::opengl {
 void GlClearError();
@@ -38,4 +41,4 @@ GLenum GetGlFrontFace(api::FrontFace front_face);
 
 GLenum GetGlCompareOp(api::CompareOp compare_op);
 
-}
+}  // namespace api::opengl

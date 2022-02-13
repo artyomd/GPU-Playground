@@ -8,8 +8,8 @@
 
 #include <optional>
 
-#include "src/application/glfw_application.hpp"
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
+#include "src/application/glfw_application.hpp"
 
 namespace application {
 class VulkanApplication : public GlfwApplication {
@@ -20,12 +20,10 @@ class VulkanApplication : public GlfwApplication {
   const bool enable_validation_layers_ = true;
 #endif
   const std::vector<const char *> validation_layers_ = {
-      "VK_LAYER_KHRONOS_validation"
-  };
+      "VK_LAYER_KHRONOS_validation"};
 
   const std::vector<const char *> device_extensions_ = {
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME
-  };
+      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
   const uint32_t max_frames_in_flight_ = 2;
 
@@ -73,8 +71,7 @@ class VulkanApplication : public GlfwApplication {
     std::optional<uint32_t> present_family;
 
     [[nodiscard]] bool IsComplete() const {
-      return graphics_family.has_value() &&
-          present_family.has_value();
+      return graphics_family.has_value() && present_family.has_value();
     }
   };
 
@@ -114,10 +111,12 @@ class VulkanApplication : public GlfwApplication {
 
   void CreateSwapChain();
 
-  static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available_formats,
-                                                    VkFormat desired_format);
+  static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
+      const std::vector<VkSurfaceFormatKHR> &available_formats,
+      VkFormat desired_format);
 
-  static VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR> &available_present_modes);
+  static VkPresentModeKHR ChooseSwapPresentMode(
+      const std::vector<VkPresentModeKHR> &available_present_modes);
 
   VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
@@ -138,8 +137,8 @@ class VulkanApplication : public GlfwApplication {
   void InitImGui();
 
   static void DestroyImGui();
- protected:
 
+ protected:
   void InitContext() final;
 
   void SetupWindowHints() final;
@@ -159,4 +158,4 @@ class VulkanApplication : public GlfwApplication {
  public:
   VulkanApplication();
 };
-}
+}  // namespace application

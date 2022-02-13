@@ -9,8 +9,9 @@
 namespace test {
 class TestTriangle : public TestModel {
  public:
-  explicit TestTriangle(std::shared_ptr<api::RenderingContext> rendering_context);
+  explicit TestTriangle(
+      std::shared_ptr<api::RenderingContext> rendering_context);
 
   void OnRender() override;
 };
-}
+}  // namespace test

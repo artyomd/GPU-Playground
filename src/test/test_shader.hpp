@@ -20,7 +20,8 @@ class TestShader : public Test {
   std::shared_ptr<api::RenderingPipeline> pipeline_ = nullptr;
 
  public:
-  explicit TestShader(std::shared_ptr<api::RenderingContext> rendering_context, std::string fragment_shader);
+  explicit TestShader(std::shared_ptr<api::RenderingContext> rendering_context,
+                      std::string fragment_shader);
 
   void OnUpdate(float delta_time) override;
 
@@ -29,4 +30,4 @@ class TestShader : public Test {
   void OnImGuiRender() override;
   void OnViewportChange(uint32_t width, uint32_t height) override;
 };
-}
+}  // namespace test

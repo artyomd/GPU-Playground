@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "src/application/glfw_application.hpp"
 #include "src/api/opengl/opengl_rendering_context.hpp"
+#include "src/application/glfw_application.hpp"
 
 namespace application {
 class OpenGlApplication : public GlfwApplication {
@@ -25,4 +25,4 @@ class OpenGlApplication : public GlfwApplication {
  public:
   OpenGlApplication();
 };
-}
+}  // namespace application

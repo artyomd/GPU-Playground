@@ -18,7 +18,8 @@ class TestLight : public TestModel {
   explicit TestLight(std::shared_ptr<api::RenderingContext> renderer);
 
   void OnRender() override;
+
  private:
   ViewBuffer buffer_{};
 };
-}
+}  // namespace test

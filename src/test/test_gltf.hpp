@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "src/test/test_model.hpp"
 #include "src/geometry/gltf_model.hpp"
+#include "src/test/test_model.hpp"
 
 namespace test {
 class TestGltf : public Test {
@@ -19,4 +19,4 @@ class TestGltf : public Test {
   void OnRender() override;
   void OnImGuiRender() override;
 };
-}
+}  // namespace test

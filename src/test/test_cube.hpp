@@ -14,4 +14,4 @@ class TestCube : public TestModel {
   void OnRender() override;
 };
 
-}
+}  // namespace test

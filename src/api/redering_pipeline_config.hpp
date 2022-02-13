@@ -43,4 +43,4 @@ struct RenderingPipelineConfig {
   bool enable_depth_test = false;
   CompareOp depth_function = CompareOp::LESS;
 };
-}
+}  // namespace api

@@ -17,8 +17,6 @@ const api::VertexBufferLayout &geometry::GeometryItem::GetVbl() const {
   return vbl_;
 }
 
-size_t geometry::GeometryItem::GetIndexCount() const {
-  return index_count_;
-}
+size_t geometry::GeometryItem::GetIndexCount() const { return index_count_; }
 
 geometry::GeometryItem::~GeometryItem() = default;

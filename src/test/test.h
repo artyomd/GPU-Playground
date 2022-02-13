@@ -13,11 +13,11 @@ class Test {
   std::shared_ptr<api::RenderingContext> rendering_context_;
   uint32_t size_[2] = {0, 0};
 
-  explicit Test(std::shared_ptr<api::RenderingContext> rendering_context) :
-      rendering_context_(std::move(rendering_context)) {}
+  explicit Test(std::shared_ptr<api::RenderingContext> rendering_context)
+      : rendering_context_(std::move(rendering_context)) {}
 
  public:
-  virtual void OnUpdate([[maybe_unused]]float delta_time) {}
+  virtual void OnUpdate([[maybe_unused]] float delta_time) {}
 
   virtual void OnRender() {}
 
@@ -30,4 +30,4 @@ class Test {
 
   virtual ~Test() = default;
 };
-}
+}  // namespace test
