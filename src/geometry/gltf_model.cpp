@@ -4,6 +4,7 @@
 
 #include "src/geometry/gltf_model.hpp"
 
+#include <spdlog/spdlog.h>
 #include <tinygltf/tiny_gltf.h>
 
 #include <glm/ext.hpp>
@@ -12,7 +13,6 @@
 #include "src/geometry/gltf_model_defaults.hpp"
 #include "src/shaders/shaders.hpp"
 #include "src/utils/check.hpp"
-
 namespace {
 api::DataType GetType(int type) {
   switch (type) {
@@ -150,11 +150,11 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context,
   bool ret = loader.LoadASCIIFromFile(&model_, &err, &warn, path);
 
   if (!warn.empty()) {
-    (void)printf("Warn: %s\n", warn.c_str());
+    spdlog::warn(warn);
   }
 
   if (!err.empty()) {
-    (void)printf("Err: %s\n", err.c_str());
+    spdlog::error(warn);
   }
 
   if (!ret) {
@@ -189,11 +189,10 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context,
   }
 }
 
-void geometry::GltfModel::LoadScene(int scene_index) {
+void geometry::GltfModel::LoadScene(uint scene_index) {
   context_->WaitForGpuIdle();
   current_pipelines_.clear();
-  CHECK(scene_index >= 0, "scene index must be >=0")
-  CHECK(model_.scenes.size() >= 0, "model must have at least 1 scene")
+  CHECK(model_.scenes.size() != 0u, "model must have at least 1 scene")
   CHECK(scene_index < model_.scenes.size(),
         "scene with given index does not exists")
   auto default_scene = model_.scenes[static_cast<size_t>(scene_index)];

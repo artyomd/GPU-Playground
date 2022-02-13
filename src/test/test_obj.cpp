@@ -43,8 +43,14 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
                         "../res/models/chalet.obj", "../res/models")) {
     throw std::runtime_error(warn + err);
   }
-  spdlog::warn(warn);
-  spdlog::error(err);
+  if (!warn.empty()) {
+    spdlog::warn(warn);
+  }
+
+  if (!err.empty()) {
+    spdlog::error(warn);
+  }
+
   std::vector<Vertex> vertices;
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices;

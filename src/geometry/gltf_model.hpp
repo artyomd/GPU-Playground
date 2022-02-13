@@ -29,7 +29,7 @@ class GltfModel {
             const std::string &path);
   std::vector<std::string> GetScenes();
   [[nodiscard]] int GetDefaultSceneIndex() const;
-  void LoadScene(int scene_index);
+  void LoadScene(uint scene_index);
   void SetCamera(uint camera_index, glm::mat4 view);
   void Render();
   void SetViewport(uint32_t width, uint32_t height);

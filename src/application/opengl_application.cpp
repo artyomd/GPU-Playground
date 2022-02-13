@@ -7,6 +7,7 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <spdlog/spdlog.h>
 
 #include "src/api/opengl/opengl_utils.hpp"
 
@@ -63,21 +64,22 @@ void MessageCallback(GLenum source, GLenum type, GLuint, GLenum severity,
   std::string msg_severity;
   switch (severity) {
     case GL_DEBUG_SEVERITY_LOW:
-      msg_severity = "LOW";
+      spdlog::info("glDebugMessage: type = {}, source = {}, message = {}",
+                   msg_type, msg_source, message);
       break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-      msg_severity = "MEDIUM";
+      spdlog::warn("glDebugMessage: type = {}, source = {}, message = {}",
+                    msg_type, msg_source, message);
       break;
     case GL_DEBUG_SEVERITY_HIGH:
-      msg_severity = "HIGH";
+      spdlog::error("glDebugMessage: type = {}, source = {}, message = {}",
+                    msg_type, msg_source, message);
       break;
     default:
-      msg_severity = "unknown severity";
+      spdlog::debug("glDebugMessage: type = {}, source = {}, message = {}",
+                    msg_type, msg_source, message);
       break;
   }
-
-  printf("glDebugMessage:\n%s \n type = %s source = %s severity = %s\n",
-         message, msg_type.c_str(), msg_source.c_str(), msg_severity.c_str());
 }
 }  // namespace
 
