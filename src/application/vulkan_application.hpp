@@ -14,21 +14,13 @@
 namespace application {
 class VulkanApplication : public GlfwApplication {
  private:
-#ifdef NDEBUG
-  const bool enable_validation_layers_ = false;
-#else
-  const bool enable_validation_layers_ = true;
-#endif
-  const std::vector<const char *> validation_layers_ = {
-      "VK_LAYER_KHRONOS_validation"};
-
   const std::vector<const char *> device_extensions_ = {
       VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
   const uint32_t max_frames_in_flight_ = 2;
 
-  VkInstance vulkan_instance_{};
-  VkDebugUtilsMessengerEXT debug_messenger_{};
+  VkInstance vulkan_instance_ = VK_NULL_HANDLE;
+  VkDebugUtilsMessengerEXT debug_messenger_ = VK_NULL_HANDLE;
 
   VkSurfaceKHR surface_{};
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
@@ -87,11 +79,7 @@ class VulkanApplication : public GlfwApplication {
 
   void RecreateSwapChain();
 
-  bool CheckValidationLayerSupport();
-
   [[nodiscard]] std::vector<const char *> GetRequiredExtensions() const;
-
-  void SetupDebugMessenger();
 
   void CreateSurface();
 

@@ -28,8 +28,6 @@ class VulkanRenderingContext
 
   VkCommandBuffer current_command_buffer_ = VK_NULL_HANDLE;
 
-  VkSampleCountFlagBits GetMaxUsableSampleCount();
-
  public:
   VulkanRenderingContext(VkPhysicalDevice physical_device, VkDevice device,
                          VkQueue graphics_queue, VkCommandPool graphics_pool,

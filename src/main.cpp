@@ -23,7 +23,7 @@ int main() {
   try {
     spdlog::set_level(spdlog::level::debug);
     LoadShaders();
-    application::OpenGlApplication test_application;
+    application::VulkanApplication test_application;
     test_application.RegisterTest<test::TestTriangle>("Triangle");
     test_application.RegisterTest<test::TestRaymarching>("Reflections");
     test_application.RegisterTest<test::TestSeascapeShader>("Seascape");

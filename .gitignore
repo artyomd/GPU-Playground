@@ -33,6 +33,7 @@
 #folders
 out/
 cmake-build-debug/
+build/
 
 #compiled spirv files
 *.spv

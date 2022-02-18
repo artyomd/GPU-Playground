@@ -4,13 +4,20 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+
 #include <vector>
 
 #include "src/api/data_type.hpp"
 #include "src/api/redering_pipeline_config.hpp"
 #include "src/api/sampler.hpp"
 #include "src/api/shader.hpp"
+#include "src/utils/check.hpp"
 
+#define VK_CALL(x)                                                  \
+  {                                                                 \
+    auto result = x;                                                \
+    CHECK(result == VK_SUCCESS, "{} failed, result:{}", #x, result) \
+  };
 namespace api::vulkan {
 
 VkBufferUsageFlags GetVkBufferUsage(api::BufferUsage buffer_usage);
@@ -38,4 +45,4 @@ VkShaderStageFlagBits GetVkShaderStageFlag(api::ShaderType shader_type);
 VkFormat GetVkFormat(api::PixelFormat pixel_format);
 
 void CheckVkResult(VkResult result);
-}
+}  // namespace api::vulkan

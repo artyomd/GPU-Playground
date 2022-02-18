@@ -13,6 +13,7 @@
 #include <set>
 
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
+#include "src/api/vulkan/vulkan_utils.hpp"
 
 namespace {
 VkResult CreateDebugUtilsMessengerExt(
@@ -73,7 +74,6 @@ void application::VulkanApplication::OnWindowSizeChanged(int width,
 void application::VulkanApplication::InitContext() {
   GlfwApplication::InitContext();
   CreateInstance();
-  SetupDebugMessenger();
   CreateSurface();
   PickPhysicalDevice();
   CreateLogicalDevice();
@@ -111,9 +111,8 @@ void application::VulkanApplication::RecreateSwapChain() {
 }
 
 void application::VulkanApplication::CreateInstance() {
-  if (enable_validation_layers_ && !CheckValidationLayerSupport()) {
-    throw std::runtime_error("validation layers requested, but not available!");
-  }
+  uint32_t instanceApiVersion = 0;
+  VK_CALL(vkEnumerateInstanceVersion(&instanceApiVersion));
 
   VkApplicationInfo app_info = {};
   app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -123,42 +122,74 @@ void application::VulkanApplication::CreateInstance() {
   app_info.engineVersion = 0U;
   app_info.apiVersion = VK_API_VERSION_1_2;
 
-  VkInstanceCreateInfo create_info = {};
-  create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-  create_info.pApplicationInfo = &app_info;
+  std::vector<const char *> extensions = GetRequiredExtensions();
+  std::vector<const char *> layers{};
+  void *instance_create_info_next = nullptr;
+#ifndef NDEUG
+  layers.emplace_back("VK_LAYER_KHRONOS_validation");
+  extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+  std::vector<VkValidationFeatureEnableEXT> enabledFeatures = {
+      VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+      VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+      // VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
+      // VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT,
+      VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT,
+  };
+  VkValidationFeaturesEXT validationfeatures = {};
+  validationfeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+  validationfeatures.enabledValidationFeatureCount = enabledFeatures.size();
+  validationfeatures.pEnabledValidationFeatures = enabledFeatures.data();
+  validationfeatures.disabledValidationFeatureCount = 0;
+  validationfeatures.pDisabledValidationFeatures = nullptr;
+  instance_create_info_next = &validationfeatures;
+#endif
 
-  auto extensions = GetRequiredExtensions();
-  create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-  create_info.ppEnabledExtensionNames = extensions.data();
-  if (enable_validation_layers_) {
-    create_info.enabledLayerCount =
-        static_cast<uint32_t>(validation_layers_.size());
-    create_info.ppEnabledLayerNames = validation_layers_.data();
-  } else {
-    create_info.enabledLayerCount = 0;
-  }
+  VkInstanceCreateInfo instance_create_info = {};
+  instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+  instance_create_info.pNext = instance_create_info_next;
+  instance_create_info.pApplicationInfo = &app_info;
+  instance_create_info.enabledExtensionCount =
+      static_cast<uint32_t>(extensions.size());
+  instance_create_info.ppEnabledExtensionNames = extensions.data();
+  instance_create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+  instance_create_info.ppEnabledLayerNames = layers.data();
 
-  if (vkCreateInstance(&create_info, nullptr, &vulkan_instance_) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create instance!");
-  }
-}
+  VK_CALL(vkCreateInstance(&instance_create_info, nullptr, &vulkan_instance_));
 
-bool application::VulkanApplication::CheckValidationLayerSupport() {
-  uint32_t layer_count;
-  vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-  std::vector<VkLayerProperties> available_layers(layer_count);
-  vkEnumerateInstanceLayerProperties(&layer_count, available_layers.data());
-
-  for (const char *layer_name : validation_layers_) {
-    for (const auto &layer_properties : available_layers) {
-      if (strcmp(layer_name, layer_properties.layerName) == 0) {
-        return true;
-      }
+#ifndef NDEUG
+  VkDebugUtilsMessengerCreateInfoEXT messenger_create_info = {};
+  messenger_create_info.sType =
+      VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+  messenger_create_info.messageSeverity =
+      VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT;
+  messenger_create_info.messageType =
+      VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
+  messenger_create_info.pfnUserCallback =
+      [](VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+         VkDebugUtilsMessageTypeFlagsEXT,
+         const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
+         void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
+    if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+      spdlog::info("validation layer: {}", p_callback_data->pMessage);
+    } else if (message_severity &
+               VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+      spdlog::warn("validation layer: {}", p_callback_data->pMessage);
+    } else if (message_severity &
+               VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+      spdlog::error("validation layer: {}", p_callback_data->pMessage);
+    } else {
+      // spdlog::debug("validation layer: {}", p_callback_data->pMessage);
     }
-  }
-  return false;
-}
+    return VK_FALSE;
+  };
+  VK_CALL(CreateDebugUtilsMessengerExt(vulkan_instance_, &messenger_create_info,
+                                       nullptr, &debug_messenger_));
+#endif
+  spdlog::info("vulkan instance created with version {}.{}.{}",
+               VK_API_VERSION_MAJOR(instanceApiVersion),
+               VK_API_VERSION_MINOR(instanceApiVersion),
+               VK_API_VERSION_PATCH(instanceApiVersion));
+};
 
 std::vector<const char *>
 application::VulkanApplication::GetRequiredExtensions() const {
@@ -167,41 +198,7 @@ application::VulkanApplication::GetRequiredExtensions() const {
       glfwGetRequiredInstanceExtensions(&glfw_extension_count);
   std::vector<const char *> extensions(glfw_extensions,
                                        glfw_extensions + glfw_extension_count);
-  if (enable_validation_layers_) {
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-  }
   return extensions;
-}
-
-void application::VulkanApplication::SetupDebugMessenger() {
-  if (!enable_validation_layers_) {
-    return;
-  }
-  VkDebugUtilsMessengerCreateInfoEXT create_info = {};
-  create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-  create_info.messageSeverity =
-      VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT;
-  create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_FLAG_BITS_MAX_ENUM_EXT;
-  create_info.pfnUserCallback =
-      [](VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-         VkDebugUtilsMessageTypeFlagsEXT,
-         const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
-         void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
-    if (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-      return VK_FALSE;
-    }
-    if ((message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) |
-        (message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)) {
-      spdlog::error("validation layer: {}", p_callback_data->pMessage);
-    } else {
-      spdlog::info("validation layer: {}", p_callback_data->pMessage);
-    }
-    return VK_FALSE;
-  };
-  if (CreateDebugUtilsMessengerExt(vulkan_instance_, &create_info, nullptr,
-                                   &debug_messenger_) != VK_SUCCESS) {
-    throw std::runtime_error("failed to set up debug messenger!");
-  }
 }
 
 void application::VulkanApplication::CreateSurface() {
@@ -344,14 +341,6 @@ void application::VulkanApplication::CreateLogicalDevice() {
   create_info.enabledExtensionCount =
       static_cast<uint32_t>(extensions_to_enable.size());
   create_info.ppEnabledExtensionNames = extensions_to_enable.data();
-
-  if (enable_validation_layers_) {
-    create_info.enabledLayerCount =
-        static_cast<uint32_t>(validation_layers_.size());
-    create_info.ppEnabledLayerNames = validation_layers_.data();
-  } else {
-    create_info.enabledLayerCount = 0;
-  }
 
   if (vkCreateDevice(physical_device_, &create_info, nullptr, &device_) !=
       VK_SUCCESS) {
@@ -732,7 +721,7 @@ void application::VulkanApplication::DestroyContext() {
   vkDestroyCommandPool(device_, graphics_command_pool_, nullptr);
   vkDestroyDevice(device_, nullptr);
   vkDestroySurfaceKHR(vulkan_instance_, surface_, nullptr);
-  if (enable_validation_layers_) {
+  if (debug_messenger_ != VK_NULL_HANDLE) {
     DestroyDebugUtilsMessengerExt(vulkan_instance_, debug_messenger_, nullptr);
   }
   vkDestroyInstance(vulkan_instance_, nullptr);
