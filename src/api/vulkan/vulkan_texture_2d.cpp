@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/30/20.
-//
-
 #include "src/api/vulkan/vulkan_texture_2d.hpp"
 
 #include <cstring>
@@ -10,13 +6,12 @@
 
 #include "src/api/vulkan/vulkan_utils.hpp"
 
-api::vulkan::VulkanTexture2D::VulkanTexture2D(
-    std::shared_ptr<VulkanRenderingContext> context,
-    uint32_t width,
-    uint32_t height,
-    PixelFormat pixel_format)
-    : Texture2D(width, height, pixel_format),
-      context_(std::move(context)), device_(context_->GetDevice()) {
+api::vulkan::VulkanTexture2D::VulkanTexture2D(std::shared_ptr<VulkanRenderingContext> context,
+                                              uint32_t width,
+                                              uint32_t height,
+                                              PixelFormat pixel_format) : Texture2D(width, height, pixel_format),
+                                                                          context_(std::move(context)),
+                                                                          device_(context_->GetDevice()) {
 
   context_->CreateImage(width_,
                         height_,

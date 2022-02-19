@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/22/20.
-//
-
 #include "src/geometry/spiral_sphere.hpp"
 
 #include <cmath>
@@ -38,12 +34,12 @@ geometry::SpiralSphere::SpiralSphere(
          loop_segment_number < segments_per_loop; ++loop_segment_number) {
       auto theta = static_cast<float>(
           (loop_number * M_PI / loops) +
-          ((M_PI * loop_segment_number) / (segments_per_loop * loops)));
+              ((M_PI * loop_segment_number) / (segments_per_loop * loops)));
       if (loop_number == loops) {
         theta = static_cast<float>(M_PI);
       }
       auto phi = static_cast<float>(loop_segment_number * 2 * M_PI /
-                                    segments_per_loop);
+          segments_per_loop);
       float sin_theta = std::sin(theta);
       float sin_phi = std::sin(phi);
       float cos_theta = std::cos(theta);
@@ -62,15 +58,15 @@ geometry::SpiralSphere::SpiralSphere(
        loop_segment_number < segments_per_loop; ++loop_segment_number) {
     index_data.push_back(static_cast<unsigned short &&>(loop_segment_number));
     index_data.push_back(static_cast<unsigned short &&>(segments_per_loop +
-                                                        loop_segment_number));
+        loop_segment_number));
   }
   for (unsigned int loop_number = 0; loop_number < loops; ++loop_number) {
     for (unsigned int loop_segment_number = 0;
          loop_segment_number < segments_per_loop; ++loop_segment_number) {
       index_data.push_back(static_cast<unsigned short &&>(
-          ((loop_number + 1) * segments_per_loop) + loop_segment_number));
+                               ((loop_number + 1) * segments_per_loop) + loop_segment_number));
       index_data.push_back(static_cast<unsigned short &&>(
-          ((loop_number + 2) * segments_per_loop) + loop_segment_number));
+                               ((loop_number + 2) * segments_per_loop) + loop_segment_number));
     }
   }
 

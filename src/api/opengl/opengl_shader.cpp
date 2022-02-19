@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 1/5/20.
-//
-
 #include "src/api/opengl/opengl_shader.hpp"
 
 #include <spdlog/spdlog.h>
@@ -14,32 +10,32 @@
 
 api::opengl::OpenGlShader::OpenGlShader(std::string sipr_v_shader_location,
                                         std::string entry_point_name,
-                                        api::ShaderType type)
-    : Shader(std::move(sipr_v_shader_location), std::move(entry_point_name),
-             type) {
+                                        api::ShaderType type) : Shader(std::move(sipr_v_shader_location),
+                                                                       std::move(entry_point_name),
+                                                                       type) {
   GL_CALL(shader_id_ = glCreateShader(GetShaderGlType(type)));
   CHECK(shader_id_ != 0, "unable to create a shader object")
 }
 
 GLuint api::opengl::OpenGlShader::GetShaderId() const {
   if (!specialized_ || constants_changed_) {
-    GL_CALL(glShaderBinary(1, &shader_id_, GL_SHADER_BINARY_FORMAT_SPIR_V,
-                           code_.data(), static_cast<GLsizei>(code_.size())));
+    GL_CALL(glShaderBinary(1,
+                           &shader_id_,
+                           GL_SHADER_BINARY_FORMAT_SPIR_V,
+                           code_.data(),
+                           static_cast<GLsizei>(code_.size())));
     std::vector<GLuint> indices(specs_.size());
     size_t i = 0;
     spec_data_size_ = 0;
-    for (const auto &entry : specs_) {
+    for (const auto &entry: specs_) {
       indices[i] = entry.first;
       i++;
       auto value = entry.second;
-      VisitVariant(
-          value,
-          [&](bool v) {
-            spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(GLuint));
-            *(reinterpret_cast<GLuint *>(static_cast<char *>(spec_data_) +
-                                         spec_data_size_)) = v;
-            spec_data_size_ += sizeof(GLuint);
-          },
+      VisitVariant(value, [&](bool v) {
+                     spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(GLuint));
+                     *(reinterpret_cast<GLuint *>(static_cast<char *>(spec_data_) + spec_data_size_)) = v;
+                     spec_data_size_ += sizeof(GLuint);
+                   },
 #define VISIT(data_type)                                                   \
   [&](data_type v) {                                                       \
     spec_data_ = realloc(spec_data_, spec_data_size_ + sizeof(data_type)); \
@@ -48,12 +44,13 @@ GLuint api::opengl::OpenGlShader::GetShaderId() const {
     spec_data_size_ += sizeof(data_type);                                  \
   }
 
-          VISIT(int), VISIT(unsigned int), VISIT(float), VISIT(double));
+                   VISIT(int), VISIT(unsigned int), VISIT(float), VISIT(double));
     }
-    GL_CALL(glSpecializeShader(
-        shader_id_, static_cast<const GLchar *>(entry_point_name_.c_str()),
-        static_cast<GLuint>(specs_.size()), &indices[0],
-        reinterpret_cast<GLuint *>(spec_data_)));
+    GL_CALL(glSpecializeShader(shader_id_,
+                               static_cast<const GLchar *>(entry_point_name_.c_str()),
+                               static_cast<GLuint>(specs_.size()),
+                               &indices[0],
+                               reinterpret_cast<GLuint *>(spec_data_)));
 
     GLint result;
     GL_CALL(glGetShaderiv(shader_id_, GL_COMPILE_STATUS, &result));

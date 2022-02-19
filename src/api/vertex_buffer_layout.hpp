@@ -1,6 +1,3 @@
-//
-// Created by Artyom Dangizyan on 10/21/18.
-//
 #pragma once
 
 #include <stdexcept>

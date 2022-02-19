@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 1/1/20.
-//
-
 #include "src/api/opengl/opengl_rendering_pipeline.hpp"
 
 #include <spdlog/spdlog.h>
@@ -23,15 +19,13 @@ static inline void GetProgramInfoLog(GLuint id) {
   }
 }
 
-api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(
-    std::shared_ptr<Shader> vertex_shader,
-    std::shared_ptr<Shader> fragment_shader, api::VertexBufferLayout vbl,
-    api::RenderingPipelineConfig config)
+api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(std::shared_ptr<Shader> vertex_shader,
+                                                              std::shared_ptr<Shader> fragment_shader,
+                                                              api::VertexBufferLayout vbl,
+                                                              api::RenderingPipelineConfig config)
     : RenderingPipeline(), vbl_(std::move(vbl)), config_(config) {
-  auto gl_vertex_shader =
-      std::dynamic_pointer_cast<OpenGlShader>(vertex_shader);
-  auto gl_fragment_shader =
-      std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
+  auto gl_vertex_shader = std::dynamic_pointer_cast<OpenGlShader>(vertex_shader);
+  auto gl_fragment_shader = std::dynamic_pointer_cast<OpenGlShader>(fragment_shader);
 
   GL_CALL(program_id_ = glCreateProgram());
   CHECK(program_id_ != 0, "unable to create a program object")
@@ -55,18 +49,14 @@ api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(
   GL_CALL(glDetachShader(program_id_, gl_fragment_shader->GetShaderId()));
 
   GLint active_uniform_blocks = 0;
-  GL_CALL(glGetProgramiv(program_id_, GL_ACTIVE_UNIFORM_BLOCKS,
-                         &active_uniform_blocks));
+  GL_CALL(glGetProgramiv(program_id_, GL_ACTIVE_UNIFORM_BLOCKS, &active_uniform_blocks));
 
   for (int i = 0; i < active_uniform_blocks; i++) {
     GLint binding_point = -1;
     GLint size_in_bytes = 0;
-    GL_CALL(glGetActiveUniformBlockiv(program_id_, i, GL_UNIFORM_BLOCK_BINDING,
-                                      &binding_point));
-    CHECK(binding_point != -1,
-          "can not find uniform block with the given binding point")
-    GL_CALL(glGetActiveUniformBlockiv(
-        program_id_, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size_in_bytes));
+    GL_CALL(glGetActiveUniformBlockiv(program_id_, i, GL_UNIFORM_BLOCK_BINDING, &binding_point));
+    CHECK(binding_point != -1, "can not find uniform block with the given binding point")
+    GL_CALL(glGetActiveUniformBlockiv(program_id_, i, GL_UNIFORM_BLOCK_DATA_SIZE, &size_in_bytes));
     CHECK(size_in_bytes != 0, "unfirom block size can not be 0")
     auto buffer = std::make_shared<opengl::OpenGlBuffer>(size_in_bytes);
     ubos_.emplace(std::make_pair(binding_point, buffer));
@@ -74,19 +64,16 @@ api::opengl::OpenGlRenderingPipeline::OpenGlRenderingPipeline(
   draw_mode_ = GetGlDrawMode(config_.draw_mode);
 }
 
-void api::opengl::OpenGlRenderingPipeline::SetIndexBuffer(
-    std::shared_ptr<Buffer> buffer, api::DataType element_type) {
+void api::opengl::OpenGlRenderingPipeline::SetIndexBuffer(std::shared_ptr<Buffer> buffer, api::DataType element_type) {
   this->index_buffer_ = std::dynamic_pointer_cast<OpenGlBuffer>(buffer);
   this->index_type_ = api::opengl::GetGlType(element_type);
 }
 
-void api::opengl::OpenGlRenderingPipeline::SetVertexBuffer(
-    std::shared_ptr<Buffer> buffer) {
+void api::opengl::OpenGlRenderingPipeline::SetVertexBuffer(std::shared_ptr<Buffer> buffer) {
   this->vertex_buffer_ = std::dynamic_pointer_cast<OpenGlBuffer>(buffer);
 }
 
-void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count,
-                                                size_t offset) {
+void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count, size_t offset) {
   GL_CALL(glViewport(0, 0, viewport_width_, viewport_height_));
   GL_CALL(glScissor(0, 0, viewport_width_, viewport_height_));
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_->GetBufferId()));
@@ -96,14 +83,15 @@ void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count,
     const auto &elements = vbl_.GetElements();
     auto stride = static_cast<GLsizei>(vbl_.GetElementSize());
     size_t vertex_offset = 0;
-    for (auto element : elements) {
+    for (auto element: elements) {
       GL_CALL(glEnableVertexAttribArray(element.binding_index));
       GL_CALL(glVertexAttribPointer(element.binding_index,
                                     static_cast<GLint>(element.count),
-                                    GetGlType(element.type), GL_FALSE, stride,
+                                    GetGlType(element.type),
+                                    GL_FALSE,
+                                    stride,
                                     reinterpret_cast<void *>(vertex_offset)));
-      vertex_offset +=
-          element.count * api::GetDataTypeSizeInBytes(element.type);
+      vertex_offset += element.count * api::GetDataTypeSizeInBytes(element.type);
     }
   } else {
     GL_CALL(glBindVertexArray(vertex_array_));
@@ -120,19 +108,17 @@ void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count,
     GL_CALL(glCullFace(GetGlCullMode(config_.cull_mode)));
     GL_CALL(glFrontFace(GetGlFrontFace(config_.front_face)));
   }
-  for (const auto &texture : textures_) {
+  for (const auto &texture: textures_) {
     texture.second->Bind(texture.first);
   }
-  for (const auto &ubo : ubos_) {
-    GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first,
-                             ubo.second->GetBufferId()));
+  for (const auto &ubo: ubos_) {
+    GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, ubo.second->GetBufferId()));
   }
-  GL_CALL(glDrawElements(draw_mode_, static_cast<GLsizei>(index_count),
-                         index_type_, reinterpret_cast<void *>(offset)));
-  for (const auto &ubo : ubos_) {
+  GL_CALL(glDrawElements(draw_mode_, static_cast<GLsizei>(index_count), index_type_, reinterpret_cast<void *>(offset)));
+  for (const auto &ubo: ubos_) {
     GL_CALL(glBindBufferBase(GL_UNIFORM_BUFFER, ubo.first, 0));
   }
-  for (const auto &texture : textures_) {
+  for (const auto &texture: textures_) {
     texture.second->Unbind(texture.first);
   }
   GL_CALL(glDisable(GL_DEPTH_TEST));
@@ -143,24 +129,20 @@ void api::opengl::OpenGlRenderingPipeline::Draw(size_t index_count,
   GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
 }
 
-void api::opengl::OpenGlRenderingPipeline::SetViewPort(uint32_t width,
-                                                       uint32_t height) {
+void api::opengl::OpenGlRenderingPipeline::SetViewPort(uint32_t width, uint32_t height) {
   this->viewport_width_ = static_cast<GLsizei>(width);
   this->viewport_height_ = static_cast<GLsizei>(height);
 }
 
-void api::opengl::OpenGlRenderingPipeline::UpdateUniformBuffer(
-    unsigned int binding_point, void *data) {
+void api::opengl::OpenGlRenderingPipeline::UpdateUniformBuffer(unsigned int binding_point, void *data) {
   if (ubos_.find(binding_point) != ubos_.end()) {
     ubos_[binding_point]->Update(data);
   }
 }
 
-void api::opengl::OpenGlRenderingPipeline::SetTexture(
-    unsigned int binding_point, std::shared_ptr<api::Texture2D> texture) {
-  textures_.emplace(std::make_pair(
-      binding_point,
-      std::dynamic_pointer_cast<opengl::OpenglTexture2D>(texture)));
+void api::opengl::OpenGlRenderingPipeline::SetTexture(unsigned int binding_point,
+                                                      std::shared_ptr<api::Texture2D> texture) {
+  textures_.emplace(std::make_pair(binding_point, std::dynamic_pointer_cast<opengl::OpenglTexture2D>(texture)));
 }
 
 api::opengl::OpenGlRenderingPipeline::~OpenGlRenderingPipeline() {

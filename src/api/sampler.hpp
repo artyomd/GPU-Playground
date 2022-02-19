@@ -1,9 +1,4 @@
-//
-// Created by artyomd on 10/25/20.
-//
-
-#ifndef PLAYGROUND_SRC_API_SAMPLER_HPP_
-#define PLAYGROUND_SRC_API_SAMPLER_HPP_
+#pragma once
 
 #include "src/api/data_type.hpp"
 
@@ -30,4 +25,3 @@ struct Sampler {
   AddressMode address_mode_w = AddressMode::REPEAT;
 };
 }  // namespace api
-#endif  // PLAYGROUND_SRC_API_SAMPLER_HPP_

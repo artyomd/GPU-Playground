@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 1/6/20.
-//
 #pragma once
 
 #include "src/geometry/geometry_item.hpp"

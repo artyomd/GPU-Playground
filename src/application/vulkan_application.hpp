@@ -1,11 +1,6 @@
-//
-// Created by artyomd on 12/7/19.
-//
-
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
-
 #include <optional>
 
 #include "src/api/vulkan/vulkan_rendering_context.hpp"
@@ -78,8 +73,6 @@ class VulkanApplication : public GlfwApplication {
   void CreateInstance();
 
   void RecreateSwapChain();
-
-  [[nodiscard]] std::vector<const char *> GetRequiredExtensions() const;
 
   void CreateSurface();
 

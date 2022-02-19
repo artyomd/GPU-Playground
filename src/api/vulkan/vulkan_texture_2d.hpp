@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/30/20.
-//
-
 #pragma once
 
 #include "src/api/texture_2d.hpp"
@@ -26,6 +22,6 @@ class VulkanTexture2D : public Texture2D {
   void Load(const void *data) override;
   [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(unsigned int image_index,
                                                               unsigned int binding_point) const;
-  ~VulkanTexture2D();
+  ~VulkanTexture2D() override;
 };
 }

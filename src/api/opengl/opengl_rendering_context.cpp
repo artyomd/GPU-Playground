@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/31/19.
-//
-
 #include "src/api/opengl/opengl_rendering_context.hpp"
 
 #include "src/api/opengl/opengl_buffer.hpp"

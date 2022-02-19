@@ -1,7 +1,3 @@
-//
-// Created by Artyom Dangizyan on 1/1/21.
-//
-
 #pragma once
 
 #include <cstddef>
@@ -13,7 +9,8 @@ class VulkanBuffer : virtual public Buffer {
  public:
   VulkanBuffer() = delete;
   VulkanBuffer(const VulkanBuffer &) = delete;
-  VulkanBuffer(const std::shared_ptr<VulkanRenderingContext> &context, const size_t &length,
+  VulkanBuffer(const std::shared_ptr<VulkanRenderingContext> &context,
+               const size_t &length,
                VkBufferUsageFlags usage,
                VkMemoryPropertyFlags properties);
   void Update(const void *data) override;

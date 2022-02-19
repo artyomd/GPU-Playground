@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 12/7/19.
-//
 #pragma once
 
 #include "src/application/application.hpp"
@@ -25,7 +22,7 @@ class TestApplication : public Application {
   void CleanupTestMenu();
 
  public:
-  template <typename T>
+  template<typename T>
   void RegisterTest(const std::string &name) {
     if (test_menu_ == nullptr) {
       InitTestMenu();

@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 3/21/20.
-//
 #pragma once
 
 #include "src/geometry/quad.hpp"

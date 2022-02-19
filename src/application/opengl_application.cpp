@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/6/19.
-//
-
 #include "src/application/opengl_application.hpp"
 
 #include <imgui/imgui.h>
@@ -16,48 +12,35 @@ void MessageCallback(GLenum source, GLenum type, GLuint, GLenum severity,
                      GLsizei, const GLchar *message, const void *) {
   std::string msg_source;
   switch (source) {
-    case GL_DEBUG_SOURCE_API:
-      msg_source = "WINDOW_SYSTEM";
+    case GL_DEBUG_SOURCE_API:msg_source = "WINDOW_SYSTEM";
       break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
-      msg_source = "SHADER_COMPILER";
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:msg_source = "SHADER_COMPILER";
       break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
-      msg_source = "THIRD_PARTY";
+    case GL_DEBUG_SOURCE_THIRD_PARTY:msg_source = "THIRD_PARTY";
       break;
-    case GL_DEBUG_SOURCE_APPLICATION:
-      msg_source = "APPLICATION";
+    case GL_DEBUG_SOURCE_APPLICATION:msg_source = "APPLICATION";
       break;
-    case GL_DEBUG_SOURCE_OTHER:
-      msg_source = "OTHER";
+    case GL_DEBUG_SOURCE_OTHER:msg_source = "OTHER";
       break;
-    default:
-      msg_source = "unknown source";
+    default:msg_source = "unknown source";
       break;
   }
 
   std::string msg_type;
   switch (type) {
-    case GL_DEBUG_TYPE_ERROR:
-      msg_type = "ERROR";
+    case GL_DEBUG_TYPE_ERROR:msg_type = "ERROR";
       break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-      msg_type = "DEPRECATED_BEHAVIOR";
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:msg_type = "DEPRECATED_BEHAVIOR";
       break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-      msg_type = "UNDEFINED_BEHAVIOR";
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:msg_type = "UNDEFINED_BEHAVIOR";
       break;
-    case GL_DEBUG_TYPE_PORTABILITY:
-      msg_type = "PORTABILITY";
+    case GL_DEBUG_TYPE_PORTABILITY:msg_type = "PORTABILITY";
       break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-      msg_type = "PERFORMANCE";
+    case GL_DEBUG_TYPE_PERFORMANCE:msg_type = "PERFORMANCE";
       break;
-    case GL_DEBUG_TYPE_OTHER:
-      msg_type = "OTHER";
+    case GL_DEBUG_TYPE_OTHER:msg_type = "OTHER";
       break;
-    default:
-      msg_type = "unknown type";
+    default:msg_type = "unknown type";
       break;
   }
 
@@ -69,7 +52,7 @@ void MessageCallback(GLenum source, GLenum type, GLuint, GLenum severity,
       break;
     case GL_DEBUG_SEVERITY_MEDIUM:
       spdlog::warn("glDebugMessage: type = {}, source = {}, message = {}",
-                    msg_type, msg_source, message);
+                   msg_type, msg_source, message);
       break;
     case GL_DEBUG_SEVERITY_HIGH:
       spdlog::error("glDebugMessage: type = {}, source = {}, message = {}",

@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 8/15/21.
-//
-
 #include "src/geometry/geometry_item.hpp"
 
 std::shared_ptr<api::Buffer> geometry::GeometryItem::GetVertexBuffer() const {

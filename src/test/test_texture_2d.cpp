@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/31/20.
-//
-
 #include "src/test/test_texture_2d.hpp"
 
 #include <stb_image.h>
@@ -14,7 +10,7 @@ test::TestTexture2D::TestTexture2D(
     std::shared_ptr<api::RenderingContext> rendering_context)
     : TestModel(std::move(rendering_context)) {
   float positions[] = {-0.5F, -0.5F, 0.0F, 0.0F, 0.5F, -0.5F, 1.0F, 0.0F,
-                       -0.5F, 0.5F,  0.0F, 1.0F, 0.5F, 0.5F,  1.0F, 1.0F};
+                       -0.5F, 0.5F, 0.0F, 1.0F, 0.5F, 0.5F, 1.0F, 1.0F};
 
   unsigned short indices[] = {0, 1, 2, 2, 1, 3};
 

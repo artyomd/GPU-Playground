@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/6/19.
-//
-
 #pragma once
 
 #define GLFW_INCLUDE_NONE
@@ -29,7 +25,7 @@ class GlfwApplication : public TestApplication {
   virtual void SetupWindowHints() = 0;
 
   virtual void OnWindowSizeChanged([[maybe_unused]] int width,
-                                   [[maybe_unused]] int height){};
+                                   [[maybe_unused]] int height) {};
 
   void OnTestChanged(std::shared_ptr<test::Test> current_test) override;
 

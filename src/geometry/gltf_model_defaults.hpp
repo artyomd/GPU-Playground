@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 1/12/21.
-//
 #pragma once
 
 namespace geometry {

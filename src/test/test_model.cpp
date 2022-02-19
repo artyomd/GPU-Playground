@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/8/20.
-//
-
 #include "src/test/test_model.hpp"
 
 #include <imgui/imgui.h>

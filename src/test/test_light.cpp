@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 5/1/20.
-//
 #include "src/test/test_light.hpp"
 
 #include <spdlog/spdlog.h>
@@ -21,7 +18,7 @@ struct Vertex {
 };
 }  // namespace
 namespace std {
-template <>
+template<>
 struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
@@ -54,8 +51,8 @@ test::TestLight::TestLight(
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices = {};
 
-  for (const auto &shape : shapes) {
-    for (const auto &index : shape.mesh.indices) {
+  for (const auto &shape: shapes) {
+    for (const auto &index: shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
           attrib
@@ -63,7 +60,7 @@ test::TestLight::TestLight(
           attrib
               .vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
           attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) +
-                          2]};
+              2]};
       vertex.normal = {
           attrib
               .normals[3 * static_cast<unsigned long>(index.vertex_index) + 0],

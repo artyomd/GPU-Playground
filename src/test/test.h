@@ -1,6 +1,3 @@
-//
-// Created by Artyom Dangizyan on 11/17/18.
-//
 #pragma once
 
 #include <utility>

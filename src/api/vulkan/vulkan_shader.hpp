@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 3/4/20.
-//
 #pragma once
 
 #include <vulkan/vulkan.h>
@@ -28,8 +25,7 @@ class VulkanShader : public Shader {
   VulkanShader(const std::shared_ptr<VulkanRenderingContext> &context,
                std::string sipr_v_shader_location,
                std::string entry_point_name,
-               ShaderType type
-  );
+               ShaderType type);
 
   [[nodiscard]] VkPipelineShaderStageCreateInfo GetShaderStageInfo() const;
 

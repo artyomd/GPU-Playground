@@ -1,6 +1,3 @@
-//
-// Created by Artyom Dangizyan on 2018-11-29.
-//
 #pragma once
 
 #include "src/geometry/triangle.hpp"

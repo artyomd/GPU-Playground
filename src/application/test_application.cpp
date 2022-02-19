@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 12/7/19.
-//
 #include "src/application/test_application.hpp"
 
 #include <imgui/imgui.h>
@@ -27,7 +24,7 @@ void application::TestApplication::RenderMenu() {
 }
 
 const std::shared_ptr<test::Test>
-    &application::TestApplication::GetCurrentTest() const {
+&application::TestApplication::GetCurrentTest() const {
   return current_test_;
 }
 std::shared_ptr<api::RenderingContext>

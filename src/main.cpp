@@ -28,8 +28,7 @@ int main() {
     test_application.RegisterTest<test::TestRaymarching>("Reflections");
     test_application.RegisterTest<test::TestSeascapeShader>("Seascape");
     test_application.RegisterTest<test::TestStarNestShader>("Star Nest");
-    test_application.RegisterTest<test::TestShapingFunctionShader>(
-        "Shader Shaping Function");
+    test_application.RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
     test_application.RegisterTest<test::TestColorShader>("Shader Colors");
     test_application.RegisterTest<test::TestSquaresShader>("Shader Squares");
     test_application.RegisterTest<test::TestCube>("Cube");

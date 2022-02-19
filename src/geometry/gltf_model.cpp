@@ -1,7 +1,3 @@
-//
-// Created by Artyom Dangizyan on 12/30/20.
-//
-
 #include "src/geometry/gltf_model.hpp"
 
 #include <spdlog/spdlog.h>
@@ -13,53 +9,37 @@
 #include "src/geometry/gltf_model_defaults.hpp"
 #include "src/shaders/shaders.hpp"
 #include "src/utils/check.hpp"
+
 namespace {
 api::DataType GetType(int type) {
   switch (type) {
-    case TINYGLTF_COMPONENT_TYPE_BYTE:
-      return api::DataType::BYTE;
-    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-      return api::DataType::FLOAT;
-    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-      return api::DataType::UINT_16;
-    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-      return api::DataType::UINT_32;
-    default:
-      throw std::runtime_error("unknown type");
+    case TINYGLTF_COMPONENT_TYPE_BYTE:return api::DataType::BYTE;
+    case TINYGLTF_COMPONENT_TYPE_FLOAT:return api::DataType::FLOAT;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:return api::DataType::UINT_16;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:return api::DataType::UINT_32;
+    default:throw std::runtime_error("unknown type");
   }
 }
 
 unsigned int GetElementCount(int type) {
   switch (type) {
-    case TINYGLTF_TYPE_SCALAR:
-      return 1;
-    case TINYGLTF_TYPE_VEC2:
-      return 2;
-    case TINYGLTF_TYPE_VEC3:
-      return 3;
-    case TINYGLTF_TYPE_VEC4:
-      return 4;
-    default:
-      throw std::runtime_error("unknown type");
+    case TINYGLTF_TYPE_SCALAR:return 1;
+    case TINYGLTF_TYPE_VEC2:return 2;
+    case TINYGLTF_TYPE_VEC3:return 3;
+    case TINYGLTF_TYPE_VEC4:return 4;
+    default:throw std::runtime_error("unknown type");
   }
 }
 
 api::DrawMode GetMode(int mode) {
   switch (mode) {
-    case TINYGLTF_MODE_POINTS:
-      return api::DrawMode::POINT_LIST;
-    case TINYGLTF_MODE_LINE:
-      return api::DrawMode::LINE_LIST;
-    case TINYGLTF_MODE_LINE_STRIP:
-      return api::DrawMode::LINE_STRIP;
-    case TINYGLTF_MODE_TRIANGLES:
-      return api::DrawMode::TRIANGLE_LIST;
-    case TINYGLTF_MODE_TRIANGLE_FAN:
-      return api::DrawMode::TRIANGLE_FAN;
-    case TINYGLTF_MODE_TRIANGLE_STRIP:
-      return api::DrawMode::TRIANGLE_STRIP;
-    default:
-      throw std::runtime_error("unknown mode");
+    case TINYGLTF_MODE_POINTS:return api::DrawMode::POINT_LIST;
+    case TINYGLTF_MODE_LINE:return api::DrawMode::LINE_LIST;
+    case TINYGLTF_MODE_LINE_STRIP:return api::DrawMode::LINE_STRIP;
+    case TINYGLTF_MODE_TRIANGLES:return api::DrawMode::TRIANGLE_LIST;
+    case TINYGLTF_MODE_TRIANGLE_FAN:return api::DrawMode::TRIANGLE_FAN;
+    case TINYGLTF_MODE_TRIANGLE_STRIP:return api::DrawMode::TRIANGLE_STRIP;
+    default:throw std::runtime_error("unknown mode");
   }
 }
 
@@ -67,29 +47,21 @@ api::Filter GetFilter(int filter) {
   switch (filter) {
     case TINYGLTF_TEXTURE_FILTER_LINEAR:
     case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:
-    case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:
-      return api::Filter::LINEAR;
+    case TINYGLTF_TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:return api::Filter::LINEAR;
     case TINYGLTF_TEXTURE_FILTER_NEAREST:
     case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST:
-    case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:
-      return api::Filter::NEAREST;
-    case -1:
-      return api::Filter::LINEAR;
-    default:
-      throw std::runtime_error("unknown filter");
+    case TINYGLTF_TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:return api::Filter::NEAREST;
+    case -1:return api::Filter::LINEAR;
+    default:throw std::runtime_error("unknown filter");
   }
 }
 
 api::AddressMode GetAddressMode(int address_mode) {
   switch (address_mode) {
-    case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:
-      return api::AddressMode::CLAMP_TO_EDGE;
-    case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT:
-      return api::AddressMode::MIRRORED_REPEAT;
-    case TINYGLTF_TEXTURE_WRAP_REPEAT:
-      return api::AddressMode::REPEAT;
-    default:
-      throw std::runtime_error("unknown address mode");
+    case TINYGLTF_TEXTURE_WRAP_CLAMP_TO_EDGE:return api::AddressMode::CLAMP_TO_EDGE;
+    case TINYGLTF_TEXTURE_WRAP_MIRRORED_REPEAT:return api::AddressMode::MIRRORED_REPEAT;
+    case TINYGLTF_TEXTURE_WRAP_REPEAT:return api::AddressMode::REPEAT;
+    default:throw std::runtime_error("unknown address mode");
   }
 }
 
@@ -161,7 +133,7 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context,
     throw std::runtime_error("Failed to parse glTF\n");
   }
 
-  for (const auto &camera : model_.cameras) {
+  for (const auto &camera: model_.cameras) {
     glm::mat4 camera_matrix = glm::mat4(1.0);
     if (camera.type == "perspective") {
       auto data = camera.perspective;
@@ -173,11 +145,11 @@ geometry::GltfModel::GltfModel(std::shared_ptr<api::RenderingContext> context,
       camera_matrix[1][1] = static_cast<float>(1.0F / data.ymag);
       camera_matrix[2][2] = static_cast<float>(2.0F / (data.znear - data.zfar));
       camera_matrix[3][2] = static_cast<float>((data.zfar + data.znear) /
-                                               (data.znear - data.zfar));
+          (data.znear - data.zfar));
     }
     cameras_.emplace_back(camera_matrix);
   }
-  for (const auto &tex : model_.textures) {
+  for (const auto &tex: model_.textures) {
     auto image = this->model_.images[static_cast<size_t>(tex.source)];
     auto texture = context_->CreateTexture2D(
         static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height),
@@ -196,7 +168,7 @@ void geometry::GltfModel::LoadScene(uint scene_index) {
   CHECK(scene_index < model_.scenes.size(),
         "scene with given index does not exists")
   auto default_scene = model_.scenes[static_cast<size_t>(scene_index)];
-  for (const auto &node : default_scene.nodes) {
+  for (const auto &node: default_scene.nodes) {
     LoadNode(model_.nodes[static_cast<size_t>(node)]);
   }
 }
@@ -234,7 +206,7 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node,
   if (node.camera != -1) {
     SetCamera(static_cast<uint>(node.camera), glm::inverse(matrix));
   }
-  for (const auto &child : node.children) {
+  for (const auto &child: node.children) {
     LoadNode(model_.nodes[static_cast<size_t>(child)], matrix);
   }
 }
@@ -242,7 +214,7 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node,
 std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(
     tinygltf::Mesh &mesh, glm::mat4 model_matrix) {
   std::vector<geometry::RenderingUnit> pipelines{};
-  for (const auto &primitive : mesh.primitives) {
+  for (const auto &primitive: mesh.primitives) {
     auto ubo = std::make_shared<PrimitiveUbo>();
     ubo->mvp.model = model_matrix;
     ubo->mvp.normal = glm::inverseTranspose(model_matrix);
@@ -473,7 +445,7 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(
                                          });
     pipe->SetVertexBuffer(vertex_buffer);
     pipe->SetIndexBuffer(index_buffer, index_buffer_type);
-    for (const auto &entry : textures_mapping) {
+    for (const auto &entry: textures_mapping) {
       pipe->SetTexture(entry.first, entry.second);
     }
     pipe->UpdateUniformBuffer(1, &ubo->material);
@@ -484,20 +456,20 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(
 }
 
 void geometry::GltfModel::Render() {
-  for (const auto &unit : current_pipelines_) {
+  for (const auto &unit: current_pipelines_) {
     unit.pipeline->UpdateUniformBuffer(0, &unit.ubo->mvp);
     unit.pipeline->Draw(unit.index_count, 0);
   }
 }
 void geometry::GltfModel::SetViewport(uint32_t width, uint32_t height) {
-  for (const auto &unit : current_pipelines_) {
+  for (const auto &unit: current_pipelines_) {
     unit.pipeline->SetViewPort(width, height);
   }
 }
 
 void geometry::GltfModel::SetCamera(uint camera_index, glm::mat4 view) {
   auto camera = cameras_[camera_index];
-  for (const auto &unit : current_pipelines_) {
+  for (const auto &unit: current_pipelines_) {
     unit.ubo->mvp.projection = camera;
     unit.ubo->mvp.view = view;
   }
@@ -508,7 +480,7 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(
   auto attr_defaults = geometry::kPrimitiveTypes.find(attribute_name);
   auto expected_count = attr_defaults->second.element_count;
   bool matched = false;
-  for (auto type : expected_count) {
+  for (auto type: expected_count) {
     if (accessor.type == type) {
       matched = true;
       break;
@@ -517,7 +489,7 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(
   CHECK(matched, "unhandled");
   auto expected_data_types = attr_defaults->second.element_type;
   matched = false;
-  for (auto type : expected_data_types) {
+  for (auto type: expected_data_types) {
     if (accessor.componentType == type) {
       matched = true;
       break;
@@ -532,15 +504,15 @@ geometry::ParsedAttribute geometry::GltfModel::ParseAttribute(
   unsigned char *data =
       model_.buffers[static_cast<unsigned long>(buffer_view.buffer)]
           .data.data() +
-      buffer_view.byteOffset + accessor.byteOffset;
+          buffer_view.byteOffset + accessor.byteOffset;
   auto element_count = GetElementCount(accessor.type);
   auto element_size = element_count * api::GetDataTypeSizeInBytes(data_type);
   if (stride_in_current_buffer == 0) {
     stride_in_current_buffer = element_size;
   }
-  return {data,           stride_in_current_buffer,
+  return {data, stride_in_current_buffer,
           accessor.count, element_count,
-          data_type,      element_size};
+          data_type, element_size};
 }
 
 std::vector<std::string> geometry::GltfModel::GetScenes() {

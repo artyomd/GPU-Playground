@@ -1,7 +1,3 @@
-//
-// Created by Artyom Dangizyan on 1/1/21.
-//
-
 #pragma once
 
 #include <cstdlib>

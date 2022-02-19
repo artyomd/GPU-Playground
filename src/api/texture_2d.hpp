@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/31/20.
-//
-
 #pragma once
 
 #include <string>
@@ -16,7 +12,7 @@ class Texture2D {
   uint32_t height_;
   PixelFormat pixel_format_;
   Texture2D(uint32_t width, uint32_t height, PixelFormat pixel_format)
-      : width_(width), height_(height), pixel_format_(pixel_format){};
+      : width_(width), height_(height), pixel_format_(pixel_format) {};
 
  public:
   virtual void SetSampler(api::Sampler sampler) = 0;

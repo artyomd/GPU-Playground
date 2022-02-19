@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 5/1/20.
-//
 #include "src/test/test_obj.hpp"
 
 #include <spdlog/spdlog.h>
@@ -23,7 +20,7 @@ struct Vertex {
 }  // namespace
 
 namespace std {
-template <>
+template<>
 struct hash<Vertex> {
   size_t operator()(Vertex const &vertex) const {
     size_t seed = 0;
@@ -55,8 +52,8 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices;
 
-  for (const auto &shape : shapes) {
-    for (const auto &index : shape.mesh.indices) {
+  for (const auto &shape: shapes) {
+    for (const auto &index: shape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
           attrib
@@ -64,14 +61,14 @@ test::TestObj::TestObj(std::shared_ptr<api::RenderingContext> rendering_context)
           attrib
               .vertices[3 * static_cast<unsigned long>(index.vertex_index) + 1],
           attrib.vertices[3 * static_cast<unsigned long>(index.vertex_index) +
-                          2]};
+              2]};
       vertex.tex_coord = {
           attrib
               .texcoords[2 * static_cast<unsigned long>(index.texcoord_index) +
-                         0],
+              0],
           attrib
               .texcoords[2 * static_cast<unsigned long>(index.texcoord_index) +
-                         1]};
+              1]};
       if (unique_vertices.count(vertex) == 0) {
         unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
         vertices.push_back(vertex);

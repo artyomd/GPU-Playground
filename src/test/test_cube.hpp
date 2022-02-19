@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 5/23/20.
-//
 #pragma once
 
 #include "src/api/shader.hpp"

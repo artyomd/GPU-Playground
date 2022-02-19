@@ -29,7 +29,7 @@ class Shader {
         type_(type) {}
 
  public:
-  template <typename T>
+  template<typename T>
   void SetConstant(unsigned int constant_id, T constant_value) {
     static_assert(std::is_same<T, bool>::value or std::is_same<T, int>::value or
                       std::is_same<T, unsigned int>::value or

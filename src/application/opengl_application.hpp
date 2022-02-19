@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/6/19.
-//
-
 #pragma once
 
 #include "src/api/opengl/opengl_rendering_context.hpp"

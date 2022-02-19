@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 10/25/20.
-//
 #pragma once
 
 namespace api {

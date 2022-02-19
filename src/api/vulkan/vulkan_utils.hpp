@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 10/8/20.
-//
 #pragma once
 
 #include <vulkan/vulkan.h>

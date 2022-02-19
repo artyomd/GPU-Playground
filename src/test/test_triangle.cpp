@@ -1,6 +1,3 @@
-//
-// Created by Artyom Dangizyan on 2018-11-29.
-//
 #include "src/test/test_triangle.hpp"
 
 #include <utility>

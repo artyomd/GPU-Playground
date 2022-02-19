@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 3/23/20.
-//
 #include "src/test/test_sphere.hpp"
 
 #include <utility>

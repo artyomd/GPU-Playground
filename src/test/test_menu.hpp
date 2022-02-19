@@ -1,6 +1,3 @@
-//
-// Created by Artyom Dangizyan on 11/18/18.
-//
 #pragma once
 
 #include <spdlog/spdlog.h>
@@ -30,7 +27,7 @@ class TestMenu : public Test {
     this->rendering_context_ = context;
   }
 
-  template <typename T>
+  template<typename T>
   void RegisterTest(const std::string &name) {
     spdlog::info("Registering test: {}", name);
     m_tests_.push_back(std::make_pair(

@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/23/20.
-//
-
 #include "src/geometry/stacked_sphere.hpp"
 
 #include <cmath>
@@ -37,9 +33,9 @@ geometry::StackedSphere::StackedSphere(
     for (unsigned int slice_number = 0; slice_number <= slices;
          ++slice_number) {
       index_data.push_back(static_cast<unsigned short &&>(
-          (stack_number * slices) + (slice_number % slices)));
+                               (stack_number * slices) + (slice_number % slices)));
       index_data.push_back(static_cast<unsigned short &&>(
-          ((stack_number + 1) * slices) + (slice_number % slices)));
+                               ((stack_number + 1) * slices) + (slice_number % slices)));
     }
   }
 

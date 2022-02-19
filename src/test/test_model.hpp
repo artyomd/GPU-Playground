@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/8/20.
-//
-
 #pragma once
 
 #include <glm/glm.hpp>
@@ -34,7 +30,7 @@ class TestModel : public Test {
 
  public:
   explicit TestModel(std::shared_ptr<api::RenderingContext> rendering_context)
-      : Test(std::move(rendering_context)){};
+      : Test(std::move(rendering_context)) {};
 
   void OnImGuiRender() override;
 

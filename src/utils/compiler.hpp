@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 8/7/21.
-//
-
 #pragma once
 
 #ifndef HAS_BUILTIN

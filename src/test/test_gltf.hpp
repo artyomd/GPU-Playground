@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 12/21/20.
-//
 #pragma once
 
 #include "src/geometry/gltf_model.hpp"

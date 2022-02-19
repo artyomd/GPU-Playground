@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 12/31/19.
-//
 #pragma once
 
 #include "src/api/rendering_context.hpp"

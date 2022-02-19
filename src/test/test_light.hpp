@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 5/1/20.
-//
-
 #pragma once
 
 #include "src/geometry/triangle.hpp"

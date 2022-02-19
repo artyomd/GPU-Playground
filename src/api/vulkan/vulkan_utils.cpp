@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 10/8/20.
-//
-
 #include "src/api/vulkan/vulkan_utils.hpp"
 
 #include <stdexcept>

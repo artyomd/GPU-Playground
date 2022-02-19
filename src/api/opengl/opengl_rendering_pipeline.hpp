@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 1/1/20.
-//
-
 #pragma once
 
 #include <GL/glew.h>

@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 1/5/20.
-//
 #pragma once
 
 #include <GL/glew.h>
@@ -15,9 +12,7 @@ class OpenGlShader : public Shader {
   mutable void *spec_data_ = nullptr;
   mutable size_t spec_data_size_ = 0;
  public:
-  OpenGlShader(std::string sipr_v_shader_location,
-               std::string entry_point_name,
-               ShaderType type);
+  OpenGlShader(std::string sipr_v_shader_location, std::string entry_point_name, ShaderType type);
 
   [[nodiscard]] GLuint GetShaderId() const;
 

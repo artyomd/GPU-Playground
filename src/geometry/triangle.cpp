@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 1/6/20.
-//
-
 #include "src/geometry/triangle.hpp"
 
 geometry::Triangle::Triangle(

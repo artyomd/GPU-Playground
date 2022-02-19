@@ -1,7 +1,3 @@
-//
-// Created by Artyom Dangizyan on 1/1/21.
-//
-
 #include "vulkan_buffer.hpp"
 
 #include <cstring>
@@ -16,14 +12,10 @@ api::vulkan::VulkanBuffer::VulkanBuffer(const std::shared_ptr<VulkanRenderingCon
       context_(context),
       device_(context->GetDevice()),
       host_visible_(!(properties & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
-  if(!host_visible_){
+  if (!host_visible_) {
     usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
   }
-  context->CreateBuffer(length,
-                        usage,
-                        properties,
-                        &buffer_,
-                        &memory_);
+  context->CreateBuffer(length, usage, properties, &buffer_, &memory_);
 }
 
 void api::vulkan::VulkanBuffer::Update(const void *data) {
@@ -38,9 +30,7 @@ void api::vulkan::VulkanBuffer::Update(const void *data) {
                             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             GetVkMemoryType(MemoryType::HOST_VISIBLE));
     tmp_buffer.Update(data);
-    context_->CopyBuffer(tmp_buffer.GetBuffer(),
-                         buffer_,
-                         size_in_bytes_);
+    context_->CopyBuffer(tmp_buffer.GetBuffer(), buffer_, size_in_bytes_);
   }
 }
 

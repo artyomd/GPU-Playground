@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 3/21/20.
-//
-
 #include "src/test/test_shader.hpp"
 
 #include <utility>

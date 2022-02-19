@@ -1,7 +1,3 @@
-//
-// Created by Artyom Dangizyan on 12/30/20.
-//
-
 #pragma once
 
 #include <tinygltf/tiny_gltf.h>

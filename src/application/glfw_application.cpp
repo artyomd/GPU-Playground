@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/6/19.
-//
-
 #include "src/application/glfw_application.hpp"
 
 #include <imgui/imgui.h>
@@ -18,7 +14,7 @@ void application::GlfwApplication::InitContext() { InitWindow(); }
 void application::GlfwApplication::InitWindow() {
   glfwSetErrorCallback([](int error, const char *description) {
     throw std::runtime_error("glfw error " + std::to_string(error) + ": " +
-                             description);
+        description);
   });
 
   if (glfwInit() != GLFW_TRUE) {

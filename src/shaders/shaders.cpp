@@ -1,6 +1,3 @@
-//
-// Created by artyomd on 5/29/21.
-//
 #include <string>
 
 std::string color_fragment_shader;

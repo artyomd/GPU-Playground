@@ -1,7 +1,3 @@
-//
-// Created by artyomd on 12/21/20.
-//
-
 #include "src/test/test_gltf.hpp"
 
 #include <imgui.h>
@@ -35,10 +31,10 @@ void test::TestGltf::OnImGuiRender() {
 
   ImGui::Text("Scenes:");
   if (ImGui::BeginListBox(
-          "##Scenes",
-          ImVec2(-FLT_MIN,
-                 std::min(static_cast<float>(scenes_names_.size()), 7.0f) *
-                     ImGui::GetTextLineHeightWithSpacing()))) {
+      "##Scenes",
+      ImVec2(-FLT_MIN,
+             std::min(static_cast<float>(scenes_names_.size()), 7.0f) *
+                 ImGui::GetTextLineHeightWithSpacing()))) {
     for (size_t n = 0; n < scenes_names_.size(); n++) {
       const bool kIsSelected = (selected_scene_ == static_cast<int>(n));
       if (ImGui::Selectable(scenes_names_[n].c_str(), kIsSelected)) {
