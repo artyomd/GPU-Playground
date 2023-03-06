@@ -1,12 +1,13 @@
 #pragma once
 
-#include "src/geometry/geometry_item.hpp"
+#include "geometry_item.hpp"
 
 namespace geometry {
 class SpiralSphere : public GeometryItem {
  public:
-  explicit SpiralSphere(const std::shared_ptr<api::RenderingContext> &context,
-                        float radius = 1.0f, unsigned int loops = 8,
+  explicit SpiralSphere(const std::shared_ptr<vulkan::RenderingContext> &context,
+                        float radius = 1.0f,
+                        unsigned int loops = 8,
                         unsigned int segments_per_loop = 8);
 };
 }  // namespace geometry

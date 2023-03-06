@@ -1,17 +1,27 @@
 # Welcome to GPU Playground!
 
-GPU Playground a simple project for testing out different thing with OpenGL and Vulkan. (metal is comming soon)
+This project is just a playground that I created for different experiments with different rendering techniques.
+I planned to support various 3D rendering APIs but when trying to support at least 2 APIs (Vulkan and OpenGL)
+I've noticed that things were getting more complicated and the focus was on how to develop a good level of abstraction
+for graphics APIs, which is not the purpose of this project at all. So, for the sake of simplicity, this project will
+now only use Vulkan.
 
-## Requirements
-For building and running playground you need to have 
-* Window manager: [GLFW](https://www.glfw.org/)
-* OpenGL extention loader: [GLEW](http://glew.sourceforge.net/)
-* Vulkan sdk: [Vulkan sdk](https://vulkan.lunarg.com/)
+## Building
 
-## Supported platforms
-* Linux: Vulkan 1.2 and OpenGL 4.6
-* MacOs: Vulkan 1.2
- 
+As this project is a plain CMake project it can be built just like any other CMake project.
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release -S <path-to-source> -B <path-to-build>
+cmake --build <path-to-build> --target playground
+```
+
+## Preview
+![](previews/preview0.png)
+
+![](previews/preview1.png)
+
+![](previews/preview2.png)
+
 ## Lisence
+
 GPU Playground is licensed under the MIT License, see LICENSE for more information.
 

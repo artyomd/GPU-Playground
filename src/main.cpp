@@ -1,42 +1,101 @@
-#include <spdlog/spdlog.h>
+#include "application/application.hpp"
+#include "renderables/menu/default_menu.hpp"
+#include "renderables/menu/menu_manager.hpp"
+#include "renderables/model/cube.hpp"
+#include "renderables/model/gltf_model.hpp"
+#include "renderables/model/lighting.hpp"
+#include "renderables/model/obj_model.hpp"
+#include "renderables/model/spiral_sphere.hpp"
+#include "renderables/model/stacked_sphere.hpp"
+#include "renderables/model/texture_2d.hpp"
+#include "renderables/model/triangle.hpp"
+#include "renderables/shader.hpp"
 
-#ifndef __APPLE__
-#include "src/application/opengl_application.hpp"
+#include <spdlog/spdlog.h>
+#include <tracy/Tracy.hpp>
+
+#ifdef TRACY_ENABLE
+void *operator new(std::size_t count) {
+  auto ptr = malloc(count);
+  TracyAlloc(ptr, count);
+  return ptr;
+}
+
+void operator delete(void *ptr) noexcept {
+  TracyFree(ptr);
+  free(ptr);
+}
 #endif
-#include "src/application/vulkan_application.hpp"
-#include "src/shaders/shaders.hpp"
-#include "src/test/test_color_shader.hpp"
-#include "src/test/test_cube.hpp"
-#include "src/test/test_gltf.hpp"
-#include "src/test/test_light.hpp"
-#include "src/test/test_obj.hpp"
-#include "src/test/test_raymarching.hpp"
-#include "src/test/test_seascape_shader.hpp"
-#include "src/test/test_shaping_function_shader.hpp"
-#include "src/test/test_sphere.hpp"
-#include "src/test/test_squares_shader.hpp"
-#include "src/test/test_star_nest_shader.hpp"
-#include "src/test/test_texture_2d.hpp"
-#include "src/test/test_triangle.hpp"
 
 int main() {
   try {
     spdlog::set_level(spdlog::level::debug);
-    LoadShaders();
-    application::VulkanApplication test_application;
-    test_application.RegisterTest<test::TestTriangle>("Triangle");
-    test_application.RegisterTest<test::TestRaymarching>("Reflections");
-    test_application.RegisterTest<test::TestSeascapeShader>("Seascape");
-    test_application.RegisterTest<test::TestStarNestShader>("Star Nest");
-    test_application.RegisterTest<test::TestShapingFunctionShader>("Shader Shaping Function");
-    test_application.RegisterTest<test::TestColorShader>("Shader Colors");
-    test_application.RegisterTest<test::TestSquaresShader>("Shader Squares");
-    test_application.RegisterTest<test::TestCube>("Cube");
-    test_application.RegisterTest<test::TestTexture2D>("Texture2D");
-    test_application.RegisterTest<test::TestObj>("Obj");
-    test_application.RegisterTest<test::TestLight>("Light");
-    test_application.RegisterTest<test::TestSphere>("Sphere");
-    test_application.RegisterTest<test::TestGltf>("gltf");
+    application::Application test_application([&](auto context) {
+      auto menu = renderable::MenuManager::Create(context, [](auto context, auto parent) {
+        return renderable::DefaultMenu::Create(context, parent);
+      }, [&]() {
+        test_application.RequestExit();
+      });
+
+      menu->RegisterMenuItem([](auto context, auto parent) {
+        auto models_menu = renderable::MenuManager::Create(context, [](auto context, auto parent) {
+          return renderable::DefaultMenu::Create(context, parent);
+        }, parent);
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Triangle::Create(context, parent);
+        }, "Triangle");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Cube::Create(context, parent);
+        }, "Cube");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Texture2d::Create(context, parent);
+        }, "Texture2d");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::SpiralSphere::Create(context, parent);
+        }, "Spiral Sphere");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::StackedSphere::Create(context, parent);
+        }, "Stacked Sphere");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::ObjModel::Create(context, parent);
+        }, "Obj");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Lighting::Create(context, parent);
+        }, "Lighting");
+        models_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::GltfModel::Create(context, parent);
+        }, "GLTF");
+        return models_menu;
+      }, "Models");
+
+      menu->RegisterMenuItem([](auto context, auto parent) {
+        auto shader_menu = renderable::MenuManager::Create(context, [](auto context, auto parent) {
+          return renderable::DefaultMenu::Create(context, parent);
+        }, parent);
+        shader_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Shader::Create(context,
+                                            parent,
+                                            SHADER_DIR + std::string("shaping_function_fragment_shader.glsl"));
+        }, "Shader Shaping Function");
+        shader_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Shader::Create(context,
+                                            parent,
+                                            SHADER_DIR + std::string("color_fragment_shader.glsl"));
+        }, "Shader Colors");
+        shader_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Shader::Create(context,
+                                            parent,
+                                            SHADER_DIR + std::string("squares_fragment_shader.glsl"));
+        }, "Shader Squares");
+        shader_menu->RegisterMenuItem([](auto context, auto parent) {
+          return renderable::Shader::Create(context,
+                                            parent,
+                                            SHADER_DIR + std::string("hsb_fragment.glsl"));
+        }, "HSB");
+        return shader_menu;
+      }, "Shaders");
+      return menu;
+    });
     test_application.Run();
   } catch (const std::exception &e) {
     spdlog::error(e.what());

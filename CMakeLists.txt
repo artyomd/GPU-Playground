@@ -1,102 +1,207 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24.2)
+include(FetchContent)
 
 project(playground)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)#https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-# ThreadSanitizer
-#set(CMAKE_C_FLAGS "-fsanitize=thread -g -O1")
-#set(CMAKE_CXX_FLAGS "-fsanitize=thread -g -O1")
-# AddressSanitize
-#set(CMAKE_C_FLAGS "-fsanitize=address")
-#set(CMAKE_CXX_FLAGS "-fsanitize=address")
-# LeakSanitizer
-#set(CMAKE_C_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
-#set(CMAKE_CXX_FLAGS "-fsanitize=leak -fno-omit-frame-pointer -g -O1")
-# MemorySanitizer
-#set(CMAKE_C_FLAGS "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2")
-#set(CMAKE_CXX_FLAGS"-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2")
-# UndefinedBehaviour
-#set(CMAKE_C_FLAGS"-fsanitize=undefined")
-#set(CMAKE_CXX_FLAGS "-fsanitize=undefined")
+set(VULKAN_SDK_VERSION sdk-1.3.239.0)
 
-find_package(glfw3 REQUIRED)
+FetchContent_Declare(glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.3.8
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(BUILD_SHARED_LIBS OFF)
+set(GLFW_BUILD_EXAMPLES OFF)
+set(GLFW_BUILD_TESTS OFF)
+set(GLFW_BUILD_DOCS OFF)
+set(GLFW_INSTALL OFF)
+FetchContent_MakeAvailable(glfw)
 
-IF (NOT APPLE)
-    OPTION(USE_OPENGL "Build with opengl support" ON)
-ENDIF ()
+FetchContent_Declare(fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG 9.1.0
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(fmt)
 
-find_package(Vulkan)
-IF (NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Could not find Vulkan library!")
-ELSE ()
-    include_directories(${Vulkan_INCLUDE_DIRS})
-ENDIF ()
+FetchContent_Declare(spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.11.0
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SPDLOG_FMT_EXTERNAL ON)
+FetchContent_MakeAvailable(spdlog)
 
-file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.c src/*.hpp src/*.h)
+FetchContent_Declare(glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 0.9.9.8
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(glm)
 
-file(GLOB_RECURSE EXTERNAL_SOURCE_FILES external/src/*.cpp)
-#spir-v reflect
-list(APPEND EXTERNAL_SOURCE_FILES external/SPIRV-Reflect/spirv_reflect.c)
+FetchContent_Declare(SPIRV-Reflect
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Reflect.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SPIRV_REFLECT_EXAMPLES OFF)
+set(SPIRV_REFLECT_EXECUTABLE OFF)
+set(SPIRV_REFLECT_STATIC_LIB ON)
+FetchContent_MakeAvailable(SPIRV-Reflect)
 
-IF (USE_OPENGL)
-    MESSAGE("gl enabled")
-    SET(OPEN_GL GL)
-    find_package(GLEW REQUIRED)
-    add_definitions(${GLEW_DEFINITIONS})
-    add_compile_definitions(GLEW_STATIC)
-ELSE (USE_OPENGL)
-    MESSAGE("gl disabled")
-    list(FILTER SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
-    list(FILTER EXTERNAL_SOURCE_FILES EXCLUDE REGEX "^.*opengl.*$")
-ENDIF (USE_OPENGL)
+FetchContent_Declare(volk
+        GIT_REPOSITORY https://github.com/zeux/volk.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(VOLK_PULL_IN_VULKAN OFF)
+FetchContent_MakeAvailable(volk)
 
-add_definitions(-DIMGUI_DISABLE_DEMO_WINDOWS)
+FetchContent_Declare(Vulkan-Headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(Vulkan-Headers)
 
-FUNCTION(CONVERT_SPV result)
-    SET(spvs "")
-    FOREACH (glsl ${ARGN})
-        get_filename_component(name ${glsl} NAME_WE)
-        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/${name}.spv")
-        LIST(APPEND spvs "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex/${name}.spv")
-    ENDFOREACH (glsl)
-    SET(${result} "${spvs}" PARENT_SCOPE)
-ENDFUNCTION(CONVERT_SPV)
+FetchContent_Declare(SPIRV-Headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SPIRV_HEADERS_SKIP_EXAMPLES ON)
+set(SPIRV_HEADERS_SKIP_INSTALL ON)
+FetchContent_MakeAvailable(SPIRV-Headers)
 
-file(GLOB_RECURSE GLSL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/glsl460/*.glsl")
+FetchContent_Declare(SPIRV-Tools
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SKIP_SPIRV_TOOLS_INSTALL ON)
+set(SPIRV_SKIP_EXECUTABLES ON)
+set(SPIRV_SKIP_TESTS ON)
+FetchContent_MakeAvailable(SPIRV-Tools)
 
-CONVERT_SPV(SPV_FILES ${GLSL_FILES})
+FetchContent_Declare(glslang
+        GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SKIP_GLSLANG_INSTALL ON)
+set(ENABLE_GLSLANG_BINARIES OFF)
+FetchContent_MakeAvailable(glslang)
 
-add_custom_command(
-        OUTPUT ${SPV_FILES}
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/generate-spv.sh
-        DEPENDS ${GLSL_FILES}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/
-)
+FetchContent_Declare(VulkanMemoryAllocator
+        GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+        GIT_TAG v3.0.1
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(VMA_STATIC_VULKAN_FUNCTIONS OFF)
+FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
-set_source_files_properties(
-        ${SOURCE_FILES}
-        PROPERTIES
-        COMPILE_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wfloat-equal -Wold-style-cast"
-)
+FetchContent_Declare(shaderc
+        GIT_REPOSITORY https://github.com/google/shaderc.git
+        GIT_TAG v2023.2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(SHADERC_ENABLE_WGSL_OUTPUT OFF)
+set(SHADERC_SKIP_INSTALL ON)
+set(SHADERC_SKIP_TESTS ON)
+set(SHADERC_SKIP_EXAMPLES ON)
+set(SHADERC_SKIP_COPYRIGHT_CHECK ON)
+FetchContent_MakeAvailable(shaderc)
 
-add_executable(playground ${SOURCE_FILES} ${SPV_FILES} ${EXTERNAL_SOURCE_FILES})
 
-target_include_directories(playground PRIVATE "${PROJECT_SOURCE_DIR}")
-target_include_directories(playground SYSTEM PRIVATE ${GLEW_INCLUDE_DIRS})
-target_include_directories(playground SYSTEM PRIVATE external/stb)
-target_include_directories(playground SYSTEM PRIVATE external/tinyobjloader)
-target_include_directories(playground SYSTEM PRIVATE external/src)
-target_include_directories(playground SYSTEM PRIVATE external/src/imgui)
-target_include_directories(playground SYSTEM PRIVATE external/json/single_include/)
-add_compile_definitions(SPDLOG_FMT_EXTERNAL)
-target_include_directories(playground SYSTEM PRIVATE external/spdlog/include/)
-target_include_directories(playground SYSTEM PRIVATE external)
+FetchContent_Declare(imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG v1.89.3
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        CONFIGURE_COMMAND ""
+        BUILD_COMMAND ""
+        )
+FetchContent_MakeAvailable(imgui)
+### for some reason imgui does not provide a cmake project
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        )
+target_compile_definitions(imgui PUBLIC
+        -DIMGUI_IMPL_VULKAN_NO_PROTOTYPES
+        -DIMGUI_DISABLE_DEMO_WINDOWS)
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
+        PUBLIC ${imgui_SOURCE_DIR}/backends)
+target_link_libraries(imgui glfw)
 
-add_subdirectory(external/fmt)
-add_subdirectory(external/glm)
+FetchContent_Declare(json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.2
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(json)
 
-target_include_directories(playground SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/res/shader/spv/.hex")
+FetchContent_Declare(stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG 5736b15f7ea0ffb08dd38af21067c314d6a3aae9
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(stb)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
-target_link_libraries(playground glfw glm fmt ${OPEN_GL} ${GLEW_LIBRARIES} ${Vulkan_LIBRARY} ${CMAKE_DL_LIBS})
+FetchContent_Declare(tinygltf
+        GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
+        GIT_TAG v2.8.3
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF)
+set(TINYGLTF_INSTALL OFF)
+set(TINYGLTF_HEADER_ONLY ON)
+FetchContent_MakeAvailable(tinygltf)
+
+FetchContent_Declare(tinyobj
+        GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+        GIT_TAG v2.0.0rc10
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+FetchContent_MakeAvailable(tinyobj)
+
+FetchContent_Declare(tracy
+        GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+        GIT_TAG v0.9.1
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+        )
+set(TRACY_ENABLE OFF)
+set(TRACY_STATIC ON)
+set(TRACY_CALLSTACK ON)
+set(TRACY_ONLY_LOCALHOST ON)
+set(TRACY_NO_EXIT ON)
+FetchContent_MakeAvailable(tracy)
+
+add_subdirectory(src)

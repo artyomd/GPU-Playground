@@ -2,32 +2,29 @@
 
 #include <utility>
 
-#include "src/api/rendering_context.hpp"
+#include "vulkan/buffer.hpp"
+#include "vulkan/vertex_buffer_layout.hpp"
+#include "vulkan/rendering_context.hpp"
 
 namespace geometry {
 class GeometryItem {
  protected:
-  std::shared_ptr<api::Buffer> vertex_buffer_ = nullptr;
-  api::VertexBufferLayout vbl_{};
+  std::shared_ptr<vulkan::RenderingContext> context_;
 
-  std::shared_ptr<api::Buffer> index_buffer_ = nullptr;
-  api::DataType index_buffer_data_type_ = api::DataType::UINT_16;
+  std::shared_ptr<vulkan::Buffer> vertex_buffer_ = nullptr;
+  vulkan::VertexBufferLayout vbl_{};
+
+  std::shared_ptr<vulkan::Buffer> index_buffer_ = nullptr;
+  VkIndexType index_buffer_data_type_ = VkIndexType::VK_INDEX_TYPE_UINT16;
   size_t index_count_ = 0;
 
-  std::shared_ptr<api::RenderingContext> context_;
-
  public:
-  explicit GeometryItem(std::shared_ptr<api::RenderingContext> context)
-      : context_(std::move(context)) {}
+  explicit GeometryItem(const std::shared_ptr<vulkan::RenderingContext> &context);
 
-  [[nodiscard]] std::shared_ptr<api::Buffer> GetVertexBuffer() const;
-
-  [[nodiscard]] std::shared_ptr<api::Buffer> GetIndexBuffer() const;
-
-  [[nodiscard]] api::DataType GetIndexBufferDataType() const;
-
-  [[nodiscard]] const api::VertexBufferLayout &GetVbl() const;
-
+  [[nodiscard]] std::shared_ptr<vulkan::Buffer> GetVertexBuffer() const;
+  [[nodiscard]] vulkan::VertexBufferLayout GetVbl() const;
+  [[nodiscard]] std::shared_ptr<vulkan::Buffer> GetIndexBuffer() const;
+  [[nodiscard]] VkIndexType GetIndexBufferDataType() const;
   [[nodiscard]] size_t GetIndexCount() const;
 
   virtual ~GeometryItem() = 0;

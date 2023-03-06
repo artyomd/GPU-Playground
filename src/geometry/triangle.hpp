@@ -1,14 +1,14 @@
 #pragma once
 
-#include "src/api/rendering_context.hpp"
-#include "src/geometry/geometry_item.hpp"
-#include "src/geometry/point.hpp"
+#include "geometry/geometry_item.hpp"
+#include "geometry/point.hpp"
 
 namespace geometry {
 class Triangle : public GeometryItem {
  public:
-  explicit Triangle(const std::shared_ptr<api::RenderingContext> &context,
-                    const Point &point_0, const Point &point_1,
+  explicit Triangle(const std::shared_ptr<vulkan::RenderingContext> &context,
+                    const Point &point_0,
+                    const Point &point_1,
                     const Point &point_2);
 };
 }  // namespace geometry

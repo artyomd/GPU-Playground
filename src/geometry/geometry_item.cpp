@@ -1,15 +1,17 @@
-#include "src/geometry/geometry_item.hpp"
+#include "geometry/geometry_item.hpp"
 
-std::shared_ptr<api::Buffer> geometry::GeometryItem::GetVertexBuffer() const {
-  return this->vertex_buffer_;
+geometry::GeometryItem::GeometryItem(const std::shared_ptr<vulkan::RenderingContext> &context) : context_(context) {}\
+
+std::shared_ptr<vulkan::Buffer> geometry::GeometryItem::GetVertexBuffer() const {
+  return vertex_buffer_;
 }
-std::shared_ptr<api::Buffer> geometry::GeometryItem::GetIndexBuffer() const {
-  return this->index_buffer_;
+std::shared_ptr<vulkan::Buffer> geometry::GeometryItem::GetIndexBuffer() const {
+  return index_buffer_;
 }
-api::DataType geometry::GeometryItem::GetIndexBufferDataType() const {
+VkIndexType geometry::GeometryItem::GetIndexBufferDataType() const {
   return index_buffer_data_type_;
 }
-const api::VertexBufferLayout &geometry::GeometryItem::GetVbl() const {
+vulkan::VertexBufferLayout geometry::GeometryItem::GetVbl() const {
   return vbl_;
 }
 

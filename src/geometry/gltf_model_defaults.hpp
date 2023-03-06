@@ -1,5 +1,11 @@
 #pragma once
 
+#include <tiny_gltf.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
 namespace geometry {
 struct ExpectedValues {
   std::vector<int> element_count;
