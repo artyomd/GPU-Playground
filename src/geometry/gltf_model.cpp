@@ -170,7 +170,7 @@ geometry::GltfModel::GltfModel(std::shared_ptr<vulkan::RenderingContext> context
   }
 }
 
-void geometry::GltfModel::LoadScene(uint scene_index) {
+void geometry::GltfModel::LoadScene(size_t scene_index) {
   if (model_.scenes.empty()) {
     spdlog::error("model must have at least 1 scene");
   }
@@ -217,7 +217,7 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node,
                               pipes.end());
   }
   if (node.camera != -1) {
-    SetCamera(static_cast<uint>(node.camera), glm::inverse(matrix));
+    SetCamera(node.camera, glm::inverse(matrix));
   }
   for (const auto &kChild : node.children) {
     LoadNode(model_.nodes[static_cast<size_t>(kChild)], matrix);
@@ -538,7 +538,7 @@ void geometry::GltfModel::Render(VkCommandBuffer command_buffer, uint16_t descri
   }
 }
 
-void geometry::GltfModel::SetCamera(uint camera_index, glm::mat4 view) {
+void geometry::GltfModel::SetCamera(size_t camera_index, glm::mat4 view) {
   auto camera = cameras_[camera_index];
   for (auto &k_unit : current_pipelines_) {
     k_unit.ubo_data_.mvp.projection = camera;

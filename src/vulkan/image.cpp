@@ -261,7 +261,11 @@ void vulkan::Image::TransferTo(VkCommandBuffer command_buffer, VkImageLayout new
       .imageMemoryBarrierCount = 1,
       .pImageMemoryBarriers = &barrier,
   };
-  vkCmdPipelineBarrier2(command_buffer, &dependency_info);
+  if (context_->IsUseSynch2Ext()) {
+    vkCmdPipelineBarrier2KHR(command_buffer, &dependency_info);
+  } else {
+    vkCmdPipelineBarrier2(command_buffer, &dependency_info);
+  }
   current_layout_ = new_layout;
 }
 

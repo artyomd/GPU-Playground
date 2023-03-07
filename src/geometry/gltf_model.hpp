@@ -89,8 +89,8 @@ class GltfModel {
   GltfModel(const GltfModel &) = delete;
   std::vector<std::string> GetScenes();
   [[nodiscard]] int GetDefaultSceneIndex() const;
-  void LoadScene(uint scene_index);
-  void SetCamera(uint camera_index, glm::mat4 view);
+  void LoadScene(size_t scene_index);
+  void SetCamera(size_t camera_index, glm::mat4 view);
   void OnRenderPassChanged(std::shared_ptr<vulkan::RenderPass> render_pass,
                            size_t descriptor_set_count,
                            VkSampleCountFlagBits sample_count);

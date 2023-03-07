@@ -11,15 +11,17 @@ vulkan::RenderingContext::RenderingContext(VkInstance instance,
                                            VkPhysicalDevice physical_device,
                                            VkDevice device,
                                            VkQueue graphics_queue,
-                                           uint32_t queue_family_index) : instance_(instance),
-                                                                          physical_device_(physical_device),
-                                                                          device_(device),
-                                                                          graphics_queue_(graphics_queue),
-                                                                          queue_family_index_(
-                                                                              queue_family_index) {
+                                           uint32_t queue_family_index,
+                                           bool use_sync2_ext) : instance_(instance),
+                                                                 physical_device_(physical_device),
+                                                                 device_(device),
+                                                                 graphics_queue_(graphics_queue),
+                                                                 queue_family_index_(queue_family_index),
+                                                                 use_synch2_ext_(use_sync2_ext) {
 
   std::vector<VkDescriptorPoolSize> pool_sizes =
       {{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 50},
+       {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 50},
        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 50}};
   VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
@@ -157,7 +159,11 @@ void vulkan::RenderingContext::SubmitCommandBuffer(const VkCommandBuffer &comman
       .signalSemaphoreInfoCount = signal_semaphore == VK_NULL_HANDLE ? 0u : 1u,
       .pSignalSemaphoreInfos = &signal_semaphore_submit_info
   };
-  VK_CALL(vkQueueSubmit2(graphics_queue_, 1, &submit_info, fence));
+  if (use_synch2_ext_) {
+    VK_CALL(vkQueueSubmit2KHR(graphics_queue_, 1, &submit_info, fence));
+  } else {
+    VK_CALL(vkQueueSubmit2(graphics_queue_, 1, &submit_info, fence));
+  }
 }
 
 void vulkan::RenderingContext::FreeCommandBuffer(VkCommandPool command_pool, VkCommandBuffer command_buffer) {
@@ -227,4 +233,8 @@ VkPhysicalDevice vulkan::RenderingContext::GetPhysicalDevice() const {
 
 VkQueue vulkan::RenderingContext::GetGraphicsQueue() const {
   return graphics_queue_;
+}
+
+bool vulkan::RenderingContext::IsUseSynch2Ext() const {
+  return use_synch2_ext_;
 }

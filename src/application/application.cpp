@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 namespace {
-const std::vector<const char *> kDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+std::vector<const char *> required_device_extentions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphics_family;
@@ -123,11 +123,16 @@ application::Application::Application(std::function<std::shared_ptr<Renderable>(
   }
   PickPhysicalDevice();
   CreateLogicalDevice();
+
+  bool use_synch2_ext = std::find(required_device_extentions.begin(),
+                                  required_device_extentions.end(),
+                                  VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME) != required_device_extentions.end();
   rendering_context_ = std::make_shared<vulkan::RenderingContext>(vulkan_instance_,
                                                                   physical_device_,
                                                                   device_,
                                                                   graphics_queue_,
-                                                                  graphics_family_index_);
+                                                                  graphics_family_index_,
+                                                                  use_synch2_ext);
 
   CreateSwapChain();
   IMGUI_CHECKVERSION();
@@ -190,15 +195,19 @@ void application::Application::CreateInstance() {
       .disabledValidationFeatureCount = 0, .pDisabledValidationFeatures = nullptr,
   };
 
-#if !defined(NDEBUG)
   auto available_layers = vulkan::GetAvailableInstanceLayers();
   for (const auto &kLayer : available_layers) {
+#if !defined(NDEBUG)
     if (strcmp(kLayer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_validation");
-      break;
+    }
+#endif
+    if (strcmp(kLayer.layerName, "VK_LAYER_KHRONOS_synchronization2") == 0) {
+      layers.emplace_back("VK_LAYER_KHRONOS_synchronization2");
     }
   }
-  if (!layers.empty()) {
+#if !defined(NDEBUG)
+  if (std::find(layers.begin(), layers.end(), "VK_LAYER_KHRONOS_validation") != layers.end()) {
     auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
     for (const auto &kExt : available_extensions) {
       if (strcmp(kExt.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
@@ -297,11 +306,14 @@ void application::Application::PickPhysicalDevice() {
   VK_CALL(vkEnumeratePhysicalDevices(vulkan_instance_, &device_count, devices.data()));
   for (const auto &kDevice : devices) {
     auto available_extensions = vulkan::GetDeviceExtensions(kDevice);
-    std::set<std::string> required_extensions(kDeviceExtensions.begin(), kDeviceExtensions.end());
+    std::set<std::string> required_extensions(required_device_extentions.begin(), required_device_extentions.end());
     for (const auto &kExtension : available_extensions) {
       required_extensions.erase(kExtension.extensionName);
     }
     bool extensions_supported = required_extensions.empty();
+    bool has_synch_2_ext = std::find_if(available_extensions.begin(), available_extensions.end(), [](auto it) {
+      return strcmp(it.extensionName, VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME) == 0;
+    }) != available_extensions.end();
     bool swap_chain_adequate = false;
     if (extensions_supported) {
       SwapChainSupportDetails swap_chain_support(kDevice, surface_);
@@ -318,8 +330,11 @@ void application::Application::PickPhysicalDevice() {
 
     vkGetPhysicalDeviceFeatures2(kDevice, &supported_features);
     if (indices.IsComplete() && extensions_supported && swap_chain_adequate
-        && (suppported_13_features.synchronization2 == VK_TRUE)) {
+        && (suppported_13_features.synchronization2 == VK_TRUE || has_synch_2_ext)) {
       physical_device_ = kDevice;
+      if (suppported_13_features.synchronization2 == VK_FALSE && has_synch_2_ext) {
+        required_device_extentions.emplace_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+      }
       break;
     }
   }
@@ -345,20 +360,27 @@ void application::Application::CreateLogicalDevice() {
   }
 
   auto device_extensions = vulkan::GetDeviceExtensions(physical_device_);
-  std::vector<const char *> extensions_to_enable(kDeviceExtensions.begin(), kDeviceExtensions.end());
+  std::vector<const char *> extensions_to_enable(required_device_extentions.begin(), required_device_extentions.end());
   for (auto ext : device_extensions) {
     if (strcmp(ext.extensionName, "VK_KHR_portability_subset") == 0) {
       extensions_to_enable.emplace_back("VK_KHR_portability_subset");
     }
   }
+  bool use_synch2_ext = std::find(required_device_extentions.begin(),
+                                  required_device_extentions.end(),
+                                  VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME) != required_device_extentions.end();
 
   VkPhysicalDeviceVulkan13Features features_enable_13{
       .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES,
       .synchronization2 = VK_TRUE,
   };
+  VkPhysicalDeviceSynchronization2Features synchronization_2_features{
+      .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
+      .synchronization2 = VK_TRUE,
+  };
   VkPhysicalDeviceFeatures2 features_enable{
       .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-      .pNext = &features_enable_13,
+      .pNext = use_synch2_ext ? static_cast<void *>(&synchronization_2_features) : &features_enable_13,
   };
   VkDeviceCreateInfo create_info = {
       .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,

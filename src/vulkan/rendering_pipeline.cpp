@@ -4,6 +4,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <array>
 #include <utility>
 
 namespace vulkan {
@@ -67,8 +68,7 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
                                              size_t descriptor_set_count)
     : context_(std::move(context)), render_pass_(render_pass),
       vertex_shader_(vertex_shader), fragment_shader_(fragment_shader) {
-  std::array<VkPipelineShaderStageCreateInfo, 2>
-      shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
+  std::array<VkPipelineShaderStageCreateInfo, 2> shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
   auto vertex_bindings = vertex_shader_->GetBindings();
   auto fragment_bindings = fragment_shader_->GetBindings();
   auto pipeline_bindings = vertex_bindings;

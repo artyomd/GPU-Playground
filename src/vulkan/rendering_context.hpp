@@ -13,7 +13,8 @@ class RenderingContext {
                             VkPhysicalDevice physical_device,
                             VkDevice device,
                             VkQueue graphics_queue,
-                            uint32_t queue_family_index);
+                            uint32_t queue_family_index,
+                            bool use_sync2_ext);
 
   [[nodiscard]] VkInstance GetInstance() const;
 
@@ -55,6 +56,8 @@ class RenderingContext {
 
   void WaitForGpuIdle() const;
 
+  bool IsUseSynch2Ext() const;
+
   virtual ~RenderingContext();
  private:
   VkInstance instance_ = VK_NULL_HANDLE;
@@ -64,5 +67,6 @@ class RenderingContext {
   uint32_t queue_family_index_ = 0;
   VkDescriptorPool descriptor_pool_ = VK_NULL_HANDLE;
   VmaAllocator allocator_ = VK_NULL_HANDLE;
+  bool use_synch2_ext_ = false;
 };
 }  // namespace vulkan

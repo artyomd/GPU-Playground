@@ -152,7 +152,7 @@ target_compile_definitions(imgui PUBLIC
         -DIMGUI_DISABLE_DEMO_WINDOWS)
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
         PUBLIC ${imgui_SOURCE_DIR}/backends)
-target_link_libraries(imgui glfw)
+target_link_libraries(imgui glfw Vulkan-Headers)
 
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git

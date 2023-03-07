@@ -4,6 +4,7 @@
 
 #include <stb_image.h>
 
+#include <array>
 #include <cstring>
 
 std::shared_ptr<renderable::Texture2d> renderable::Texture2d::Create(std::shared_ptr<vulkan::RenderingContext> context,
