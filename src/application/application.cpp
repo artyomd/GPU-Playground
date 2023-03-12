@@ -146,12 +146,11 @@ void application::Application::OnWindowSizeChanged(int width, int height) {
   this->window_width_ = width;
   this->window_height_ = height;
   rendering_context_->WaitForGraphicsQueueIdle();
-  CleanupSwapChain();
   if (width == 0 || height == 0) {
     glfwWaitEvents();
     return;
   }
-  CreateSwapChain();
+  CreateSwapChain(swap_chain_);
   if (renderable_ != nullptr) {
     renderable_->SetupImages(swap_chain_images_);
   }
@@ -399,7 +398,7 @@ void application::Application::CreateLogicalDevice() {
   graphics_family_index_ = indices.graphics_family.value();
 }
 
-void application::Application::CreateSwapChain() {
+void application::Application::CreateSwapChain(VkSwapchainKHR old_swap_chain) {
   SwapChainSupportDetails swap_chain_support(physical_device_, surface_);
   VkSurfaceFormatKHR surface_format = swap_chain_support.ChooseSwapSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM);
 
@@ -420,6 +419,7 @@ void application::Application::CreateSwapChain() {
       && image_count > swap_chain_support.capabilities.maxImageCount) {
     image_count = swap_chain_support.capabilities.maxImageCount;
   }
+  swap_chain_ = VK_NULL_HANDLE;
   VkSwapchainCreateInfoKHR create_info = {
       .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
       .surface = surface_,
@@ -433,7 +433,7 @@ void application::Application::CreateSwapChain() {
       .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
       .presentMode = swap_chain_support.ChooseSwapPresentMode(),
       .clipped = VK_TRUE,
-      .oldSwapchain = VK_NULL_HANDLE,
+      .oldSwapchain = old_swap_chain,
   };
 
   QueueFamilyIndices indices(physical_device_, surface_);
@@ -450,17 +450,30 @@ void application::Application::CreateSwapChain() {
 
   VK_CALL(vkCreateSwapchainKHR(device_, &create_info, nullptr, &swap_chain_));
 
+  if (old_swap_chain != VK_NULL_HANDLE) {
+    swap_chain_images_.clear();
+    vkDestroySwapchainKHR(device_, old_swap_chain, nullptr);
+  }
+
   VK_CALL(vkGetSwapchainImagesKHR(device_, swap_chain_, &image_count, nullptr));
   std::vector<VkImage> images = std::vector<VkImage>(image_count);
   VK_CALL(vkGetSwapchainImagesKHR(device_, swap_chain_, &image_count, images.data()));
   for (const auto &kImage : images) {
-    semaphores_.emplace_back(rendering_context_->CreateSemaphore());
     auto image = vulkan::Image::Create(rendering_context_,
                                        swap_chain_extent.width,
                                        swap_chain_extent.height,
                                        swap_chain_image_format,
                                        kImage);
     swap_chain_images_.emplace_back(image);
+  }
+  if (semaphores_.size() != swap_chain_images_.size()) {
+    while (semaphores_.size() > swap_chain_images_.size()) {
+      rendering_context_->DestroySemaphore(semaphores_.back());
+      semaphores_.pop_back();
+    }
+    while (semaphores_.size() < swap_chain_images_.size()) {
+      semaphores_.emplace_back(rendering_context_->CreateSemaphore());
+    }
   }
 }
 

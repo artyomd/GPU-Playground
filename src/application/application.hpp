@@ -47,7 +47,7 @@ class Application final {
   void CreateInstance();
   void PickPhysicalDevice();
   void CreateLogicalDevice();
-  void CreateSwapChain();
+  void CreateSwapChain(VkSwapchainKHR old_swap_chain = VK_NULL_HANDLE);
   void CleanupSwapChain();
  public:
   Application() = delete;
