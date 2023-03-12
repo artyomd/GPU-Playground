@@ -5,7 +5,17 @@
 #include <shaderc/shaderc.hpp>
 
 #include <fstream>
+#include <map>
 #include <sstream>
+
+namespace {
+std::map<uint32_t, shaderc_spirv_version> vk_spir_version_mapping = {
+    {VK_API_VERSION_1_0, shaderc_spirv_version_1_0},
+    {VK_API_VERSION_1_1, shaderc_spirv_version_1_3},
+    {VK_API_VERSION_1_2, shaderc_spirv_version_1_5},
+    {VK_API_VERSION_1_3, shaderc_spirv_version_1_6},
+};
+} // namespace
 
 std::shared_ptr<vulkan::Shader> vulkan::Shader::Create(const std::shared_ptr<RenderingContext> &context,
                                                        const std::string &glsl_file_path,
@@ -35,6 +45,20 @@ vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context,
 
   shaderc::Compiler compiler;
   shaderc::CompileOptions options;
+  {
+    options.SetSourceLanguage(shaderc_source_language_glsl);
+    options.SetForcedVersionProfile(460, shaderc_profile_none);
+    options.SetInvertY(false);
+    options.SetTargetEnvironment(shaderc_target_env_vulkan, context->GetPhysicalDeviceVkSpecVersion());
+    options.SetWarningsAsErrors();
+    options.SetTargetSpirv(vk_spir_version_mapping[context->GetPhysicalDeviceVkSpecVersion()]);
+#if defined(NDEBUG)
+    options.SetOptimizationLevel(shaderc_optimization_level_performance);
+#else
+    options.SetOptimizationLevel(shaderc_optimization_level_zero);
+    options.SetGenerateDebugInfo();
+#endif
+  }
   auto get_shader_stage = [](VkShaderStageFlagBits type) {
     switch (type) {
       case VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT:return shaderc_shader_kind::shaderc_glsl_fragment_shader;

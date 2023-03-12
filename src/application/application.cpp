@@ -145,7 +145,7 @@ application::Application::Application(std::function<std::shared_ptr<Renderable>(
 void application::Application::OnWindowSizeChanged(int width, int height) {
   this->window_width_ = width;
   this->window_height_ = height;
-  rendering_context_->WaitForGpuIdle();
+  rendering_context_->WaitForGraphicsQueueIdle();
   CleanupSwapChain();
   if (width == 0 || height == 0) {
     glfwWaitEvents();
@@ -518,7 +518,7 @@ void application::Application::RequestExit() {
 }
 
 application::Application::~Application() {
-  rendering_context_->WaitForGpuIdle();
+  rendering_context_->WaitForGraphicsQueueIdle();
   renderable_ = nullptr;
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();

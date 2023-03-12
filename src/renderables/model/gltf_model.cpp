@@ -39,7 +39,7 @@ void renderable::GltfModel::SetupImages(std::vector<std::shared_ptr<vulkan::Imag
   if (imgui_wrapper_ != nullptr && imgui_wrapper_->GetImageCount() != images.size()) {
     imgui_wrapper_ = nullptr;
   }
-  auto sample_count = vulkan::GetMaxUsableColorSampleCount(rendering_context_->GetPhysicalDevice());
+  auto sample_count = vulkan::GetMaxUsableSampleCount(rendering_context_->GetPhysicalDevice());
   auto depth_format = vulkan::GetDepthFormat(rendering_context_->GetPhysicalDevice());
   if (render_pass_ == nullptr || render_pass_->GetColorAttachmentFormat() != image_format) {
     render_pass_ = std::make_shared<vulkan::RenderPass>(rendering_context_, image_format, depth_format, sample_count);
@@ -98,7 +98,7 @@ void renderable::GltfModel::SetupImages(std::vector<std::shared_ptr<vulkan::Imag
 VkSemaphore renderable::GltfModel::Render(std::shared_ptr<vulkan::Image> image,
                                           const VkSemaphore &semaphore) {
   if (current_scene_ != selected_scene_) {
-    rendering_context_->WaitForGpuIdle();
+    rendering_context_->WaitForGraphicsQueueIdle();
     model_->LoadScene(selected_scene_);
     current_scene_ = selected_scene_;
   }

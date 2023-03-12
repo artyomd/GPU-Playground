@@ -215,7 +215,7 @@ const std::map<VkImageLayout, std::pair<VkAccessFlags2, VkPipelineStageFlagBits2
     std::make_pair(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                    std::make_pair(VK_ACCESS_2_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_2_COPY_BIT)),
     std::make_pair(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                   std::make_pair(VK_ACCESS_2_SHADER_SAMPLED_READ_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)),
+                   std::make_pair(VK_ACCESS_2_SHADER_READ_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)),
     std::make_pair(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                    std::make_pair(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT,
                                   VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)),

@@ -342,7 +342,7 @@ size_t vulkan::RenderingPipeline::GetDescriptorSetCount() {
 }
 
 vulkan::RenderingPipeline::~RenderingPipeline() {
-  context_->WaitForGpuIdle();
+  context_->WaitForGraphicsQueueIdle();
   for (const auto &kDescriptorSet: descriptor_sets_) {
     vkFreeDescriptorSets(context_->GetDevice(),
                          context_->GetDescriptorPool(),

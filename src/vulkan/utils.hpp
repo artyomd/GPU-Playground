@@ -22,7 +22,7 @@ void LogDeviceInfo(VkPhysicalDevice physical_device);
 
 uint32_t GetDeviceApiVersion(VkPhysicalDevice physical_device);
 
-VkSampleCountFlagBits GetMaxUsableColorSampleCount(VkPhysicalDevice physical_device);
+VkSampleCountFlagBits GetMaxUsableSampleCount(VkPhysicalDevice physical_device);
 
 VkFormat GetDepthFormat(VkPhysicalDevice physical_device);
 }  // namespace vulkan

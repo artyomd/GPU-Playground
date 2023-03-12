@@ -12,12 +12,21 @@ vulkan::RenderingContext::RenderingContext(VkInstance instance,
                                            VkDevice device,
                                            VkQueue graphics_queue,
                                            uint32_t queue_family_index,
-                                           bool use_sync2_ext) : instance_(instance),
-                                                                 physical_device_(physical_device),
-                                                                 device_(device),
-                                                                 graphics_queue_(graphics_queue),
-                                                                 queue_family_index_(queue_family_index),
-                                                                 use_synch2_ext_(use_sync2_ext) {
+                                           bool use_sync_2_ext) : instance_(instance),
+                                                                  physical_device_(physical_device),
+                                                                  device_(device),
+                                                                  graphics_queue_(graphics_queue),
+                                                                  queue_family_index_(queue_family_index),
+                                                                  use_synch2_ext_(use_sync_2_ext) {
+
+  VkPhysicalDeviceProperties2 properties_2{
+      .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+  };
+  vkGetPhysicalDeviceProperties2(physical_device_, &properties_2);
+  physical_device_vk_spec_version_ = VK_MAKE_API_VERSION(VK_API_VERSION_VARIANT(properties_2.properties.apiVersion),
+                                                         VK_API_VERSION_MAJOR(properties_2.properties.apiVersion),
+                                                         VK_API_VERSION_MINOR(properties_2.properties.apiVersion),
+                                                         0);
 
   std::vector<VkDescriptorPoolSize> pool_sizes =
       {{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 50},
@@ -100,8 +109,8 @@ VkDevice vulkan::RenderingContext::GetDevice() const {
   return device_;
 }
 
-void vulkan::RenderingContext::WaitForGpuIdle() const {
-  VK_CALL(vkDeviceWaitIdle(device_));
+void vulkan::RenderingContext::WaitForGraphicsQueueIdle() const {
+  VK_CALL(vkQueueWaitIdle(graphics_queue_));
 }
 
 VkCommandPool vulkan::RenderingContext::CreateCommandPool(VkCommandPoolCreateFlags pool_flags) {
@@ -237,4 +246,7 @@ VkQueue vulkan::RenderingContext::GetGraphicsQueue() const {
 
 bool vulkan::RenderingContext::IsUseSynch2Ext() const {
   return use_synch2_ext_;
+}
+uint32_t vulkan::RenderingContext::GetPhysicalDeviceVkSpecVersion() const {
+  return physical_device_vk_spec_version_;
 }

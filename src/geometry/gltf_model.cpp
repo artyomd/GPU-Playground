@@ -178,7 +178,7 @@ void geometry::GltfModel::LoadScene(size_t scene_index) {
     throw std::runtime_error("scene with given index does not exists");
   }
 
-  context_->WaitForGpuIdle();
+  context_->WaitForGraphicsQueueIdle();
   current_pipelines_.clear();
   auto default_scene = model_.scenes[static_cast<size_t>(scene_index)];
   for (const auto &kNode : default_scene.nodes) {

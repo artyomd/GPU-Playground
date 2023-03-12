@@ -14,7 +14,7 @@ class RenderingContext {
                             VkDevice device,
                             VkQueue graphics_queue,
                             uint32_t queue_family_index,
-                            bool use_sync2_ext);
+                            bool use_sync_2_ext);
 
   [[nodiscard]] VkInstance GetInstance() const;
 
@@ -54,14 +54,17 @@ class RenderingContext {
 
   void DestroySemaphore(VkSemaphore semaphore);
 
-  void WaitForGpuIdle() const;
+  void WaitForGraphicsQueueIdle() const;
 
-  bool IsUseSynch2Ext() const;
+  [[nodiscard]] bool IsUseSynch2Ext() const;
+
+  uint32_t GetPhysicalDeviceVkSpecVersion() const;
 
   virtual ~RenderingContext();
  private:
   VkInstance instance_ = VK_NULL_HANDLE;
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
+  uint32_t physical_device_vk_spec_version_ = VK_API_VERSION_1_0;
   VkDevice device_ = VK_NULL_HANDLE;
   VkQueue graphics_queue_ = VK_NULL_HANDLE;
   uint32_t queue_family_index_ = 0;

@@ -21,7 +21,7 @@ renderable::Model::Model(std::shared_ptr<vulkan::RenderingContext> context,
 }
 
 void renderable::Model::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer: command_buffers_) {
+  for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
     rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
@@ -55,7 +55,8 @@ void renderable::Model::SetupImages(std::vector<std::shared_ptr<vulkan::Image>> 
   if (pipeline_ != nullptr && pipeline_->GetDescriptorSetCount() != images.size()) {
     pipeline_ = nullptr;
   }
-  auto sample_count = vulkan::GetMaxUsableColorSampleCount(rendering_context_->GetPhysicalDevice());
+  auto sample_count =
+      std::min(vulkan::GetMaxUsableSampleCount(rendering_context_->GetPhysicalDevice()), VK_SAMPLE_COUNT_8_BIT);
   auto depth_format = VK_FORMAT_UNDEFINED;
   if (add_depth_attachment_) {
     depth_format = vulkan::GetDepthFormat(rendering_context_->GetPhysicalDevice());
@@ -75,7 +76,7 @@ void renderable::Model::SetupImages(std::vector<std::shared_ptr<vulkan::Image>> 
     pipeline_ = CreatePipeline(rendering_context_, render_pass_, images.size(), sample_count);
   }
 
-  for (const auto &kImage: images) {
+  for (const auto &kImage : images) {
     std::vector<std::shared_ptr<vulkan::ImageView>> attachments;
     auto image_view = vulkan::ImageView::Create(rendering_context_, kImage);
     if (sample_count == VK_SAMPLE_COUNT_1_BIT) {
@@ -110,7 +111,7 @@ void renderable::Model::SetupImages(std::vector<std::shared_ptr<vulkan::Image>> 
   }
   CleanupCommandBuffers(); //recreating is easier than remapping
   uint32_t descriptor_index = 0;
-  for (const auto &kImage: images) {
+  for (const auto &kImage : images) {
     auto fence = rendering_context_->CreateFence(true);
     auto semaphore = rendering_context_->CreateSemaphore();
     auto command_buffer = rendering_context_->CreateCommandBuffer(command_pool_);
@@ -254,7 +255,7 @@ glm::mat4 renderable::Model::ComputeViewMatrix() {
 }
 
 void renderable::Model::WaitForCommandBuffersToFinish() {
-  for (const auto &kCommandBuffer: command_buffers_) {
+  for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
   }
 }

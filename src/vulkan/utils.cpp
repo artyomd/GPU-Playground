@@ -85,7 +85,7 @@ uint32_t vulkan::GetDeviceApiVersion(VkPhysicalDevice physical_device) {
   return properties_2.properties.apiVersion;
 }
 
-VkSampleCountFlagBits vulkan::GetMaxUsableColorSampleCount(VkPhysicalDevice physical_device) {
+VkSampleCountFlagBits vulkan::GetMaxUsableSampleCount(VkPhysicalDevice physical_device) {
   VkPhysicalDeviceProperties physical_device_properties;
   vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
   VkSampleCountFlags counts = physical_device_properties.limits.framebufferColorSampleCounts;
