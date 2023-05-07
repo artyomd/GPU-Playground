@@ -1,11 +1,11 @@
 #pragma once
 
 #include "buffer.hpp"
-#include "vertex_buffer_layout.hpp"
 #include "image_view.hpp"
 #include "render_pass.hpp"
 #include "rendering_context.hpp"
 #include "shader.hpp"
+#include "vertex_buffer_layout.hpp"
 
 namespace vulkan {
 struct RenderingPipelineConfig {

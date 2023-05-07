@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.24.2)
+cmake_minimum_required(VERSION 3.26)
 include(FetchContent)
 
 project(playground)
 
-set(CMAKE_CXX_STANDARD 17)#https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105329
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
-set(VULKAN_SDK_VERSION sdk-1.3.239.0)
+set(VULKAN_SDK_VERSION sdk-1.3.243.0)
 
 FetchContent_Declare(glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -112,12 +112,24 @@ FetchContent_Declare(VulkanMemoryAllocator
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         )
-set(VMA_STATIC_VULKAN_FUNCTIONS OFF)
-FetchContent_MakeAvailable(VulkanMemoryAllocator)
+add_library(VulkanMemoryAllocator INTERFACE)
+target_include_directories(VulkanMemoryAllocator INTERFACE
+        $<BUILD_INTERFACE:${VulkanMemoryAllocator_SOURCE_DIR}/include>
+        )
+target_compile_definitions(
+        VulkanMemoryAllocator INTERFACE
+        VMA_STATIC_VULKAN_FUNCTIONS=false
+        VMA_DYNAMIC_VULKAN_FUNCTIONS=false
+        VMA_DEBUG_ALWAYS_DEDICATED_MEMORY=false
+        VMA_DEBUG_INITIALIZE_ALLOCATIONS=false
+        VMA_DEBUG_GLOBAL_MUTEX=false
+        VMA_DEBUG_DONT_EXCEED_MAX_MEMORY_ALLOCATION_COUNT=false
+        VMA_RECORDING_ENABLED=false
+)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2023.2
+        GIT_TAG v2023.3
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         )
@@ -131,7 +143,7 @@ FetchContent_MakeAvailable(shaderc)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.89.3
+        GIT_TAG v1.89.5
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         CONFIGURE_COMMAND ""
@@ -149,10 +161,11 @@ add_library(imgui STATIC
         )
 target_compile_definitions(imgui PUBLIC
         -DIMGUI_IMPL_VULKAN_NO_PROTOTYPES
-        -DIMGUI_DISABLE_DEMO_WINDOWS)
+        -DIMGUI_DISABLE_DEMO_WINDOWS
+        -DGLFW_INCLUDE_NONE)
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
         PUBLIC ${imgui_SOURCE_DIR}/backends)
-target_link_libraries(imgui glfw Vulkan-Headers)
+target_link_libraries(imgui PRIVATE glfw Vulkan-Headers)
 
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
@@ -174,7 +187,7 @@ target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
 FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.8.3
+        GIT_TAG v2.8.9
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         )

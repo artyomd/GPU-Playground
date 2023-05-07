@@ -58,7 +58,7 @@ class RenderingContext {
 
   [[nodiscard]] bool IsUseSynch2Ext() const;
 
-  uint32_t GetPhysicalDeviceVkSpecVersion() const;
+  [[nodiscard]] uint32_t GetPhysicalDeviceVkSpecVersion() const;
 
   virtual ~RenderingContext();
  private:

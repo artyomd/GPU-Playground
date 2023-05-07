@@ -37,8 +37,10 @@ add_executable(playground
         vulkan/utils.cpp
         vulkan/vertex_buffer_layout.cpp
         )
-target_compile_definitions(playground PRIVATE SHADER_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/shaders/\")
-target_compile_definitions(playground PRIVATE RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\")
+target_compile_definitions(playground PRIVATE
+        SHADER_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/shaders/\"
+        RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\"
+        GLFW_INCLUDE_NONE)
 target_include_directories(playground PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(playground
         ${CMAKE_DL_LIBS}
@@ -64,7 +66,7 @@ target_link_libraries(playground
 ##LSAN
 #target_compile_options(playground PRIVATE -fsanitize=leak)
 #target_link_options(playground PRIVATE -fsanitize=leak)
-##MSAN not supported in macos
+##MSAN
 #target_compile_options(playground PRIVATE -fsanitize=memory)
 #target_link_options(playground PRIVATE -fsanitize=memory)
 #TSAN

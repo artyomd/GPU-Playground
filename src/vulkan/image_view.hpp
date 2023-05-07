@@ -16,7 +16,7 @@ class ImageView {
   [[nodiscard]] VkImageView GetImageView() const;
   [[nodiscard]] uint32_t GetWidth() const;
   [[nodiscard]] uint32_t GetHeight() const;
-  const std::shared_ptr<Image> &GetImage() const;
+  [[nodiscard]] const std::shared_ptr<Image> &GetImage() const;
 
   virtual ~ImageView();
  private:

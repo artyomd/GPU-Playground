@@ -76,14 +76,3 @@ size_t vulkan::Buffer::GetSizeInBytes() const {
 vulkan::Buffer::~Buffer() {
   vmaDestroyBuffer(allocator_, buffer_, allocation_);
 }
-VkWriteDescriptorSet vulkan::Buffer::GetWriteDescriptorSetFor(unsigned int binding_point) const {
-  throw std::runtime_error("not implemented");
-//  VkWriteDescriptorSet write_descriptor_set{
-//      .dstBinding = binding_point,
-//      .dstArrayElement = 0,
-//      .descriptorCount = 1,
-//      .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-//      .pBufferInfo = &buffer,
-//  };
-//  return write_descriptor_set;
-}

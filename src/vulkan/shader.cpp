@@ -136,7 +136,7 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
           .constantID = kEntry.first,
           .offset = data_offset,
       };
-      std::visit([&](auto value) {
+      std::visit([this, &data_offset, &specialization_map_entry](auto value) {
         spec_data_.resize(spec_data_.size() + sizeof(value));
         memcpy(&spec_data_[data_offset], &value, sizeof(value));
         data_offset += sizeof(value);

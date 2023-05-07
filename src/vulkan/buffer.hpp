@@ -22,7 +22,6 @@ class Buffer {
                 size_t dst_offset = 0);
   [[nodiscard]] VkBuffer GetBuffer() const;
   [[nodiscard]] size_t GetSizeInBytes() const;
-  [[nodiscard]] VkWriteDescriptorSet GetWriteDescriptorSetFor(unsigned int binding_point) const;
   virtual ~Buffer();
  private:
   Buffer(const std::shared_ptr<RenderingContext> &context,

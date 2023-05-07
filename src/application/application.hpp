@@ -6,7 +6,6 @@
 #include "vulkan/rendering_context.hpp"
 #include "vulkan/vulkan_include.hpp"
 
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <functional>
