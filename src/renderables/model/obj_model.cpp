@@ -65,8 +65,8 @@ renderable::ObjModel::ObjModel(std::shared_ptr<vulkan::RenderingContext> context
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices;
 
-  for (const auto &kShape: shapes) {
-    for (const auto &kIndex: kShape.mesh.indices) {
+  for (const auto &kShape : shapes) {
+    for (const auto &kIndex : kShape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
           attrib.vertices[3 * static_cast<uint64_t>(kIndex.vertex_index) + 0],
@@ -149,14 +149,19 @@ renderable::ObjModel::ObjModel(std::shared_ptr<vulkan::RenderingContext> context
 
   index_count_ = indices.size();
 
+  const std::vector<uint32_t> kVertexShader = {
+#include "texture2d_vertex.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("texture2d_vertex.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
+  const std::vector<uint32_t> kFragmentShader = {
+#include "texture2d_fragment.spv"
+  };
   f_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("texture2d_fragment.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     kFragmentShader,
+                                     "main");
 
   stbi_set_flip_vertically_on_load(true);
   int tex_width = 0, tex_height = 0, tex_channels = 0;

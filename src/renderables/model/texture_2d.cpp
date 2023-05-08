@@ -103,14 +103,19 @@ renderable::Texture2d::Texture2d(std::shared_ptr<vulkan::RenderingContext> conte
     context->FreeCommandBuffer(command_pool, command_buffer);
   }
 
+  const std::vector<uint32_t> kVertexShader = {
+#include "texture2d_vertex.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("texture2d_vertex.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
+  const std::vector<uint32_t> kFragmentShader = {
+#include "texture2d_fragment.spv"
+  };
   f_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("texture2d_fragment.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     kFragmentShader,
+                                     "main");
 
   auto texture_2d = vulkan::Image::Create(context,
                                           tex_width,

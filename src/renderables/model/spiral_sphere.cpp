@@ -10,14 +10,20 @@ renderable::SpiralSphere::SpiralSphere(std::shared_ptr<vulkan::RenderingContext>
     : Model(context, parent, true, true) {
 
   sphere_ = std::make_shared<geometry::SpiralSphere>(context, 1.0F, 32, 64);
+
+  const std::vector<uint32_t> kVertexShader = {
+#include "default_mvp_color_vertex_shader.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("default_mvp_color_vertex_shader.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
+  const std::vector<uint32_t> kFragmentShader = {
+#include "default_color_fragment_shader.spv"
+  };
   f_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("default_color_fragment_shader.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     kFragmentShader,
+                                     "main");
 }
 
 std::shared_ptr<vulkan::RenderingPipeline> renderable::SpiralSphere::CreatePipeline(std::shared_ptr<vulkan::RenderingContext> rendering_context,

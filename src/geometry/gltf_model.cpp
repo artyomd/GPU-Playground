@@ -441,9 +441,10 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(
       context_->FreeCommandBuffer(command_pool_, command_buffer);
     }
     auto vertex_shader = vulkan::Shader::Create(context_,
-                                                SHADER_DIR + std::string("gltf_vertex.glsl"),
-                                                "main",
-                                                VK_SHADER_STAGE_VERTEX_BIT);
+                                                {
+#include "gltf_vertex.spv"
+        },
+                                                "main");
     vertex_shader->SetConstant(1, has_normals);
     vertex_shader->SetConstant(2, has_tangents);
     vertex_shader->SetConstant(3, has_text_coord_0);
@@ -453,9 +454,10 @@ std::vector<geometry::RenderingUnit> geometry::GltfModel::LoadMesh(
     vertex_shader->SetConstant(7, has_weights_0);
 
     auto fragment_shader = vulkan::Shader::Create(context_,
-                                                  SHADER_DIR + std::string("gltf_fragment.glsl"),
-                                                  "main",
-                                                  VK_SHADER_STAGE_FRAGMENT_BIT);
+                                                  {
+#include "gltf_fragment.spv"
+        },
+                                                  "main");
 
     std::map<unsigned int, CombinedImageSampler> textures_mapping{};
 

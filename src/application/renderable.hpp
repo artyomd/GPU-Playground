@@ -9,7 +9,7 @@ namespace application {
 class Renderable {
  public:
   virtual void SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) = 0;
-  virtual VkSemaphore Render(std::shared_ptr<vulkan::Image> image, const VkSemaphore& semaphore) = 0;
+  virtual VkSemaphore Render(std::shared_ptr<vulkan::Image> image, const VkSemaphore &semaphore) = 0;
   virtual ~Renderable() = default;
 };
 } // namespace application

@@ -16,7 +16,7 @@ vulkan::Framebuffer::Framebuffer(std::shared_ptr<RenderingContext> rendering_con
     attachments_(attachments),
     render_pass_(render_pass) {
   std::vector<VkImageView> vk_attachments;
-  for (const auto &kAttachment: attachments_) {
+  for (const auto &kAttachment : attachments_) {
     vk_attachments.push_back(kAttachment->GetImageView());
   }
   VkFramebufferCreateInfo framebuffer_create_info{
@@ -48,7 +48,7 @@ vulkan::Framebuffer::~Framebuffer() {
   vkDestroyFramebuffer(rendering_context_->GetDevice(), framebuffer_, nullptr);
 }
 std::shared_ptr<vulkan::ImageView> vulkan::Framebuffer::GetDepthAttachment() {
-  for (auto attachment: attachments_) {
+  for (auto attachment : attachments_) {
     if (attachment->GetAspectMask() == VK_IMAGE_ASPECT_DEPTH_BIT) {
       return attachment;
     }

@@ -9,13 +9,13 @@
 
 std::shared_ptr<renderable::Shader> renderable::Shader::Create(std::shared_ptr<vulkan::RenderingContext> context,
                                                                std::shared_ptr<Menu> parent,
-                                                               std::string fragment_shader_path) {
-  return std::shared_ptr<Shader>(new Shader(context, parent, fragment_shader_path));
+                                                               std::vector<uint32_t> fragment_shader) {
+  return std::shared_ptr<Shader>(new Shader(context, parent, fragment_shader));
 }
 
 renderable::Shader::Shader(std::shared_ptr<vulkan::RenderingContext> context,
                            std::shared_ptr<Menu> parent,
-                           std::string fragment_shader_path) :
+                           const std::vector<uint32_t> fragment_shader) :
     rendering_context_(context),
     parent_(parent),
     command_pool_(rendering_context_->CreateCommandPool(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)) {
@@ -28,14 +28,16 @@ renderable::Shader::Shader(std::shared_ptr<vulkan::RenderingContext> context,
   quad_ = std::make_shared<geometry::Quad>(rendering_context_, point_0,
                                            point_1, point_2, point_3);
 
+  const std::vector<uint32_t> kVertexShader = {
+#include "default_empty_vertex_shader.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("default_empty_vertex_shader.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
   f_shader_ = vulkan::Shader::Create(context,
-                                     fragment_shader_path,
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     fragment_shader,
+                                     "main");
 }
 
 void renderable::Shader::CleanupCommandBuffers() {

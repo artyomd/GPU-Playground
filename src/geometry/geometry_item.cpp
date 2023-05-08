@@ -1,6 +1,7 @@
 #include "geometry/geometry_item.hpp"
 
-geometry::GeometryItem::GeometryItem(const std::shared_ptr<vulkan::RenderingContext> &context) : context_(context) {}\
+geometry::GeometryItem::GeometryItem(const std::shared_ptr<vulkan::RenderingContext> &context) : context_(context) {}
+\
 
 std::shared_ptr<vulkan::Buffer> geometry::GeometryItem::GetVertexBuffer() const {
   return vertex_buffer_;

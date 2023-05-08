@@ -75,22 +75,30 @@ int main() {
         shader_menu->RegisterMenuItem([](auto context, auto parent) {
           return renderable::Shader::Create(context,
                                             parent,
-                                            SHADER_DIR + std::string("shaping_function_fragment_shader.glsl"));
+                                            {
+#include "shaping_function_fragment_shader.spv"
+              });
         }, "Shader Shaping Function");
         shader_menu->RegisterMenuItem([](auto context, auto parent) {
           return renderable::Shader::Create(context,
                                             parent,
-                                            SHADER_DIR + std::string("color_fragment_shader.glsl"));
+                                            {
+#include "color_fragment_shader.spv"
+              });
         }, "Shader Colors");
         shader_menu->RegisterMenuItem([](auto context, auto parent) {
           return renderable::Shader::Create(context,
                                             parent,
-                                            SHADER_DIR + std::string("squares_fragment_shader.glsl"));
+                                            {
+#include "squares_fragment_shader.spv"
+              });
         }, "Shader Squares");
         shader_menu->RegisterMenuItem([](auto context, auto parent) {
           return renderable::Shader::Create(context,
                                             parent,
-                                            SHADER_DIR + std::string("hsb_fragment.glsl"));
+                                            {
+#include "hsb_fragment.spv"
+              });
         }, "HSB");
         return shader_menu;
       }, "Shaders");

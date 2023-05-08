@@ -2,92 +2,38 @@
 
 #include "utils.hpp"
 
-#include <shaderc/shaderc.hpp>
-
-#include <fstream>
 #include <map>
-#include <sstream>
-
-namespace {
-std::map<uint32_t, shaderc_spirv_version> vk_spir_version_mapping = {
-    {VK_API_VERSION_1_0, shaderc_spirv_version_1_0},
-    {VK_API_VERSION_1_1, shaderc_spirv_version_1_3},
-    {VK_API_VERSION_1_2, shaderc_spirv_version_1_5},
-    {VK_API_VERSION_1_3, shaderc_spirv_version_1_6},
-};
-} // namespace
 
 std::shared_ptr<vulkan::Shader> vulkan::Shader::Create(const std::shared_ptr<RenderingContext> &context,
-                                                       const std::string &glsl_file_path,
-                                                       const std::string &entry_point_name,
-                                                       VkShaderStageFlagBits type) {
-  return std::shared_ptr<Shader>(new vulkan::Shader(context, glsl_file_path, entry_point_name, type));
+                                                       const std::vector<uint32_t> &spirv_code,
+                                                       const std::string &entry_point_name) {
+  return std::shared_ptr<Shader>(new vulkan::Shader(context, spirv_code, entry_point_name));
 }
 
 vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context,
-                       const std::string &file_path,
-                       const std::string &entry_point_name,
-                       VkShaderStageFlagBits type) : device_(context->GetDevice()),
-                                                     entry_point_name_(entry_point_name),
-                                                     type_(type) {
-  std::ifstream file_stream(file_path, std::ios::in);
-  std::string content;
-  if (!file_stream.is_open()) {
-    throw std::runtime_error("invalid file path:" + file_path);
-  } else {
-    std::ostringstream string_stream;
-    string_stream << file_stream.rdbuf();
-    content = string_stream.str();
-  }
-  if (content.empty()) {
-    throw std::runtime_error("file is empty or unable to read file, path:" + file_path);
-  }
-
-  shaderc::Compiler compiler;
-  shaderc::CompileOptions options;
-  {
-    options.SetSourceLanguage(shaderc_source_language_glsl);
-    options.SetForcedVersionProfile(460, shaderc_profile_none);
-    options.SetInvertY(false);
-    options.SetTargetEnvironment(shaderc_target_env_vulkan, context->GetPhysicalDeviceVkSpecVersion());
-    options.SetWarningsAsErrors();
-    options.SetTargetSpirv(vk_spir_version_mapping[context->GetPhysicalDeviceVkSpecVersion()]);
-#if defined(NDEBUG)
-    options.SetOptimizationLevel(shaderc_optimization_level_performance);
-#else
-    options.SetOptimizationLevel(shaderc_optimization_level_zero);
-    options.SetGenerateDebugInfo();
-#endif
-  }
-  auto get_shader_stage = [](VkShaderStageFlagBits type) {
-    switch (type) {
-      case VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT:return shaderc_shader_kind::shaderc_glsl_fragment_shader;
-      case VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT:return shaderc_shader_kind::shaderc_glsl_vertex_shader;
-      default:throw std::runtime_error("unhandled");
-    }
-  };
-  compiled_spirv_ = compiler.CompileGlslToSpv(content,
-                                              get_shader_stage(type),
-                                              file_path.data(),
-                                              entry_point_name.data(),
-                                              options);
-  if (compiled_spirv_.GetCompilationStatus() != shaderc_compilation_status_success) {
-    throw std::runtime_error("shader compilation failed, shader path:" + file_path + compiled_spirv_.GetErrorMessage());
-  }
-  std::vector<uint32_t> spirv;
-  spirv.assign(compiled_spirv_.cbegin(), compiled_spirv_.cend());
-
+                       const std::vector<uint32_t> &spirv_code,
+                       const std::string &entry_point_name) : device_(context->GetDevice()),
+                                                              spirv_code_(spirv_code),
+                                                              entry_point_name_(entry_point_name) {
   VkShaderModuleCreateInfo create_info = {
       .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-      .codeSize = spirv.size() * sizeof(uint32_t),
-      .pCode = spirv.data(),
+      .codeSize = spirv_code.size() * sizeof(uint32_t),
+      .pCode = spirv_code_.data(),
   };
   VK_CALL(vkCreateShaderModule(device_, &create_info, nullptr, &shader_module_));
 
   SpvReflectResult
-      result = spvReflectCreateShaderModule(spirv.size() * sizeof(uint32_t), spirv.data(), &reflect_shader_module_);
+      result =
+      spvReflectCreateShaderModule(spirv_code_.size() * sizeof(uint32_t), spirv_code_.data(), &reflect_shader_module_);
   if (result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
+  }
+  switch (reflect_shader_module_.shader_stage) {
+    case SPV_REFLECT_SHADER_STAGE_VERTEX_BIT:this->type_ = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+      break;
+    case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:this->type_ = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+      break;
+    default:throw std::runtime_error("unhandled shader stage");
   }
 
   uint32_t count = 0;

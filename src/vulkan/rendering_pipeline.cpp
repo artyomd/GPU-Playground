@@ -68,7 +68,8 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
                                              size_t descriptor_set_count)
     : context_(std::move(context)), render_pass_(render_pass),
       vertex_shader_(vertex_shader), fragment_shader_(fragment_shader) {
-  std::array<VkPipelineShaderStageCreateInfo, 2> shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
+  std::array<VkPipelineShaderStageCreateInfo, 2>
+      shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
   auto vertex_bindings = vertex_shader_->GetBindings();
   auto fragment_bindings = fragment_shader_->GetBindings();
   auto pipeline_bindings = vertex_bindings;
@@ -160,7 +161,7 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
   auto stride = static_cast<uint32_t>(vbl.GetElementSize());
   size_t offset = 0;
   std::vector<VkVertexInputAttributeDescription> attribute_descriptions{};
-  for (auto element: kElements) {
+  for (auto element : kElements) {
     VkVertexInputAttributeDescription description{
         .location = element.binding_index,
         .binding = 0,
@@ -272,7 +273,7 @@ void vulkan::RenderingPipeline::SetUniformBuffer(unsigned int binding_point,
                                                  unsigned int descriptor_set_index,
                                                  const std::shared_ptr<Buffer> &uniform_buffer) {
   auto check_shader = [&binding_point, &uniform_buffer](const std::shared_ptr<Shader> &shader) -> bool {
-    for (auto binding: shader->GetBindings()) {
+    for (auto binding : shader->GetBindings()) {
       if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         auto expected_size = shader->DescriptorSizeInBytes(binding_point);
         if (expected_size != uniform_buffer->GetSizeInBytes()) {
@@ -343,7 +344,7 @@ size_t vulkan::RenderingPipeline::GetDescriptorSetCount() {
 
 vulkan::RenderingPipeline::~RenderingPipeline() {
   context_->WaitForGraphicsQueueIdle();
-  for (const auto &kDescriptorSet: descriptor_sets_) {
+  for (const auto &kDescriptorSet : descriptor_sets_) {
     vkFreeDescriptorSets(context_->GetDevice(),
                          context_->GetDescriptorPool(),
                          1,

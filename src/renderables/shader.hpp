@@ -50,11 +50,11 @@ class Shader : public application::Renderable {
  protected:
   Shader(std::shared_ptr<vulkan::RenderingContext> context,
          std::shared_ptr<Menu> parent,
-         std::string fragment_shader_path);
+         std::vector<uint32_t> fragment_shader);
  public:
   static std::shared_ptr<Shader> Create(std::shared_ptr<vulkan::RenderingContext> context,
                                         std::shared_ptr<Menu> parent,
-                                        std::string fragment_shader_path);
+                                        std::vector<uint32_t> fragment_shader);
   Shader() = delete;
   Shader(const Shader &) = delete;
   void SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) override;

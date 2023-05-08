@@ -22,7 +22,7 @@ renderable::DefaultMenu::DefaultMenu(std::shared_ptr<vulkan::RenderingContext> c
 }
 
 void renderable::DefaultMenu::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer: command_buffers_) {
+  for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
     rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
@@ -47,7 +47,7 @@ void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Im
         std::make_shared<ImguiWrapper>(rendering_context_, render_pass_, images.size(), VK_SAMPLE_COUNT_1_BIT);
     imgui_wrapper_->PrepareFonts();
   }
-  for (const auto &kImage: images) {
+  for (const auto &kImage : images) {
     std::vector<std::shared_ptr<vulkan::ImageView>> attachments;
     auto image_view = vulkan::ImageView::Create(rendering_context_, kImage);
     attachments.emplace_back(image_view);
@@ -55,7 +55,7 @@ void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Im
     framebuffers_[kImage] = framebuffer;
   }
   CleanupCommandBuffers(); //recreating is easier than remapping
-  for (const auto &kImage: images) {
+  for (const auto &kImage : images) {
     auto fence = rendering_context_->CreateFence(true);
     auto semaphore = rendering_context_->CreateSemaphore();
     auto command_buffer = rendering_context_->CreateCommandBuffer(command_pool_);
@@ -110,7 +110,7 @@ VkSemaphore renderable::DefaultMenu::Render(std::shared_ptr<vulkan::Image> image
   ImGui::Begin("Menu");
   {
     auto locked_parent = parent_.lock();
-    for (const auto &kItem: locked_parent->EntryNames()) {
+    for (const auto &kItem : locked_parent->EntryNames()) {
       if (ImGui::Button(kItem.c_str())) {
         locked_parent->Select(kItem);
       }

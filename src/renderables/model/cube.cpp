@@ -89,14 +89,19 @@ renderable::Cube::Cube(std::shared_ptr<vulkan::RenderingContext> context, std::s
 
   index_count_ = indices.size();
 
+  const std::vector<uint32_t> kVertexShader = {
+#include "default_mvp_color_vertex_shader.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("default_mvp_color_vertex_shader.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
+  const std::vector<uint32_t> kFragmentShader = {
+#include "default_color_fragment_shader.spv"
+  };
   f_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("default_color_fragment_shader.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     kFragmentShader,
+                                     "main");
 }
 
 std::shared_ptr<vulkan::RenderingPipeline> renderable::Cube::CreatePipeline(std::shared_ptr<vulkan::RenderingContext> rendering_context,

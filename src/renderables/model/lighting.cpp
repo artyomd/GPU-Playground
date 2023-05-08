@@ -68,8 +68,8 @@ renderable::Lighting::Lighting(std::shared_ptr<vulkan::RenderingContext> context
   std::vector<uint32_t> indices;
   std::unordered_map<Vertex, uint32_t> unique_vertices;
 
-  for (const auto &kShape: shapes) {
-    for (const auto &kIndex: kShape.mesh.indices) {
+  for (const auto &kShape : shapes) {
+    for (const auto &kIndex : kShape.mesh.indices) {
       Vertex vertex = {};
       vertex.position = {
           attrib.vertices[3 * static_cast<uint64_t>(kIndex.vertex_index) + 0],
@@ -151,14 +151,19 @@ renderable::Lighting::Lighting(std::shared_ptr<vulkan::RenderingContext> context
 
   index_count_ = indices.size();
 
+  const std::vector<uint32_t> kVertexShader = {
+#include "lighting_vertex.spv"
+  };
   v_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("lighting_vertex.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT);
+                                     kVertexShader,
+                                     "main");
+
+  const std::vector<uint32_t> kFragmentShader = {
+#include "lighting_fragment.spv"
+  };
   f_shader_ = vulkan::Shader::Create(context,
-                                     SHADER_DIR + std::string("lighting_fragment.glsl"),
-                                     "main",
-                                     VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT);
+                                     kFragmentShader,
+                                     "main");
 
   ViewBuffer buffer = {
       .eye = glm::vec4(0.0, 8.0, 0.0, 0.0),

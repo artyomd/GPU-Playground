@@ -2,7 +2,6 @@
 
 #include "rendering_context.hpp"
 
-#include <shaderc/shaderc.hpp>
 #include <spirv_reflect.h>
 
 #include <map>
@@ -13,9 +12,9 @@ namespace vulkan {
 class Shader {
  public:
   static std::shared_ptr<Shader> Create(const std::shared_ptr<RenderingContext> &context,
-                                        const std::string &glsl_file_path,
-                                        const std::string &entry_point_name,
-                                        VkShaderStageFlagBits type);
+                                        const std::vector<uint32_t> &spirv_code,
+                                        const std::string &entry_point_name);
+
   Shader() = delete;
   Shader(const Shader &) = delete;
   [[nodiscard]] VkPipelineShaderStageCreateInfo GetShaderStageInfo() const;
@@ -38,15 +37,14 @@ class Shader {
   ~Shader();
  private:
   Shader(const std::shared_ptr<RenderingContext> &context,
-         const std::string &file_path,
-         const std::string &entry_point_name,
-         VkShaderStageFlagBits type);
+         const std::vector<uint32_t> &spirv_code,
+         const std::string &entry_point_name);
 
   VkDevice device_ = VK_NULL_HANDLE;
   VkShaderModule shader_module_ = VK_NULL_HANDLE;
   SpvReflectShaderModule reflect_shader_module_{};
 
-  shaderc::SpvCompilationResult compiled_spirv_{};
+  std::vector<uint32_t> spirv_code_{};
   std::string entry_point_name_;
   VkShaderStageFlagBits type_;
 

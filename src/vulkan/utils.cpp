@@ -103,7 +103,7 @@ VkFormat FindSupportedFormat(VkPhysicalDevice physical_device,
                              const std::vector<VkFormat> &candidates,
                              VkImageTiling tiling,
                              VkFormatFeatureFlags features) {
-  for (VkFormat format: candidates) {
+  for (VkFormat format : candidates) {
     VkFormatProperties props;
     vkGetPhysicalDeviceFormatProperties(physical_device, format, &props);
     if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
