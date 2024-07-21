@@ -45,7 +45,6 @@ void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Im
   if (imgui_wrapper_ == nullptr) {
     imgui_wrapper_ =
         std::make_shared<ImguiWrapper>(rendering_context_, render_pass_, images.size(), VK_SAMPLE_COUNT_1_BIT);
-    imgui_wrapper_->PrepareFonts();
   }
   for (const auto &kImage : images) {
     std::vector<std::shared_ptr<vulkan::ImageView>> attachments;

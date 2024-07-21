@@ -69,7 +69,6 @@ void renderable::Model::SetupImages(std::vector<std::shared_ptr<vulkan::Image>> 
   //imgui
   if (imgui_wrapper_ == nullptr) {
     imgui_wrapper_ = std::make_shared<ImguiWrapper>(rendering_context_, render_pass_, images.size(), sample_count);
-    imgui_wrapper_->PrepareFonts();
   }
   //pipeline
   if (pipeline_ == nullptr) {

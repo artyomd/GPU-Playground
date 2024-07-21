@@ -16,7 +16,6 @@ class ImguiWrapper {
                uint32_t image_count,
                VkSampleCountFlagBits sample_count);
   [[nodiscard]] uint32_t GetImageCount() const;
-  void PrepareFonts();
   virtual ~ImguiWrapper();
 };
 } // namespace renderable

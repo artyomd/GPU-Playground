@@ -475,13 +475,26 @@ void application::Application::CreateSwapChain(VkSwapchainKHR old_swap_chain) {
       semaphores_.emplace_back(rendering_context_->CreateSemaphore());
     }
   }
+  if (fences_.size() != swap_chain_images_.size()) {
+    while (fences_.size() > swap_chain_images_.size()) {
+      rendering_context_->DestroyFence(fences_.back());
+      fences_.pop_back();
+    }
+    while (fences_.size() < swap_chain_images_.size()) {
+      fences_.emplace_back(rendering_context_->CreateFence(true));
+    }
+  }
 }
 
 void application::Application::CleanupSwapChain() {
   for (auto *semaphore : semaphores_) {
     rendering_context_->DestroySemaphore(semaphore);
   }
+  for (auto *fence : fences_) {
+    rendering_context_->DestroyFence(fence);
+  }
   semaphores_.clear();
+  fences_.clear();
   swap_chain_images_.clear();
   vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   swap_chain_ = VK_NULL_HANDLE;
@@ -497,11 +510,13 @@ void application::Application::Run() {
     current_frame_index_ = (current_frame_index_ + 1) % swap_chain_images_.size();
 
     uint32_t image_index = 0;
+    rendering_context_->WaitForFence(fences_[current_frame_index_]);
+    rendering_context_->ResetFence(fences_[current_frame_index_]);
     auto result = vkAcquireNextImageKHR(device_,
                                         swap_chain_,
                                         UINT64_MAX,
                                         semaphores_[current_frame_index_],
-                                        VK_NULL_HANDLE,
+                                        fences_[current_frame_index_],
                                         &image_index);
     if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR) {
       continue;

@@ -1,13 +1,17 @@
 #include "utils.hpp"
 
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
 #include <stdexcept>
 
 void vulkan::CheckResult(VkResult result, const std::string &file, uint32_t line) {
   if (result != VK_SUCCESS) [[unlikely]] {
-    throw std::runtime_error(fmt::format("call failed with error {:#x} {}:{}\n", result, file, line));
+    throw std::runtime_error(fmt::format("call failed with error {} {}:{}\n",
+                                         magic_enum::enum_name(result),
+                                         file,
+                                         line));
   }
 }
 
@@ -53,21 +57,12 @@ void vulkan::LogDeviceInfo(VkPhysicalDevice physical_device) {
                 "GPU driver: {} (id: {}, version: {}, conformance version:{}.{}.{}.{}, info: {})\n",
                 properties_2.properties.deviceName,
                 properties_2.properties.deviceID,
-                [&]() {
-                  switch (properties_2.properties.deviceType) {
-                    case VK_PHYSICAL_DEVICE_TYPE_OTHER: return "other";
-                    case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU: return "integrated";
-                    case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: return "discrete";
-                    case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU: return "virtual";
-                    case VK_PHYSICAL_DEVICE_TYPE_CPU: return "cpu";
-                    default: return "unknown3";
-                  }
-                }(),
+                magic_enum::enum_name(properties_2.properties.deviceType),
                 VK_VERSION_MAJOR(properties_2.properties.apiVersion),
                 VK_VERSION_MINOR(properties_2.properties.apiVersion),
                 VK_VERSION_PATCH(properties_2.properties.apiVersion),
                 driver_properties.driverName,
-                driver_properties.driverID,
+                magic_enum::enum_name(driver_properties.driverID),
                 properties_2.properties.driverVersion,
                 driver_properties.conformanceVersion.major,
                 driver_properties.conformanceVersion.minor,

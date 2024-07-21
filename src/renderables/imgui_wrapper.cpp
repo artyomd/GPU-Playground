@@ -24,6 +24,7 @@ renderable::ImguiWrapper::ImguiWrapper(std::shared_ptr<vulkan::RenderingContext>
       .Queue = rendering_context_->GetGraphicsQueue(),
       .PipelineCache = VK_NULL_HANDLE,
       .DescriptorPool = rendering_context_->GetDescriptorPool(),
+      .RenderPass = render_pass_->GetRenderPass(),
       .Subpass = 0,
       .MinImageCount = image_count_,
       .ImageCount = image_count_,
@@ -33,33 +34,12 @@ renderable::ImguiWrapper::ImguiWrapper(std::shared_ptr<vulkan::RenderingContext>
         VK_CALL(result);
       },
   };
-  ImGui_ImplVulkan_Init(&init_info, render_pass_->GetRenderPass());
+  ImGui_ImplVulkan_Init(&init_info);
   ImGui::StyleColorsDark();
-
 }
 
 uint32_t renderable::ImguiWrapper::GetImageCount() const {
   return image_count_;
-}
-
-void renderable::ImguiWrapper::PrepareFonts() {
-  auto tmp_command_pool = rendering_context_->CreateCommandPool();
-  auto cmd_buffer = rendering_context_->CreateCommandBuffer(tmp_command_pool);
-  VkCommandBufferBeginInfo begin_info{
-      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-      .pNext = nullptr,
-      .flags =   VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-      .pInheritanceInfo = nullptr,
-  };
-  vkBeginCommandBuffer(cmd_buffer, &begin_info);
-  ImGui_ImplVulkan_CreateFontsTexture(cmd_buffer);
-  vkEndCommandBuffer(cmd_buffer);
-  auto fence = rendering_context_->CreateFence();
-  rendering_context_->SubmitCommandBuffer(cmd_buffer, VK_NULL_HANDLE, VK_PIPELINE_STAGE_2_NONE, VK_NULL_HANDLE, fence);
-  rendering_context_->WaitForFence(fence);
-  rendering_context_->DestroyFence(fence);
-  rendering_context_->FreeCommandBuffer(tmp_command_pool, cmd_buffer);
-  rendering_context_->DestroyCommandPool(tmp_command_pool);
 }
 
 renderable::ImguiWrapper::~ImguiWrapper() {

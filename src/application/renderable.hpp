@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <vector>
+
 namespace application {
 class Renderable {
  public:

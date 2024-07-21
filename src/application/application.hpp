@@ -38,6 +38,7 @@ class Application final {
   uint32_t current_frame_index_ = -1;
   std::vector<std::shared_ptr<vulkan::Image>> swap_chain_images_;
   std::vector<VkSemaphore> semaphores_;
+  std::vector<VkFence> fences_;
 
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;
   std::shared_ptr<Renderable> renderable_ = nullptr;

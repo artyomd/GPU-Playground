@@ -48,7 +48,6 @@ void renderable::GltfModel::SetupImages(std::vector<std::shared_ptr<vulkan::Imag
   //imgui
   if (imgui_wrapper_ == nullptr) {
     imgui_wrapper_ = std::make_shared<ImguiWrapper>(rendering_context_, render_pass_, images.size(), sample_count);
-    imgui_wrapper_->PrepareFonts();
   }
   model_->OnRenderPassChanged(render_pass_, images.size(), sample_count);
 

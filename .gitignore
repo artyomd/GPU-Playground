@@ -38,3 +38,5 @@ build/
 
 #compiled spirv files
 *.spv
+
+.DS_Store

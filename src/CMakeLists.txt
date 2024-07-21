@@ -38,17 +38,20 @@ add_executable(playground
         vulkan/shader.cpp
         vulkan/utils.cpp
         vulkan/vertex_buffer_layout.cpp
-        )
+)
 target_compile_definitions(playground PRIVATE
-        RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\"
-        GLFW_INCLUDE_NONE)
+        RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\")
 target_include_directories(playground PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(playground
         ${CMAKE_DL_LIBS}
+        TracyClient
+        Vulkan-Headers
+        VulkanMemoryAllocator
         fmt
         glfw
         glm
         imgui
+        magic_enum
         nlohmann_json
         shaders
         spdlog
@@ -56,11 +59,8 @@ target_link_libraries(playground
         stb
         tinygltf
         tinyobjloader
-        TracyClient
         volk_headers
-        Vulkan-Headers
-        VulkanMemoryAllocator
-        )
+)
 ##ASAN
 #target_compile_options(playground PRIVATE -fsanitize=address)
 #target_link_options(playground PRIVATE -fsanitize=address)

@@ -2,7 +2,9 @@
 
 #include "vulkan/utils.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
+#undef GLM_ENABLE_EXPERIMENTAL
 #include <spdlog/spdlog.h>
 #include <tiny_obj_loader.h>
 

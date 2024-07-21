@@ -1,13 +1,11 @@
-set(VULKAN_SDK_VERSION sdk-1.3.243.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.3.283.0)
 
 FetchContent_Declare(SPIRV-Headers
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
         GIT_TAG ${VULKAN_SDK_VERSION}
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-        )
-set(SPIRV_HEADERS_SKIP_EXAMPLES ON)
-set(SPIRV_HEADERS_SKIP_INSTALL ON)
+)
 FetchContent_MakeAvailable(SPIRV-Headers)
 
 FetchContent_Declare(SPIRV-Tools
@@ -15,7 +13,7 @@ FetchContent_Declare(SPIRV-Tools
         GIT_TAG ${VULKAN_SDK_VERSION}
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-        )
+)
 set(SKIP_SPIRV_TOOLS_INSTALL ON)
 set(SPIRV_SKIP_EXECUTABLES ON)
 set(SPIRV_SKIP_TESTS ON)
@@ -26,30 +24,25 @@ FetchContent_Declare(glslang
         GIT_TAG ${VULKAN_SDK_VERSION}
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-        )
-set(SKIP_GLSLANG_INSTALL ON)
+)
 set(ENABLE_SPVREMAPPER OFF)
 set(ENABLE_GLSLANG_BINARIES OFF)
 set(ENABLE_GLSLANG_JS OFF)
-set(ENABLE_GLSLANG_BINARIES OFF)
 FetchContent_MakeAvailable(glslang)
-
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2023.3
+        GIT_TAG v2024.1
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-        )
+)
 set(SHADERC_ENABLE_WGSL_OUTPUT OFF)
 set(SHADERC_SKIP_INSTALL ON)
 set(SHADERC_SKIP_TESTS ON)
 set(SHADERC_SKIP_EXAMPLES ON)
 set(SHADERC_SKIP_COPYRIGHT_CHECK ON)
-set(SHADERC_SKIP_COPYRIGHT_CHECK ON)
 set(SHADERC_ENABLE_WERROR_COMPILE ON)
 FetchContent_MakeAvailable(shaderc)
-
 
 #add spirv library
 #LIBRARY_NAME - string, name of output library target
@@ -93,7 +86,7 @@ FUNCTION(add_spirv_library)
                 COMMAND glslc_exe ${EXTRA_FLAGS} -mfmt=num -o ${OUTPUT_FILE} ${FILE}
                 COMMENT "Building GLSL object ${OUTPUT_FILE}"
                 DEPENDS glslc_exe CREATE_SPIRV_BUILD_DIR ${FILE}
-                )
+        )
 
         list(APPEND OUTPUT_SPV_FILES ${OUTPUT_FILE})
     ENDFOREACH (FILE)
@@ -103,8 +96,3 @@ FUNCTION(add_spirv_library)
             ${SPIR_V_DIRECTORY})
 
 ENDFUNCTION(add_spirv_library)
-
-
-
-
-
