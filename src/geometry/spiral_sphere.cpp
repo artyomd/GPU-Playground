@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <numbers>
 
 geometry::SpiralSphere::SpiralSphere(
     const std::shared_ptr<vulkan::RenderingContext> &context, float radius,
@@ -29,7 +30,7 @@ geometry::SpiralSphere::SpiralSphere(
       auto theta = static_cast<float>((loop_number * M_PI / loops)
           + ((M_PI * loop_segment_number) / (segments_per_loop * loops)));
       if (loop_number == loops) {
-        theta = static_cast<float>(M_PI);
+        theta = std::numbers::pi_v<float>;
       }
       auto phi = static_cast<float>(loop_segment_number * 2 * M_PI / segments_per_loop);
       float sin_theta = std::sin(theta);

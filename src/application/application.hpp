@@ -15,7 +15,8 @@
 
 namespace application {
 class Application final {
- private:
+  std::vector<const char *> required_device_extensions_ = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
   VkInstance vulkan_instance_ = VK_NULL_HANDLE;
   VkDebugUtilsMessengerEXT debug_messenger_ = VK_NULL_HANDLE;
 
@@ -36,7 +37,7 @@ class Application final {
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
   uint32_t current_frame_index_ = -1;
-  std::vector<std::shared_ptr<vulkan::Image>> swap_chain_images_;
+  std::vector<std::shared_ptr<vulkan::Image> > swap_chain_images_;
   std::vector<VkSemaphore> semaphores_;
   std::vector<VkFence> fences_;
 
@@ -53,7 +54,7 @@ class Application final {
   Application() = delete;
   explicit Application(std::function<std::shared_ptr<Renderable>(std::shared_ptr<vulkan::RenderingContext>)> instantiate);
   void Run();
-  void RequestExit();
+  void RequestExit() const;
   virtual ~Application();
 };
-}  // namespace application
+} // namespace application
