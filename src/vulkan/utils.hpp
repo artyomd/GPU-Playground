@@ -12,7 +12,7 @@ namespace vulkan {
 
 void CheckResult(VkResult result, const std::string &file, uint32_t line);
 
-std::vector<VkExtensionProperties> GetAvailableInstanceExtensions(std::string layer_name);
+std::vector<VkExtensionProperties> GetAvailableInstanceExtensions(std::string layer_name = "");
 
 std::vector<VkLayerProperties> GetAvailableInstanceLayers();
 

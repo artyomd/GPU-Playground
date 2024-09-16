@@ -3,8 +3,8 @@
 #include <utility>
 
 #include "vulkan/buffer.hpp"
-#include "vulkan/vertex_buffer_layout.hpp"
 #include "vulkan/rendering_context.hpp"
+#include "vulkan/vertex_buffer_layout.hpp"
 
 namespace geometry {
 class GeometryItem {

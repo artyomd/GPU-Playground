@@ -1,0 +1,13 @@
+khronos_validation.report_flags = info,warn,perf,error
+khronos_validation.message_id_filter = BestPractices-vkAllocateMemory-small-allocation,BestPractices-vkBindBufferMemory-small-dedicated-allocation,BestPractices-vkBindImageMemory-small-dedicated-allocation,BestPractices-vkBindMemory-small-dedicated-allocation,BestPractices-vkCreateCommandPool-command-buffer-reset,BestPractices-vkCreateFramebuffer-attachment-should-be-transient
+khronos_validation.enables = VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT,VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT
+
+#notes
+VK_LAYER_SETTINGS_PATH env variable should point to this file
+#filtered messages
+BestPractices-vkAllocateMemory-small-allocation,
+BestPractices-vkBindBufferMemory-small-dedicated-allocation,
+BestPractices-vkBindImageMemory-small-dedicated-allocation,
+BestPractices-vkBindMemory-small-dedicated-allocation,
+BestPractices-vkCreateCommandPool-command-buffer-reset,
+BestPractices-vkCreateFramebuffer-attachment-should-be-transient

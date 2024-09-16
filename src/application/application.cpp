@@ -179,51 +179,27 @@ void application::Application::CreateInstance() {
   std::vector<const char *> instance_extensions{};
 
   bool debug_utils_enabled = false;
-  bool validation_features_enabled = false;
-  void *instance_create_info_next = nullptr;
-  std::vector<VkValidationFeatureEnableEXT> enabled_features{
-      VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
-      VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
-      VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
-      VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT,
-  };
-  VkValidationFeaturesEXT validation_features_ext{
-      .sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
-      .enabledValidationFeatureCount = static_cast<uint32_t>(enabled_features.size()),
-      .pEnabledValidationFeatures = enabled_features.data(),
-      .disabledValidationFeatureCount = 0, .pDisabledValidationFeatures = nullptr,
-  };
 
   auto available_layers = vulkan::GetAvailableInstanceLayers();
   for (const auto &kLayer : available_layers) {
 #if !defined(NDEBUG)
     if (strcmp(kLayer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_validation");
+      auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
+      for (const auto &kExt : available_extensions) {
+        if (strcmp(kExt.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
+          instance_extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+          debug_utils_enabled = true;
+        }
+      }
     }
 #endif
     if (strcmp(kLayer.layerName, "VK_LAYER_KHRONOS_synchronization2") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_synchronization2");
     }
   }
-#if !defined(NDEBUG)
-  if (std::find(layers.begin(), layers.end(), "VK_LAYER_KHRONOS_validation") != layers.end()) {
-    auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
-    for (const auto &kExt : available_extensions) {
-      if (strcmp(kExt.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
-        instance_extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        debug_utils_enabled = true;
-      } else if (strcmp(kExt.extensionName, VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) == 0) {
-        instance_extensions.emplace_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
-        validation_features_enabled = true;
-      }
-    }
-  }
-  if (validation_features_enabled) {
-    instance_create_info_next = &validation_features_ext;
-  }
-#endif
 
-  auto available_instance_extensions = vulkan::GetAvailableInstanceExtensions("");
+  auto available_instance_extensions = vulkan::GetAvailableInstanceExtensions();
   if (std::find_if(available_instance_extensions.begin(), available_instance_extensions.end(), [](const auto &val) {
     return strcmp(val.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
   }) != available_instance_extensions.end()) {
@@ -235,7 +211,7 @@ void application::Application::CreateInstance() {
 
   VkInstanceCreateInfo instance_create_info{
       .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-      .pNext = instance_create_info_next,
+      .pNext = nullptr,
       .flags =(std::find(instance_extensions.begin(),
                          instance_extensions.end(),
                          VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) != instance_extensions.end())

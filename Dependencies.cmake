@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.3.283.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.3.290.0)
 
 FetchContent_Declare(glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -86,7 +86,7 @@ FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.90.9
+        GIT_TAG v1.91.1
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         CONFIGURE_COMMAND ""
@@ -120,8 +120,7 @@ FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(stb
         GIT_REPOSITORY https://github.com/nothings/stb.git
-        GIT_TAG f7f20f39fe4f206c6f19e26ebfef7b261ee59ee4
-        GIT_SHALLOW TRUE
+        GIT_TAG f75e8d1cad7d90d72ef7a4661f1b994ef78b4e31
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(stb)
@@ -130,7 +129,7 @@ target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
 FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.9.2
+        GIT_TAG v2.9.3
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -149,7 +148,7 @@ FetchContent_MakeAvailable(tinyobj)
 
 FetchContent_Declare(tracy
         GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-        GIT_TAG v0.11.0
+        GIT_TAG v0.11.1
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

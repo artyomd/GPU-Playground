@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.3.283.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.3.290.0)
 
 FetchContent_Declare(SPIRV-Headers
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
@@ -28,11 +28,12 @@ FetchContent_Declare(glslang
 set(ENABLE_SPVREMAPPER OFF)
 set(ENABLE_GLSLANG_BINARIES OFF)
 set(ENABLE_GLSLANG_JS OFF)
+set(ALLOW_EXTERNAL_SPIRV_TOOLS ON)
 FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2024.1
+        GIT_TAG v2024.2
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

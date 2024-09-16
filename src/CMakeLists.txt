@@ -39,14 +39,16 @@ add_executable(playground
         vulkan/utils.cpp
         vulkan/vertex_buffer_layout.cpp
 )
+set_source_files_properties(
+        impl/vma_impl.cpp
+        PROPERTIES
+        COMPILE_FLAGS "-Wno-nullability-completeness"
+)
 target_compile_definitions(playground PRIVATE
         RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\")
 target_include_directories(playground PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(playground
         ${CMAKE_DL_LIBS}
-        TracyClient
-        Vulkan-Headers
-        VulkanMemoryAllocator
         fmt
         glfw
         glm
@@ -59,7 +61,10 @@ target_link_libraries(playground
         stb
         tinygltf
         tinyobjloader
+        TracyClient
         volk_headers
+        Vulkan-Headers
+        VulkanMemoryAllocator
 )
 ##ASAN
 #target_compile_options(playground PRIVATE -fsanitize=address)
