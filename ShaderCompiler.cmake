@@ -33,7 +33,7 @@ FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2024.2
+        GIT_TAG v2024.3
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

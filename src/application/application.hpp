@@ -1,17 +1,14 @@
 #pragma once
 
-#include "application/renderable.hpp"
-#include "vulkan/image.hpp"
-#include "vulkan/image_view.hpp"
-#include "vulkan/rendering_context.hpp"
-#include "vulkan/vulkan_include.hpp"
-
-#include <GLFW/glfw3.h>
-
 #include <functional>
 #include <map>
-#include <memory>
 #include <vector>
+
+#include "application/renderable.hpp"
+#include "include/vulkan_glfw.hpp"
+#include "include/vulkan_include.hpp"
+#include "vulkan/image.hpp"
+#include "vulkan/rendering_context.hpp"
 
 namespace application {
 class Application final {
@@ -48,13 +45,19 @@ class Application final {
   void CreateInstance();
   void PickPhysicalDevice();
   void CreateLogicalDevice();
-  void CreateSwapChain(VkSwapchainKHR old_swap_chain = VK_NULL_HANDLE);
+  void CreateSwapChain();
   void CleanupSwapChain();
+
  public:
   Application() = delete;
-  explicit Application(std::function<std::shared_ptr<Renderable>(std::shared_ptr<vulkan::RenderingContext>)> instantiate);
+  Application(const Application &) = delete;
+  Application(Application &&) = delete;
+  Application &operator=(const Application &) = delete;
+  Application &operator=(Application &&) = delete;
+  explicit Application(
+      const std::function<std::shared_ptr<Renderable>(std::shared_ptr<vulkan::RenderingContext>)> &instantiate);
   void Run();
   void RequestExit() const;
-  virtual ~Application();
+  ~Application();
 };
-} // namespace application
+}  // namespace application

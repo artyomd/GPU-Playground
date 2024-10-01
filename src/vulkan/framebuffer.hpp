@@ -1,31 +1,36 @@
 #pragma once
 
+#include <vector>
+
 #include "image_view.hpp"
 #include "render_pass.hpp"
 #include "rendering_context.hpp"
 
-#include <vector>
-
 namespace vulkan {
-class Framebuffer {
+class Framebuffer final {
  public:
-  static std::shared_ptr<Framebuffer> Create(std::shared_ptr<RenderingContext> rendering_context,
-                                             std::shared_ptr<RenderPass> render_pass,
-                                             std::vector<std::shared_ptr<ImageView>> attachments);
+  static std::shared_ptr<Framebuffer> Create(const std::shared_ptr<RenderingContext>& rendering_context,
+                                             const std::shared_ptr<RenderPass>& render_pass,
+                                             const std::vector<std::shared_ptr<ImageView>>& attachments);
   Framebuffer() = delete;
-  Framebuffer(const Framebuffer &) = delete;
+  Framebuffer(const Framebuffer&) = delete;
+  Framebuffer(Framebuffer&&) = delete;
+
+  Framebuffer& operator=(const Framebuffer&) = delete;
+  Framebuffer& operator=(Framebuffer&&) = delete;
 
   [[nodiscard]] VkFramebuffer GetFramebuffer() const;
   [[nodiscard]] uint32_t GetWidth() const;
   [[nodiscard]] uint32_t GetHeight() const;
 
-  std::shared_ptr<ImageView> GetDepthAttachment();
+  [[nodiscard]] std::shared_ptr<ImageView> GetDepthAttachment() const;
 
-  virtual ~Framebuffer();
+  ~Framebuffer();
+
  private:
-  Framebuffer(std::shared_ptr<RenderingContext> rendering_context,
-              std::shared_ptr<RenderPass> render_pass,
-              std::vector<std::shared_ptr<ImageView>> attachments);
+  Framebuffer(const std::shared_ptr<RenderingContext>& rendering_context,
+              const std::shared_ptr<RenderPass>& render_pass,
+              const std::vector<std::shared_ptr<ImageView>>& attachments);
 
   std::shared_ptr<RenderingContext> rendering_context_ = nullptr;
   std::shared_ptr<RenderPass> render_pass_ = nullptr;

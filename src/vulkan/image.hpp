@@ -2,38 +2,34 @@
 
 #include <cstddef>
 
-#include "rendering_context.hpp"
 #include "buffer.hpp"
-#include "sampler.hpp"
+#include "rendering_context.hpp"
 
 namespace vulkan {
-class Image {
+class Image final {
  public:
-  static std::shared_ptr<Image> Create(const std::shared_ptr<RenderingContext> &context,
-                                       uint32_t width,
-                                       uint32_t height,
-                                       VkFormat pixel_format,
-                                       VkImageUsageFlags usage,
-                                       bool host_visible,
-                                       VkSampleCountFlagBits sample_count = VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
+  static std::shared_ptr<Image> Create(const std::shared_ptr<RenderingContext> &context, uint32_t width,
+                                       uint32_t height, VkFormat pixel_format, VkImageUsageFlags usage,
+                                       bool host_visible, VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT);
 
-  static std::shared_ptr<Image> Create(const std::shared_ptr<RenderingContext> &context,
-                                       uint32_t width,
-                                       uint32_t height,
-                                       VkFormat pixel_format,
-                                       VkImage image);
+  static std::shared_ptr<Image> Create(const std::shared_ptr<RenderingContext> &context, uint32_t width,
+                                       uint32_t height, VkFormat pixel_format, const VkImage &image);
 
   Image() = delete;
   Image(const Image &) = delete;
+  Image(Image &&) = delete;
 
-  void BlitFrom(VkCommandBuffer command_buffer, const std::shared_ptr<vulkan::Image> &other);
-  void CopyFrom(VkCommandBuffer command_buffer, const std::shared_ptr<vulkan::Image> &other);
-  void CopyFrom(VkCommandBuffer command_buffer, const std::shared_ptr<vulkan::Buffer> &other);
-  void CopyTo(VkCommandBuffer command_buffer, const std::shared_ptr<vulkan::Buffer> &other);
-  void TransferTo(VkCommandBuffer command_buffer, VkImageLayout new_layout);
+  Image &operator=(const Image &) = delete;
+  Image &operator=(Image &&) = delete;
 
-  [[nodiscard]] void *Map();
-  void Unmap();
+  void BlitFrom(const VkCommandBuffer &command_buffer, const std::shared_ptr<Image> &other);
+  void CopyFrom(const VkCommandBuffer &command_buffer, const std::shared_ptr<Image> &other);
+  void CopyFrom(const VkCommandBuffer &command_buffer, const std::shared_ptr<Buffer> &other);
+  void CopyTo(const VkCommandBuffer &command_buffer, const std::shared_ptr<Buffer> &other);
+  void TransferTo(const VkCommandBuffer &command_buffer, VkImageLayout new_layout);
+
+  [[nodiscard]] void *Map() const;
+  void Unmap() const;
 
   [[nodiscard]] size_t GetSizeInBytes() const;
 
@@ -45,21 +41,14 @@ class Image {
 
   [[nodiscard]] VkImage GetImage() const;
 
-  virtual ~Image();
- private:
-  Image(const std::shared_ptr<RenderingContext> &context,
-        uint32_t width,
-        uint32_t height,
-        VkFormat pixel_format,
-        VkImageUsageFlags usage,
-        bool host_visible,
-        VkSampleCountFlagBits sample_count = VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT);
+  ~Image();
 
-  Image(const std::shared_ptr<RenderingContext> &context,
-        uint32_t width,
-        uint32_t height,
-        VkFormat pixel_format,
-        VkImage image);
+ private:
+  Image(const std::shared_ptr<RenderingContext> &context, uint32_t width, uint32_t height, VkFormat pixel_format,
+        VkImageUsageFlags usage, bool host_visible, VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT);
+
+  Image(const std::shared_ptr<RenderingContext> &context, uint32_t width, uint32_t height, VkFormat pixel_format,
+        const VkImage &image);
 
   std::shared_ptr<RenderingContext> context_;
   uint32_t width_;

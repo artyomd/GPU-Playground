@@ -1,18 +1,47 @@
-#include "geometry/triangle.hpp"
+#include "plane_2d.hpp"
 
-#include <array>
-#include <cstring>
+#include <cassert>
 
+#include "point.hpp"
 #include "vulkan/utils.hpp"
 
-geometry::Triangle::Triangle(const std::shared_ptr<vulkan::RenderingContext> &context, const PointWithColor &point_0,
-                             const PointWithColor &point_1, const PointWithColor &point_2)
+geometry::Plane2d::Plane2d(const std::shared_ptr<vulkan::RenderingContext> &context, const uint32_t &width,
+                           const uint32_t &height)
     : GeometryItem(context) {
-  const std::array geometry_data = {point_0, point_1, point_2};
-  constexpr std::array<uint16_t, 3> indices = {0, 1, 2};
+  vertex_buffer_ = vulkan::Buffer::Create(context_, 3 * 7u * sizeof(float),
+                                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, false);
+
+  std::vector<Point> vertices;
+  std::vector<uint32_t> indices;
+
+  // Create vertices for the plane
+  for (int y = 0; y <= height; ++y) {
+    for (int x = 0; x <= width; ++x) {
+      vertices.emplace_back(x, 0.0, y);
+    }
+  }
+
+  assert(vertices.size() <= std::numeric_limits<uint32_t>::max());
+
+  // Generate indices for triangle list rendering
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      unsigned int bottomLeft = y * (width + 1) + x;
+      unsigned int bottomRight = bottomLeft + 1;
+      unsigned int topLeft = bottomLeft + width + 1;
+      unsigned int topRight = topLeft + 1;
+
+      indices.push_back(bottomLeft);
+      indices.push_back(topLeft);
+      indices.push_back(bottomRight);
+      indices.push_back(bottomRight);
+      indices.push_back(topLeft);
+      indices.push_back(topRight);
+    }
+  }
+
   vbl_.Push({.binding_index = 0, .type = vulkan::DataType::FLOAT, .count = 3});
-  vbl_.Push({.binding_index = 1, .type = vulkan::DataType::UINT_8, .count = 4});
-  vertex_buffer_ = vulkan::Buffer::Create(context_, geometry_data.size() * sizeof(decltype(geometry_data)::value_type),
+  vertex_buffer_ = vulkan::Buffer::Create(context_, vertices.size() * sizeof(decltype(vertices)::value_type),
                                           VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, false);
   index_buffer_ = vulkan::Buffer::Create(context_, indices.size() * sizeof(decltype(indices)::value_type),
                                          VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, false);
@@ -21,7 +50,7 @@ geometry::Triangle::Triangle(const std::shared_ptr<vulkan::RenderingContext> &co
   {
     const auto staging_buffer =
         vulkan::Buffer::Create(context_, vertex_buffer_->GetSizeInBytes(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, true);
-    std::memcpy(staging_buffer->Map(), geometry_data.data(), staging_buffer->GetSizeInBytes());
+    std::memcpy(staging_buffer->Map(), vertices.data(), staging_buffer->GetSizeInBytes());
     staging_buffer->Unmap();
     auto *command_buffer = context_->CreateCommandBuffer(command_pool);
     constexpr VkCommandBufferBeginInfo command_buffer_begin_info{

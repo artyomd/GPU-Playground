@@ -1,24 +1,19 @@
 #include "sampler.hpp"
+
 #include "utils.hpp"
 
 std::shared_ptr<vulkan::Sampler> vulkan::Sampler::Create(const std::shared_ptr<RenderingContext> &context,
-                                                         VkFilter mag_filter,
-                                                         VkFilter min_filter,
-                                                         VkSamplerAddressMode address_mode_u,
-                                                         VkSamplerAddressMode address_mode_v) {
-  return std::shared_ptr<vulkan::Sampler>(new vulkan::Sampler(context,
-                                                              mag_filter,
-                                                              min_filter,
-                                                              address_mode_u,
-                                                              address_mode_v));
+                                                         const VkFilter mag_filter, const VkFilter min_filter,
+                                                         const VkSamplerAddressMode address_mode_u,
+                                                         const VkSamplerAddressMode address_mode_v) {
+  return std::shared_ptr<Sampler>(new Sampler(context, mag_filter, min_filter, address_mode_u, address_mode_v));
 }
 
-vulkan::Sampler::Sampler(const std::shared_ptr<RenderingContext> &context,
-                         VkFilter mag_filter,
-                         VkFilter min_filter,
-                         VkSamplerAddressMode address_mode_u,
-                         VkSamplerAddressMode address_mode_v) : context_(context) {
-  VkSamplerCreateInfo sampler_info = {
+vulkan::Sampler::Sampler(const std::shared_ptr<RenderingContext> &context, const VkFilter mag_filter,
+                         const VkFilter min_filter, const VkSamplerAddressMode address_mode_u,
+                         const VkSamplerAddressMode address_mode_v)
+    : context_(context) {
+  const VkSamplerCreateInfo sampler_info = {
       .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
       .magFilter = mag_filter,
       .minFilter = min_filter,
@@ -36,9 +31,5 @@ vulkan::Sampler::Sampler(const std::shared_ptr<RenderingContext> &context,
 
   VK_CALL(vkCreateSampler(context->GetDevice(), &sampler_info, nullptr, &sampler_));
 }
-vulkan::Sampler::~Sampler() {
-  vkDestroySampler(context_->GetDevice(), sampler_, nullptr);
-}
-VkSampler vulkan::Sampler::GetSampler() const {
-  return sampler_;
-}
+vulkan::Sampler::~Sampler() { vkDestroySampler(context_->GetDevice(), sampler_, nullptr); }
+VkSampler vulkan::Sampler::GetSampler() const { return sampler_; }

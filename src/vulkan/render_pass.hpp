@@ -1,21 +1,27 @@
 #pragma once
 
-#include "vulkan_include.hpp"
-
+#include "include/vulkan_include.hpp"
 #include "rendering_context.hpp"
 
 namespace vulkan {
-class RenderPass {
+class RenderPass final {
  public:
-  explicit RenderPass(std::shared_ptr<RenderingContext> rendering_context,
-                      VkFormat color_attachment_format,
+  RenderPass() = delete;
+  RenderPass(const RenderPass&) = delete;
+  RenderPass(RenderPass&&) = delete;
+
+  RenderPass& operator=(const RenderPass&) = delete;
+  RenderPass& operator=(RenderPass&&) = delete;
+
+  explicit RenderPass(const std::shared_ptr<RenderingContext>& rendering_context, VkFormat color_attachment_format,
                       VkFormat depth_attachment_format = VK_FORMAT_UNDEFINED,
                       VkSampleCountFlagBits color_attachment_sample_count = VK_SAMPLE_COUNT_1_BIT);
   [[nodiscard]] VkFormat GetColorAttachmentFormat() const;
   [[nodiscard]] VkFormat GetDepthAttachmentFormat() const;
   [[nodiscard]] VkSampleCountFlagBits GetSampleCount() const;
   [[nodiscard]] VkRenderPass GetRenderPass() const;
-  virtual ~RenderPass();
+  ~RenderPass();
+
  private:
   std::shared_ptr<RenderingContext> rendering_context_ = nullptr;
   VkRenderPass render_pass_ = VK_NULL_HANDLE;

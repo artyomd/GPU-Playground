@@ -1,26 +1,31 @@
 #pragma once
 
-#include "rendering_context.hpp"
 #include "image.hpp"
+#include "rendering_context.hpp"
 
 namespace vulkan {
-class ImageView {
+class ImageView final {
  public:
-  static std::shared_ptr<ImageView> Create(std::shared_ptr<RenderingContext> rendering_context,
-                                           std::shared_ptr<Image> image);
+  static std::shared_ptr<ImageView> Create(const std::shared_ptr<RenderingContext>& rendering_context,
+                                           const std::shared_ptr<Image>& image);
 
   ImageView() = delete;
-  ImageView(const ImageView &) = delete;
+  ImageView(const ImageView&) = delete;
+  ImageView(ImageView&&) = delete;
 
-  [[nodiscard]] VkImageAspectFlags GetAspectMask();
+  ImageView& operator=(const ImageView&) = delete;
+  ImageView& operator=(ImageView&&) = delete;
+
+  [[nodiscard]] VkImageAspectFlags GetAspectMask() const;
   [[nodiscard]] VkImageView GetImageView() const;
   [[nodiscard]] uint32_t GetWidth() const;
   [[nodiscard]] uint32_t GetHeight() const;
-  [[nodiscard]] const std::shared_ptr<Image> &GetImage() const;
+  [[nodiscard]] const std::shared_ptr<Image>& GetImage() const;
 
-  virtual ~ImageView();
+  ~ImageView();
+
  private:
-  ImageView(std::shared_ptr<RenderingContext> rendering_context, std::shared_ptr<Image> image);
+  ImageView(const std::shared_ptr<RenderingContext>& rendering_context, const std::shared_ptr<Image>& image);
 
   VkImageView image_view_ = VK_NULL_HANDLE;
   std::shared_ptr<RenderingContext> rendering_context_ = nullptr;

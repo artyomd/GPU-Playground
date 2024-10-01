@@ -4,6 +4,7 @@ add_executable(playground
         application/application.cpp
         geometry/geometry_item.cpp
         geometry/gltf_model.cpp
+        geometry/plane_2d.cpp
         geometry/quad.cpp
         geometry/spiral_sphere.cpp
         geometry/stacked_sphere.cpp

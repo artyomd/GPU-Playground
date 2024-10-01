@@ -1,38 +1,34 @@
 #include "rendering_context.hpp"
 
-#include "utils.hpp"
-
-#include <tracy/Tracy.hpp>
-
 #include <stdexcept>
+#include <tracy/Tracy.hpp>
 #include <vector>
 
-vulkan::RenderingContext::RenderingContext(VkInstance instance,
-                                           VkPhysicalDevice physical_device,
-                                           VkDevice device,
-                                           VkQueue graphics_queue,
-                                           uint32_t queue_family_index,
-                                           bool use_sync_2_ext) : instance_(instance),
-                                                                  physical_device_(physical_device),
-                                                                  device_(device),
-                                                                  graphics_queue_(graphics_queue),
-                                                                  queue_family_index_(queue_family_index),
-                                                                  use_synch2_ext_(use_sync_2_ext) {
+#include "utils.hpp"
 
+vulkan::RenderingContext::RenderingContext(const VkInstance &instance, const VkPhysicalDevice &physical_device,
+                                           const VkDevice &device, const VkQueue &graphics_queue,
+                                           uint32_t queue_family_index, bool use_sync_2_ext)
+    : instance_(instance),
+      physical_device_(physical_device),
+      device_(device),
+      graphics_queue_(graphics_queue),
+      queue_family_index_(queue_family_index),
+      use_synch2_ext_(use_sync_2_ext) {
   VkPhysicalDeviceProperties2 properties_2{
       .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
   };
   vkGetPhysicalDeviceProperties2(physical_device_, &properties_2);
   physical_device_vk_spec_version_ = VK_MAKE_API_VERSION(VK_API_VERSION_VARIANT(properties_2.properties.apiVersion),
                                                          VK_API_VERSION_MAJOR(properties_2.properties.apiVersion),
-                                                         VK_API_VERSION_MINOR(properties_2.properties.apiVersion),
-                                                         0);
+                                                         VK_API_VERSION_MINOR(properties_2.properties.apiVersion), 0);
 
-  std::vector<VkDescriptorPoolSize> pool_sizes =
-      {{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 50},
-       {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 50},
-       {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 50}};
-  VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
+  const std::vector<VkDescriptorPoolSize> pool_sizes = {
+      {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = 50},
+      {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = 50},
+      {.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, .descriptorCount = 50}};
+
+  const VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
       .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
       .maxSets = 50 * static_cast<uint32_t>(pool_sizes.size()),
@@ -42,7 +38,7 @@ vulkan::RenderingContext::RenderingContext(VkInstance instance,
 
   VK_CALL(vkCreateDescriptorPool(device_, &descriptor_pool_create_info, nullptr, &descriptor_pool_));
 
-  VmaVulkanFunctions functions{
+  const VmaVulkanFunctions functions{
       .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
       .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
       .vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties,
@@ -72,20 +68,10 @@ vulkan::RenderingContext::RenderingContext(VkInstance instance,
   };
 
   VmaDeviceMemoryCallbacks device_memory_callbacks = {
-      .pfnAllocate = [](VmaAllocator,
-                        uint32_t,
-                        VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory,
-                        VkDeviceSize size,
-                        void *) {
-        TracyAllocN(memory, size, "vulkan");
-      },
-      .pfnFree = [](VmaAllocator,
-                    uint32_t,
-                    VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory,
-                    VkDeviceSize size,
-                    void *VMA_NULLABLE) {
-        TracyFreeN(memory, "vulkan");
-      },
+      .pfnAllocate = [](VmaAllocator, uint32_t, VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory, VkDeviceSize size,
+                        void *) { TracyAllocN(memory, size, "vulkan"); },
+      .pfnFree = [](VmaAllocator, uint32_t, VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory, VkDeviceSize size,
+                    void *VMA_NULLABLE) { TracyFreeN(memory, "vulkan"); },
   };
 
   VmaAllocatorCreateInfo allocator_info{
@@ -105,17 +91,13 @@ vulkan::RenderingContext::RenderingContext(VkInstance instance,
   VK_CALL(vmaCreateAllocator(&allocator_info, &allocator_));
 }
 
-VkDevice vulkan::RenderingContext::GetDevice() const {
-  return device_;
-}
+VkDevice vulkan::RenderingContext::GetDevice() const { return device_; }
 
-void vulkan::RenderingContext::WaitForGraphicsQueueIdle() const {
-  VK_CALL(vkQueueWaitIdle(graphics_queue_));
-}
+void vulkan::RenderingContext::WaitForGraphicsQueueIdle() const { VK_CALL(vkQueueWaitIdle(graphics_queue_)); }
 
-VkCommandPool vulkan::RenderingContext::CreateCommandPool(VkCommandPoolCreateFlags pool_flags) {
+VkCommandPool vulkan::RenderingContext::CreateCommandPool(const VkCommandPoolCreateFlags pool_flags) const {
   VkCommandPool command_pool = VK_NULL_HANDLE;
-  VkCommandPoolCreateInfo pool_info = {
+  const VkCommandPoolCreateInfo pool_info = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
       .flags = pool_flags,
       .queueFamilyIndex = queue_family_index_,
@@ -124,8 +106,8 @@ VkCommandPool vulkan::RenderingContext::CreateCommandPool(VkCommandPoolCreateFla
   return command_pool;
 }
 
-VkCommandBuffer vulkan::RenderingContext::CreateCommandBuffer(VkCommandPool command_pool) {
-  VkCommandBufferAllocateInfo alloc_info = {
+VkCommandBuffer vulkan::RenderingContext::CreateCommandBuffer(const VkCommandPool &command_pool) const {
+  const VkCommandBufferAllocateInfo alloc_info = {
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
       .commandPool = command_pool,
       .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
@@ -139,35 +121,32 @@ VkCommandBuffer vulkan::RenderingContext::CreateCommandBuffer(VkCommandPool comm
 void vulkan::RenderingContext::SubmitCommandBuffer(const VkCommandBuffer &command_buffer,
                                                    const VkSemaphore &wait_semaphore,
                                                    const VkPipelineStageFlags2 wait_dst_stage_mask,
-                                                   const VkSemaphore &signal_semaphore,
-                                                   VkFence fence) {
-  VkSemaphoreSubmitInfo wait_semaphore_submit_info{
+                                                   const VkSemaphore &signal_semaphore, const VkFence &fence) const {
+  const VkSemaphoreSubmitInfo wait_semaphore_submit_info{
       .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
       .pNext = nullptr,
       .semaphore = wait_semaphore,
       .stageMask = wait_dst_stage_mask,
       .deviceIndex = 0,
   };
-  VkSemaphoreSubmitInfo signal_semaphore_submit_info{
+  const VkSemaphoreSubmitInfo signal_semaphore_submit_info{
       .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
       .pNext = nullptr,
       .semaphore = signal_semaphore,
       .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
       .deviceIndex = 0,
   };
-  VkCommandBufferSubmitInfo command_buffer_submit_info{
+  const VkCommandBufferSubmitInfo command_buffer_submit_info{
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
       .commandBuffer = command_buffer,
   };
-  VkSubmitInfo2 submit_info = {
-      .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-      .waitSemaphoreInfoCount = wait_semaphore == VK_NULL_HANDLE ? 0u : 1u,
-      .pWaitSemaphoreInfos = &wait_semaphore_submit_info,
-      .commandBufferInfoCount = 1,
-      .pCommandBufferInfos = &command_buffer_submit_info,
-      .signalSemaphoreInfoCount = signal_semaphore == VK_NULL_HANDLE ? 0u : 1u,
-      .pSignalSemaphoreInfos = &signal_semaphore_submit_info
-  };
+  const VkSubmitInfo2 submit_info = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+                                     .waitSemaphoreInfoCount = wait_semaphore == VK_NULL_HANDLE ? 0u : 1u,
+                                     .pWaitSemaphoreInfos = &wait_semaphore_submit_info,
+                                     .commandBufferInfoCount = 1,
+                                     .pCommandBufferInfos = &command_buffer_submit_info,
+                                     .signalSemaphoreInfoCount = signal_semaphore == VK_NULL_HANDLE ? 0u : 1u,
+                                     .pSignalSemaphoreInfos = &signal_semaphore_submit_info};
   if (use_synch2_ext_) {
     VK_CALL(vkQueueSubmit2KHR(graphics_queue_, 1, &submit_info, fence));
   } else {
@@ -175,11 +154,12 @@ void vulkan::RenderingContext::SubmitCommandBuffer(const VkCommandBuffer &comman
   }
 }
 
-void vulkan::RenderingContext::FreeCommandBuffer(VkCommandPool command_pool, VkCommandBuffer command_buffer) {
+void vulkan::RenderingContext::FreeCommandBuffer(const VkCommandPool &command_pool,
+                                                 const VkCommandBuffer &command_buffer) const {
   vkFreeCommandBuffers(device_, command_pool, 1, &command_buffer);
 }
 
-void vulkan::RenderingContext::DestroyCommandPool(VkCommandPool command_pool) {
+void vulkan::RenderingContext::DestroyCommandPool(const VkCommandPool &command_pool) const {
   vkResetCommandPool(device_, command_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
   vkDestroyCommandPool(device_, command_pool, nullptr);
 }
@@ -189,16 +169,12 @@ vulkan::RenderingContext::~RenderingContext() {
   vkDestroyDescriptorPool(device_, descriptor_pool_, nullptr);
 }
 
-VkDescriptorPool vulkan::RenderingContext::GetDescriptorPool() const {
-  return descriptor_pool_;
-}
+VkDescriptorPool vulkan::RenderingContext::GetDescriptorPool() const { return descriptor_pool_; }
 
-VmaAllocator vulkan::RenderingContext::GetAllocator() const {
-  return allocator_;
-}
+VmaAllocator vulkan::RenderingContext::GetAllocator() const { return allocator_; }
 
-VkFence vulkan::RenderingContext::CreateFence(bool create_signaled) {
-  VkFenceCreateInfo fence_create_info{
+VkFence vulkan::RenderingContext::CreateFence(const bool create_signaled) const {
+  const VkFenceCreateInfo fence_create_info{
       .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
       .flags = create_signaled ? VK_FENCE_CREATE_SIGNALED_BIT : static_cast<VkFenceCreateFlags>(0),
   };
@@ -207,20 +183,16 @@ VkFence vulkan::RenderingContext::CreateFence(bool create_signaled) {
   return fence;
 }
 
-void vulkan::RenderingContext::WaitForFence(VkFence fence) {
+void vulkan::RenderingContext::WaitForFence(const VkFence &fence) const {
   VK_CALL(vkWaitForFences(device_, 1, &fence, true, std::numeric_limits<uint64_t>::max()));
 }
 
-void vulkan::RenderingContext::ResetFence(VkFence fence) {
-  VK_CALL(vkResetFences(device_, 1, &fence));
-}
+void vulkan::RenderingContext::ResetFence(const VkFence &fence) const { VK_CALL(vkResetFences(device_, 1, &fence)); }
 
-void vulkan::RenderingContext::DestroyFence(VkFence fence) {
-  vkDestroyFence(device_, fence, nullptr);
-}
+void vulkan::RenderingContext::DestroyFence(const VkFence &fence) const { vkDestroyFence(device_, fence, nullptr); }
 
-VkSemaphore vulkan::RenderingContext::CreateSemaphore() {
-  VkSemaphoreCreateInfo semaphore_create_info{
+VkSemaphore vulkan::RenderingContext::CreateSemaphore() const {
+  constexpr VkSemaphoreCreateInfo semaphore_create_info{
       .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
   };
   VkSemaphore semaphore = VK_NULL_HANDLE;
@@ -228,25 +200,16 @@ VkSemaphore vulkan::RenderingContext::CreateSemaphore() {
   return semaphore;
 }
 
-void vulkan::RenderingContext::DestroySemaphore(VkSemaphore semaphore) {
+void vulkan::RenderingContext::DestroySemaphore(const VkSemaphore &semaphore) const {
   vkDestroySemaphore(device_, semaphore, nullptr);
 }
 
-VkInstance vulkan::RenderingContext::GetInstance() const {
-  return instance_;
-}
+VkInstance vulkan::RenderingContext::GetInstance() const { return instance_; }
 
-VkPhysicalDevice vulkan::RenderingContext::GetPhysicalDevice() const {
-  return physical_device_;
-}
+VkPhysicalDevice vulkan::RenderingContext::GetPhysicalDevice() const { return physical_device_; }
 
-VkQueue vulkan::RenderingContext::GetGraphicsQueue() const {
-  return graphics_queue_;
-}
+VkQueue vulkan::RenderingContext::GetGraphicsQueue() const { return graphics_queue_; }
 
-bool vulkan::RenderingContext::IsUseSynch2Ext() const {
-  return use_synch2_ext_;
-}
-uint32_t vulkan::RenderingContext::GetPhysicalDeviceVkSpecVersion() const {
-  return physical_device_vk_spec_version_;
-}
+bool vulkan::RenderingContext::IsUseSynch2Ext() const { return use_synch2_ext_; }
+
+uint32_t vulkan::RenderingContext::GetPhysicalDeviceVkSpecVersion() const { return physical_device_vk_spec_version_; }

@@ -1,19 +1,15 @@
 #pragma once
 
+#include "color.hpp"
+
 namespace geometry {
 struct Point {
   float x, y, z;
-  float r, g, b, a;
-
-  Point operator+(const Point &p) const {
+  Point operator+(const Point &other) const {
     Point point{};
-    point.x = p.x + this->x;
-    point.y = p.y + this->y;
-    point.z = p.z + this->z;
-    point.a = p.a + this->a;
-    point.r = p.r + this->r;
-    point.g = p.g + this->g;
-    point.b = p.b + this->b;
+    point.x = other.x + this->x;
+    point.y = other.y + this->y;
+    point.z = other.z + this->z;
     return point;
   }
 
@@ -22,11 +18,14 @@ struct Point {
     point.x = x / number;
     point.y = y / number;
     point.z = z / number;
-    point.a = a / number;
-    point.r = r / number;
-    point.g = g / number;
-    point.b = b / number;
     return point;
   }
+};
+struct PointWithColor {
+  Point point;
+  Color color;
+  PointWithColor(const float x, const float y, const float z, const uint8_t r, const uint8_t g, const uint8_t b,
+                 const uint8_t a)
+      : point{.x = x, .y = y, .z = z}, color{.r = r, .g = g, .b = b, .a = a} {}
 };
 }  // namespace geometry

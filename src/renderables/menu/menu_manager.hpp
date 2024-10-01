@@ -1,52 +1,50 @@
 #pragma once
 
-#include "application/renderable.hpp"
-#include "renderables/imgui_wrapper.hpp"
-#include "menu.hpp"
-#include "vulkan/framebuffer.hpp"
-#include "vulkan/render_pass.hpp"
-#include "vulkan/rendering_context.hpp"
-
 #include <map>
 
+#include "application/renderable.hpp"
+#include "menu.hpp"
+#include "vulkan/rendering_context.hpp"
+
 namespace renderable {
-class MenuManager
-    : public application::Renderable, public renderable::Menu, public std::enable_shared_from_this<MenuManager> {
- private:
+class MenuManager final : public application::Renderable,
+                          public Menu,
+                          public std::enable_shared_from_this<MenuManager> {
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;
-  renderable::MenuItemCreator default_renderable_creator_;
+  MenuItemCreator default_renderable_creator_;
 
   std::function<void()> exit_function_;
   std::weak_ptr<Menu> parent_;
 
-  std::vector<std::shared_ptr<vulkan::Image>> latest_images_{};
-  std::map<std::string, renderable::MenuItemCreator> items_{};
-  renderable::MenuItemCreator next_item_creator_ = nullptr;
+  std::vector<std::shared_ptr<vulkan::Image>> latest_images_;
+  std::map<std::string, MenuItemCreator> items_;
+  MenuItemCreator next_item_creator_ = nullptr;
   std::shared_ptr<Renderable> current_item_ = nullptr;
 
-  MenuManager(std::shared_ptr<vulkan::RenderingContext> context,
-              renderable::MenuItemCreator display_creator,
-              std::function<void()> exit_function = nullptr,
-              std::shared_ptr<Menu> parent = nullptr);
+  MenuManager(const std::shared_ptr<vulkan::RenderingContext> &context, MenuItemCreator display_creator,
+              const std::function<void()> &exit_function = nullptr, const std::shared_ptr<Menu> &parent = nullptr);
+
  public:
-  static std::shared_ptr<MenuManager> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                             renderable::MenuItemCreator display_creator,
-                                             std::shared_ptr<Menu> parent = nullptr);
-  static std::shared_ptr<MenuManager> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                             renderable::MenuItemCreator display_creator,
-                                             std::function<void()> exit_function = nullptr);
+  static std::shared_ptr<MenuManager> Create(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                             const MenuItemCreator &display_creator,
+                                             const std::shared_ptr<Menu> &parent = nullptr);
+  static std::shared_ptr<MenuManager> Create(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                             const MenuItemCreator &display_creator,
+                                             const std::function<void()> &exit_function = nullptr);
   MenuManager() = delete;
   MenuManager(const MenuManager &) = delete;
-  void RegisterMenuItem(std::function<std::shared_ptr<application::Renderable>(std::shared_ptr<vulkan::RenderingContext>,
-                                                                               std::shared_ptr<Menu>)> menu_item_creator,
-                        std::string display_name) override;
+  MenuManager(MenuManager &&) = delete;
+  MenuManager &operator=(const MenuManager &) = delete;
+  MenuManager &operator=(MenuManager &&) = delete;
+
+  void RegisterMenuItem(const MenuItemCreator &menu_item_creator, const std::string &display_name) override;
   void PopSelf() override;
-  void Select(std::string display_name) override;
+  void Select(const std::string &display_name) override;
 
   std::set<std::string> EntryNames() override;
   void Pop() override;
-  void SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) override;
-  VkSemaphore Render(std::shared_ptr<vulkan::Image> image, const VkSemaphore &semaphore) override;
+  void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>> &images) override;
+  VkSemaphore Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) override;
   ~MenuManager() override = default;
 };
-} // namespace renderable
+}  // namespace renderable

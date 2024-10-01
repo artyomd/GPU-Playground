@@ -12,7 +12,8 @@ set(GLSL_FILES
         shaping_function_fragment_shader.glsl
         squares_fragment_shader.glsl
         texture2d_fragment.glsl
-        texture2d_vertex.glsl)
+        texture2d_vertex.glsl
+)
 
 list(TRANSFORM GLSL_FILES PREPEND "${CMAKE_CURRENT_LIST_DIR}/")
 

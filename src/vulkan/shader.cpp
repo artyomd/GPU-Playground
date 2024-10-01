@@ -1,45 +1,45 @@
 #include "shader.hpp"
 
-#include "utils.hpp"
-
 #include <map>
+#include <utility>
+
+#include "glm/ext/scalar_uint_sized.hpp"
+#include "utils.hpp"
 
 std::shared_ptr<vulkan::Shader> vulkan::Shader::Create(const std::shared_ptr<RenderingContext> &context,
                                                        const std::vector<uint32_t> &spirv_code,
                                                        const std::string &entry_point_name) {
-  return std::shared_ptr<Shader>(new vulkan::Shader(context, spirv_code, entry_point_name));
+  return std::shared_ptr<Shader>(new Shader(context, spirv_code, entry_point_name));
 }
 
-vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context,
-                       const std::vector<uint32_t> &spirv_code,
-                       const std::string &entry_point_name) : device_(context->GetDevice()),
-                                                              spirv_code_(spirv_code),
-                                                              entry_point_name_(entry_point_name) {
-  VkShaderModuleCreateInfo create_info = {
+vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context, const std::vector<uint32_t> &spirv_code,
+                       std::string entry_point_name)
+    : device_(context->GetDevice()), spirv_code_(spirv_code), entry_point_name_(std::move(entry_point_name)) {
+  const VkShaderModuleCreateInfo create_info = {
       .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
       .codeSize = spirv_code.size() * sizeof(uint32_t),
       .pCode = spirv_code_.data(),
   };
   VK_CALL(vkCreateShaderModule(device_, &create_info, nullptr, &shader_module_));
 
-  SpvReflectResult
-      result =
+  SpvReflectResult result =
       spvReflectCreateShaderModule(spirv_code_.size() * sizeof(uint32_t), spirv_code_.data(), &reflect_shader_module_);
   if (result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
   }
   switch (reflect_shader_module_.shader_stage) {
-    case SPV_REFLECT_SHADER_STAGE_VERTEX_BIT:this->type_ = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+    case SPV_REFLECT_SHADER_STAGE_VERTEX_BIT:
+      this->type_ = VK_SHADER_STAGE_VERTEX_BIT;
       break;
-    case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:this->type_ = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+    case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:
+      this->type_ = VK_SHADER_STAGE_FRAGMENT_BIT;
       break;
-    default:throw std::runtime_error("unhandled shader stage");
+    default:
+      throw std::runtime_error("unhandled shader stage");
   }
 
   uint32_t count = 0;
-  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_,
-                                                       this->entry_point_name_.data(),
-                                                       &count,
+  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_, this->entry_point_name_.data(), &count,
                                                        nullptr);
   if (result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
@@ -48,15 +48,13 @@ vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context,
     throw std::runtime_error("unhandled");
   }
   std::vector<SpvReflectDescriptorSet *> sets(count);
-  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_,
-                                                       this->entry_point_name_.data(),
-                                                       &count,
+  result = spvReflectEnumerateEntryPointDescriptorSets(&reflect_shader_module_, this->entry_point_name_.data(), &count,
                                                        sets.data());
   if (result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
   }
   if (count == 1) {
-    auto *set = sets[0];
+    const auto *set = sets[0];
     bindings_.resize(set->binding_count);
     for (uint32_t i_binding = 0; i_binding < set->binding_count; ++i_binding) {
       const SpvReflectDescriptorBinding &kReflectDescriptorBinding = *(set->bindings[i_binding]);
@@ -82,12 +80,14 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
           .constantID = kEntry.first,
           .offset = data_offset,
       };
-      std::visit([this, &data_offset, &specialization_map_entry](auto value) {
-        spec_data_.resize(spec_data_.size() + sizeof(value));
-        memcpy(&spec_data_[data_offset], &value, sizeof(value));
-        data_offset += sizeof(value);
-        specialization_map_entry.size = sizeof(value);
-      }, kEntry.second);
+      std::visit(
+          [this, &data_offset, &specialization_map_entry](auto value) {
+            spec_data_.resize(spec_data_.size() + sizeof(value));
+            memcpy(&spec_data_[data_offset], &value, sizeof(value));
+            data_offset += sizeof(value);
+            specialization_map_entry.size = sizeof(value);
+          },
+          kEntry.second);
       spec_map_entries_.emplace_back(specialization_map_entry);
     }
     shader_spec_info_ = {
@@ -107,14 +107,12 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
   };
 }
 
-std::vector<VkDescriptorSetLayoutBinding> vulkan::Shader::GetBindings() const {
-  return bindings_;
-}
+std::vector<VkDescriptorSetLayoutBinding> vulkan::Shader::GetBindings() const { return bindings_; }
 
-size_t vulkan::Shader::DescriptorSizeInBytes(unsigned int binding_point) const {
+uint32_t vulkan::Shader::DescriptorSizeInBytes(const uint32_t binding_point) const {
   uint32_t count = 1;
   std::vector<SpvReflectDescriptorSet *> sets(count);
-  auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
+  const auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
   if (result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
   }
@@ -132,8 +130,8 @@ vulkan::Shader::~Shader() {
   spvReflectDestroyShaderModule(&reflect_shader_module_);
   vkDestroyShaderModule(device_, shader_module_, nullptr);
 }
-template<>
-void vulkan::Shader::SetConstant(unsigned int constant_id, bool constant_value) {
+template <>
+void vulkan::Shader::SetConstant(const unsigned int constant_id, const bool constant_value) {
   constants_changed_ = true;
   specs_.insert_or_assign(constant_id, static_cast<VkBool32>(constant_value));
 }

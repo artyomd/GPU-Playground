@@ -4,11 +4,9 @@
 #include "geometry/point.hpp"
 
 namespace geometry {
-class Triangle : public GeometryItem {
+class Triangle final : public GeometryItem {
  public:
-  explicit Triangle(const std::shared_ptr<vulkan::RenderingContext> &context,
-                    const Point &point_0,
-                    const Point &point_1,
-                    const Point &point_2);
+  explicit Triangle(const std::shared_ptr<vulkan::RenderingContext> &context, const PointWithColor &point_0,
+                    const PointWithColor &point_1, const PointWithColor &point_2);
 };
 }  // namespace geometry

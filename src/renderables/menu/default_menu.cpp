@@ -1,23 +1,22 @@
 #include "default_menu.hpp"
 
-#include "vulkan/utils.hpp"
-
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
+#include "vulkan/utils.hpp"
 
-std::shared_ptr<renderable::DefaultMenu> renderable::DefaultMenu::Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                                                         std::shared_ptr<Menu> parent) {
-  auto menu = new renderable::DefaultMenu(context, parent);
-  return std::shared_ptr<renderable::DefaultMenu>(menu);
+std::shared_ptr<renderable::DefaultMenu> renderable::DefaultMenu::Create(
+    const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent) {
+  auto *menu = new DefaultMenu(context, parent);
+  return std::shared_ptr<DefaultMenu>(menu);
 }
 
-renderable::DefaultMenu::DefaultMenu(std::shared_ptr<vulkan::RenderingContext> context,
-                                     std::shared_ptr<Menu> parent) : rendering_context_(context), parent_(parent) {
+renderable::DefaultMenu::DefaultMenu(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                     const std::shared_ptr<Menu> &parent)
+    : rendering_context_(context), parent_(parent) {
   if (parent_.expired()) {
     throw std::runtime_error("parent menu can not be nullptr");
   }
-  command_pool_ =
-      rendering_context_->CreateCommandPool(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+  command_pool_ = rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 }
 
 void renderable::DefaultMenu::CleanupCommandBuffers() {
@@ -30,8 +29,8 @@ void renderable::DefaultMenu::CleanupCommandBuffers() {
   command_buffers_.clear();
 }
 
-void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) {
-  framebuffers_.clear();// previous images might not be valid anymore
+void renderable::DefaultMenu::SetupImages(const std::vector<std::shared_ptr<vulkan::Image>> &images) {
+  framebuffers_.clear();  // previous images might not be valid anymore
   auto image_format = images[0]->GetPixelFormat();
   if (imgui_wrapper_ != nullptr && imgui_wrapper_->GetImageCount() != images.size()) {
     imgui_wrapper_ = nullptr;
@@ -40,7 +39,7 @@ void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Im
     render_pass_ = std::make_shared<vulkan::RenderPass>(rendering_context_, image_format);
     imgui_wrapper_ = nullptr;
   }
-  //imgui
+  // imgui
   if (imgui_wrapper_ == nullptr) {
     imgui_wrapper_ =
         std::make_shared<ImguiWrapper>(rendering_context_, render_pass_, images.size(), VK_SAMPLE_COUNT_1_BIT);
@@ -49,54 +48,56 @@ void renderable::DefaultMenu::SetupImages(std::vector<std::shared_ptr<vulkan::Im
     std::vector<std::shared_ptr<vulkan::ImageView>> attachments;
     auto image_view = vulkan::ImageView::Create(rendering_context_, kImage);
     attachments.emplace_back(image_view);
-    auto framebuffer = vulkan::Framebuffer::Create(rendering_context_, render_pass_, attachments);
+    const auto framebuffer = vulkan::Framebuffer::Create(rendering_context_, render_pass_, attachments);
     framebuffers_[kImage] = framebuffer;
   }
-  CleanupCommandBuffers(); //recreating is easier than remapping
+  CleanupCommandBuffers();  // recreating is easier than remapping
   for (const auto &kImage : images) {
-    auto fence = rendering_context_->CreateFence(true);
-    auto semaphore = rendering_context_->CreateSemaphore();
-    auto command_buffer = rendering_context_->CreateCommandBuffer(command_pool_);
-    command_buffers_[kImage] = {semaphore, fence, command_buffer};
+    auto *fence = rendering_context_->CreateFence(true);
+    auto *semaphore = rendering_context_->CreateSemaphore();
+    auto *command_buffer = rendering_context_->CreateCommandBuffer(command_pool_);
+    command_buffers_[kImage] = {.semaphore = semaphore, .fence = fence, .command_buffer = command_buffer};
   }
 }
 
-VkSemaphore renderable::DefaultMenu::Render(std::shared_ptr<vulkan::Image> image,
-                                            const VkSemaphore &semaphore) {
-  //render menu
-  auto image_context = command_buffers_[image];
-  auto framebuffer = framebuffers_[image];
-  auto fence = image_context.fence;
+VkSemaphore renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+  // render menu
+  const auto image_context = command_buffers_[image];
+  const auto framebuffer = framebuffers_[image];
+  auto *fence = image_context.fence;
   rendering_context_->WaitForFence(fence);
   rendering_context_->ResetFence(fence);
 
-  //begin recording commands
-  auto cmd_buffer = image_context.command_buffer;
+  // begin recording commands
+  auto *cmd_buffer = image_context.command_buffer;
   VkClearValue clear_value{
-      .color = {
-          .float32 = {0.0f, 0.0f, 0.0f, 1.0f},
-      },
+      .color =
+          {
+              .float32 = {0.0, 0.0, 0.0, 1.0},
+          },
 
   };
   VkCommandBufferBeginInfo begin_info{
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
       .pNext = nullptr,
-      .flags =   VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+      .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
       .pInheritanceInfo = nullptr,
   };
   vkBeginCommandBuffer(cmd_buffer, &begin_info);
-  VkRenderPassBeginInfo render_pass_begin_info{
+  const VkRenderPassBeginInfo render_pass_begin_info{
       .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
       .pNext = nullptr,
       .renderPass = this->render_pass_->GetRenderPass(),
       .framebuffer = framebuffer->GetFramebuffer(),
-      .renderArea = {
-          .offset = {0, 0},
-          .extent = {
-              .width = framebuffer->GetWidth(),
-              .height = framebuffer->GetHeight(),
+      .renderArea =
+          {
+              .offset = {0, 0},
+              .extent =
+                  {
+                      .width = framebuffer->GetWidth(),
+                      .height = framebuffer->GetHeight(),
+                  },
           },
-      },
       .clearValueCount = 1,
       .pClearValues = &clear_value,
   };
@@ -118,20 +119,16 @@ VkSemaphore renderable::DefaultMenu::Render(std::shared_ptr<vulkan::Image> image
     }
   }
 
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-              1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+              ImGui::GetIO().Framerate);
   ImGui::End();
   ImGui::EndFrame();
   ImGui::Render();
   ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
-  VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-  rendering_context_->SubmitCommandBuffer(cmd_buffer,
-                                          semaphore,
-                                          wait_stage,
-                                          image_context.semaphore,
-                                          fence);
+  constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+  rendering_context_->SubmitCommandBuffer(cmd_buffer, semaphore, wait_stage, image_context.semaphore, fence);
   return image_context.semaphore;
 }
 renderable::DefaultMenu::~DefaultMenu() {

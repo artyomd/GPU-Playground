@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <map>
+
 #include "application/renderable.hpp"
 #include "geometry/quad.hpp"
 #include "imgui_wrapper.hpp"
@@ -9,13 +12,8 @@
 #include "vulkan/rendering_context.hpp"
 #include "vulkan/rendering_pipeline.hpp"
 
-#include <glm/glm.hpp>
-
-#include <map>
-
 namespace renderable {
-class Shader : public application::Renderable {
- private:
+class Shader final : public application::Renderable {
   struct UniformBufferObjectShader {
     alignas(8) float screen_width = 0;
     alignas(4) float screen_height = 0;
@@ -47,19 +45,24 @@ class Shader : public application::Renderable {
 
   VkCommandPool command_pool_ = VK_NULL_HANDLE;
   void CleanupCommandBuffers();
+
  protected:
-  Shader(std::shared_ptr<vulkan::RenderingContext> context,
-         std::shared_ptr<Menu> parent,
-         std::vector<uint32_t> fragment_shader);
+  Shader(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent,
+         const std::vector<uint32_t> &fragment_shader);
+
  public:
-  static std::shared_ptr<Shader> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                        std::shared_ptr<Menu> parent,
-                                        std::vector<uint32_t> fragment_shader);
+  static std::shared_ptr<Shader> Create(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                        const std::shared_ptr<Menu> &parent,
+                                        const std::vector<uint32_t> &fragment_shader);
   Shader() = delete;
   Shader(const Shader &) = delete;
-  void SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) override;
-  VkSemaphore Render(std::shared_ptr<vulkan::Image> image, const VkSemaphore &semaphore) override;
+  Shader(Shader &&) = delete;
+  Shader &operator=(const Shader &) = delete;
+  Shader &operator=(Shader &&) = delete;
+
+  void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>> &images) override;
+  VkSemaphore Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) override;
   ~Shader() override;
 };
-} // namespace renderable
+}  // namespace renderable
 

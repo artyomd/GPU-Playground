@@ -1,21 +1,24 @@
 #pragma once
 
-#include "vulkan/rendering_context.hpp"
 #include "vulkan/render_pass.hpp"
+#include "vulkan/rendering_context.hpp"
 
 namespace renderable {
 class ImguiWrapper {
- private:
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;
   std::shared_ptr<vulkan::RenderPass> render_pass_ = nullptr;
   uint32_t image_count_ = 0;
 
  public:
-  ImguiWrapper(std::shared_ptr<vulkan::RenderingContext> context,
-               std::shared_ptr<vulkan::RenderPass> render_pass,
-               uint32_t image_count,
-               VkSampleCountFlagBits sample_count);
+  ImguiWrapper() = delete;
+  ImguiWrapper(const std::shared_ptr<vulkan::RenderingContext>& context,
+               const std::shared_ptr<vulkan::RenderPass>& render_pass, const uint32_t& image_count,
+               const VkSampleCountFlagBits& sample_count);
+  ImguiWrapper(const ImguiWrapper&) = delete;
+  ImguiWrapper(ImguiWrapper&&) = delete;
+  ImguiWrapper& operator=(const ImguiWrapper&) = delete;
+  ImguiWrapper& operator=(ImguiWrapper&&) = delete;
   [[nodiscard]] uint32_t GetImageCount() const;
   virtual ~ImguiWrapper();
 };
-} // namespace renderable
+}  // namespace renderable

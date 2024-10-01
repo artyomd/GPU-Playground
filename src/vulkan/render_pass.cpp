@@ -2,16 +2,14 @@
 
 #include "utils.hpp"
 
-vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_context,
-                               VkFormat color_attachment_format,
-                               VkFormat depth_attachment_format,
-                               VkSampleCountFlagBits sample_count) :
-    rendering_context_(rendering_context),
-    color_attachment_format_(color_attachment_format),
-    depth_attachment_format_(depth_attachment_format),
-    sample_count_(sample_count) {
-
-  VkAttachmentDescription2 color_attachment = {
+vulkan::RenderPass::RenderPass(const std::shared_ptr<RenderingContext>& rendering_context,
+                               const VkFormat color_attachment_format, const VkFormat depth_attachment_format,
+                               const VkSampleCountFlagBits color_attachment_sample_count)
+    : rendering_context_(rendering_context),
+      color_attachment_format_(color_attachment_format),
+      depth_attachment_format_(depth_attachment_format),
+      sample_count_(color_attachment_sample_count) {
+  const VkAttachmentDescription2 color_attachment = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2,
       .pNext = nullptr,
       .flags = 0,
@@ -25,7 +23,7 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
       .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
   };
 
-  VkAttachmentDescription2 depth_attachment = {
+  const VkAttachmentDescription2 depth_attachment = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2,
       .pNext = nullptr,
       .flags = 0,
@@ -39,7 +37,7 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
       .finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
   };
 
-  VkAttachmentDescription2 color_attachment_resolve = {
+  const VkAttachmentDescription2 color_attachment_resolve = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2,
       .pNext = nullptr,
       .flags = 0,
@@ -53,7 +51,7 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
       .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
   };
 
-  std::vector<VkAttachmentDescription2> attachments = {color_attachment};
+  std::vector attachments = {color_attachment};
   if (depth_attachment_format_ != VK_FORMAT_UNDEFINED) {
     attachments.push_back(depth_attachment);
   }
@@ -61,31 +59,31 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
     attachments.push_back(color_attachment_resolve);
   }
 
-  VkAttachmentReference2 color_attachment_ref = {
+  constexpr VkAttachmentReference2 color_attachment_ref = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
       .pNext = nullptr,
       .attachment = 0,
       .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-      .aspectMask = VkImageAspectFlagBits::VK_IMAGE_ASPECT_COLOR_BIT,
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
   };
 
-  VkAttachmentReference2 depth_attachment_ref = {
+  constexpr VkAttachmentReference2 depth_attachment_ref = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
       .pNext = nullptr,
       .attachment = 1,
       .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-      .aspectMask = VkImageAspectFlagBits::VK_IMAGE_ASPECT_DEPTH_BIT,
+      .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
   };
 
-  VkAttachmentReference2 color_attachment_resolve_ref = {
+  const VkAttachmentReference2 color_attachment_resolve_ref = {
       .sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2,
       .pNext = nullptr,
       .attachment = (depth_attachment_format == VK_FORMAT_UNDEFINED) ? 1u : 2u,
       .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-      .aspectMask = VkImageAspectFlagBits::VK_IMAGE_ASPECT_COLOR_BIT,
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
   };
 
-  VkSubpassDescription2 sub_pass = {
+  const VkSubpassDescription2 sub_pass = {
       .sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2,
       .pNext = nullptr,
       .flags = 0,
@@ -95,14 +93,13 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
       .pInputAttachments = nullptr,
       .colorAttachmentCount = 1,
       .pColorAttachments = &color_attachment_ref,
-      .pResolveAttachments = sample_count_ == VK_SAMPLE_COUNT_1_BIT ? nullptr
-                                                                    : &color_attachment_resolve_ref,
+      .pResolveAttachments = sample_count_ == VK_SAMPLE_COUNT_1_BIT ? nullptr : &color_attachment_resolve_ref,
       .pDepthStencilAttachment = depth_attachment_format == VK_FORMAT_UNDEFINED ? nullptr : &depth_attachment_ref,
       .preserveAttachmentCount = 0,
       .pPreserveAttachments = nullptr,
   };
 
-  VkSubpassDependency2 dependency = {
+  constexpr VkSubpassDependency2 dependency = {
       .sType = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2,
       .pNext = nullptr,
       .srcSubpass = VK_SUBPASS_EXTERNAL,
@@ -115,7 +112,7 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
       .viewOffset = 0,
   };
 
-  VkRenderPassCreateInfo2 render_pass_info = {
+  const VkRenderPassCreateInfo2 render_pass_info = {
       .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2,
       .pNext = nullptr,
       .flags = 0,
@@ -132,21 +129,13 @@ vulkan::RenderPass::RenderPass(std::shared_ptr<RenderingContext> rendering_conte
   VK_CALL(vkCreateRenderPass2(rendering_context_->GetDevice(), &render_pass_info, nullptr, &render_pass_));
 }
 
-VkFormat vulkan::RenderPass::GetColorAttachmentFormat() const {
-  return color_attachment_format_;
-}
+VkFormat vulkan::RenderPass::GetColorAttachmentFormat() const { return color_attachment_format_; }
 
-VkRenderPass vulkan::RenderPass::GetRenderPass() const {
-  return render_pass_;
-}
+VkRenderPass vulkan::RenderPass::GetRenderPass() const { return render_pass_; }
 
-vulkan::RenderPass::~RenderPass() {
-  vkDestroyRenderPass(rendering_context_->GetDevice(), render_pass_, nullptr);
-}
-VkFormat vulkan::RenderPass::GetDepthAttachmentFormat() const {
-  return depth_attachment_format_;
-}
-VkSampleCountFlagBits vulkan::RenderPass::GetSampleCount() const {
-  return sample_count_;
-}
+vulkan::RenderPass::~RenderPass() { vkDestroyRenderPass(rendering_context_->GetDevice(), render_pass_, nullptr); }
+
+VkFormat vulkan::RenderPass::GetDepthAttachmentFormat() const { return depth_attachment_format_; }
+
+VkSampleCountFlagBits vulkan::RenderPass::GetSampleCount() const { return sample_count_; }
 

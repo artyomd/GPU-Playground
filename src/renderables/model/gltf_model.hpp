@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "application/renderable.hpp"
 #include "geometry/gltf_model.hpp"
 #include "renderables/imgui_wrapper.hpp"
@@ -8,11 +10,8 @@
 #include "vulkan/render_pass.hpp"
 #include "vulkan/rendering_context.hpp"
 
-#include <map>
-
 namespace renderable {
-class GltfModel : public application::Renderable {
- private:
+class GltfModel final : public application::Renderable {
   struct ImageContext {
     VkSemaphore semaphore = VK_NULL_HANDLE;
     VkFence fence = VK_NULL_HANDLE;
@@ -37,16 +36,19 @@ class GltfModel : public application::Renderable {
   int selected_scene_ = -1;
 
   void CleanupCommandBuffers();
-  GltfModel(std::shared_ptr<vulkan::RenderingContext> context,
-            std::shared_ptr<Menu> parent);
+  GltfModel(const std::shared_ptr<vulkan::RenderingContext>& context, const std::shared_ptr<Menu>& parent);
+
  public:
-  static std::shared_ptr<GltfModel> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                           std::shared_ptr<Menu> parent);
+  static std::shared_ptr<GltfModel> Create(const std::shared_ptr<vulkan::RenderingContext>& context,
+                                           const std::shared_ptr<Menu>& parent);
   GltfModel() = delete;
-  GltfModel(const GltfModel &) = delete;
-  void SetupImages(std::vector<std::shared_ptr<vulkan::Image>> images) override;
-  VkSemaphore Render(std::shared_ptr<vulkan::Image> image, const VkSemaphore &semaphore) override;
+  GltfModel(const GltfModel&) = delete;
+  GltfModel(GltfModel&&) = delete;
+  GltfModel& operator=(const GltfModel&) = delete;
+  GltfModel& operator=(GltfModel&&) = delete;
+  void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>>& images) override;
+  VkSemaphore Render(const std::shared_ptr<vulkan::Image>& image, const VkSemaphore& semaphore) override;
   ~GltfModel() override;
 };
-} // namespace renderable
+}  // namespace renderable
 

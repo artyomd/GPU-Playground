@@ -1,20 +1,21 @@
 #pragma once
 
-#include "vulkan_include.hpp"
-
 #include <condition_variable>
-#include <memory>
 #include <mutex>
 
+#include "include/vulkan_include.hpp"
+
 namespace vulkan {
-class RenderingContext {
+class RenderingContext final {
  public:
-  explicit RenderingContext(VkInstance instance,
-                            VkPhysicalDevice physical_device,
-                            VkDevice device,
-                            VkQueue graphics_queue,
-                            uint32_t queue_family_index,
-                            bool use_sync_2_ext);
+  RenderingContext() = delete;
+  RenderingContext(const RenderingContext&) = delete;
+  RenderingContext(RenderingContext&&) = delete;
+  explicit RenderingContext(const VkInstance& instance, const VkPhysicalDevice& physical_device, const VkDevice& device,
+                            const VkQueue& graphics_queue, uint32_t queue_family_index, bool use_sync_2_ext);
+
+  RenderingContext& operator=(const RenderingContext&) = delete;
+  RenderingContext& operator=(RenderingContext&&) = delete;
 
   [[nodiscard]] VkInstance GetInstance() const;
 
@@ -28,31 +29,30 @@ class RenderingContext {
 
   [[nodiscard]] VmaAllocator GetAllocator() const;
 
-  [[nodiscard]]  VkCommandPool CreateCommandPool(VkCommandPoolCreateFlags pool_flags = 0);
+  [[nodiscard]] VkCommandPool CreateCommandPool(VkCommandPoolCreateFlags pool_flags = 0) const;
 
-  [[nodiscard]]  VkCommandBuffer CreateCommandBuffer(VkCommandPool command_pool);
+  [[nodiscard]] VkCommandBuffer CreateCommandBuffer(const VkCommandPool& command_pool) const;
 
-  void SubmitCommandBuffer(const VkCommandBuffer &command_buffer,
-                           const VkSemaphore &wait_semaphore = VK_NULL_HANDLE,
-                           const VkPipelineStageFlags2 wait_dst_stage_mask = VK_PIPELINE_STAGE_2_NONE,
-                           const VkSemaphore &signal_semaphore = VK_NULL_HANDLE,
-                           VkFence fence = VK_NULL_HANDLE);
+  void SubmitCommandBuffer(const VkCommandBuffer& command_buffer, const VkSemaphore& wait_semaphore = VK_NULL_HANDLE,
+                           VkPipelineStageFlags2 wait_dst_stage_mask = VK_PIPELINE_STAGE_2_NONE,
+                           const VkSemaphore& signal_semaphore = VK_NULL_HANDLE,
+                           const VkFence& fence = VK_NULL_HANDLE) const;
 
-  void FreeCommandBuffer(VkCommandPool command_pool, VkCommandBuffer buffer);
+  void FreeCommandBuffer(const VkCommandPool& command_pool, const VkCommandBuffer& command_buffer) const;
 
-  void DestroyCommandPool(VkCommandPool command_pool);
+  void DestroyCommandPool(const VkCommandPool& command_pool) const;
 
-  [[nodiscard]] VkFence CreateFence(bool create_signaled = false);
+  [[nodiscard]] VkFence CreateFence(bool create_signaled = false) const;
 
-  void WaitForFence(VkFence fence);
+  void WaitForFence(const VkFence& fence) const;
 
-  void ResetFence(VkFence fence);
+  void ResetFence(const VkFence& fence) const;
 
-  void DestroyFence(VkFence fence);
+  void DestroyFence(const VkFence& fence) const;
 
-  [[nodiscard]] VkSemaphore CreateSemaphore();
+  [[nodiscard]] VkSemaphore CreateSemaphore() const;
 
-  void DestroySemaphore(VkSemaphore semaphore);
+  void DestroySemaphore(const VkSemaphore& semaphore) const;
 
   void WaitForGraphicsQueueIdle() const;
 
@@ -60,7 +60,8 @@ class RenderingContext {
 
   [[nodiscard]] uint32_t GetPhysicalDeviceVkSpecVersion() const;
 
-  virtual ~RenderingContext();
+  ~RenderingContext();
+
  private:
   VkInstance instance_ = VK_NULL_HANDLE;
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
