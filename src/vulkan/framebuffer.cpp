@@ -13,7 +13,7 @@ vulkan::Framebuffer::Framebuffer(const std::shared_ptr<RenderingContext>& render
                                  const std::vector<std::shared_ptr<ImageView>>& attachments)
     : rendering_context_(rendering_context), render_pass_(render_pass), attachments_(attachments) {
   auto vk_attachments = std::vector<VkImageView>(attachments_.size());
-  for (auto i = 0; i < attachments_.size(); i++) {
+  for (auto i = 0u; i < attachments_.size(); i++) {
     vk_attachments[i] = attachments_[i]->GetImageView();
   }
   const VkFramebufferCreateInfo framebuffer_create_info{

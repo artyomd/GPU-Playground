@@ -14,19 +14,17 @@ geometry::Plane2d::Plane2d(const std::shared_ptr<vulkan::RenderingContext> &cont
   std::vector<Point> vertices;
   std::vector<uint32_t> indices;
 
-  // Create vertices for the plane
-  for (int y = 0; y <= height; ++y) {
-    for (int x = 0; x <= width; ++x) {
+  for (auto y = 0u; y <= height; ++y) {
+    for (auto x = 0u; x <= width; ++x) {
       vertices.emplace_back(x, 0.0, y);
     }
   }
 
   assert(vertices.size() <= std::numeric_limits<uint32_t>::max());
 
-  // Generate indices for triangle list rendering
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      unsigned int bottomLeft = y * (width + 1) + x;
+  for (auto y = 0u; y < height; ++y) {
+    for (auto x = 0u; x < width; ++x) {
+      unsigned int bottomLeft = (y * (width + 1)) + x;
       unsigned int bottomRight = bottomLeft + 1;
       unsigned int topLeft = bottomLeft + width + 1;
       unsigned int topRight = topLeft + 1;

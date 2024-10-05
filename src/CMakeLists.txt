@@ -41,9 +41,12 @@ add_executable(playground
         vulkan/vertex_buffer_layout.cpp
 )
 set_source_files_properties(
+        impl/stb_impl.cpp
+        impl/tiny_gltf.cpp
         impl/vma_impl.cpp
+        impl/volk_impl.cpp
         PROPERTIES
-        COMPILE_FLAGS "-Wno-nullability-completeness"
+        COMPILE_FLAGS "-Wno-everything"
 )
 target_compile_definitions(playground PRIVATE
         RESOURCE_DIR=\"${CMAKE_CURRENT_LIST_DIR}/../res/\")
@@ -67,6 +70,8 @@ target_link_libraries(playground
         Vulkan-Headers
         VulkanMemoryAllocator
 )
+target_compile_options(playground PRIVATE -Wall -Wextra)
+
 ##ASAN
 #target_compile_options(playground PRIVATE -fsanitize=address)
 #target_link_options(playground PRIVATE -fsanitize=address)

@@ -68,10 +68,12 @@ vulkan::RenderingContext::RenderingContext(const VkInstance &instance, const VkP
   };
 
   VmaDeviceMemoryCallbacks device_memory_callbacks = {
+#ifdef TRACY_ENABLE
       .pfnAllocate = [](VmaAllocator, uint32_t, VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory, VkDeviceSize size,
                         void *) { TracyAllocN(memory, size, "vulkan"); },
       .pfnFree = [](VmaAllocator, uint32_t, VkDeviceMemory VMA_NOT_NULL_NON_DISPATCHABLE memory, VkDeviceSize size,
                     void *VMA_NULLABLE) { TracyFreeN(memory, "vulkan"); },
+#endif
   };
 
   VmaAllocatorCreateInfo allocator_info{

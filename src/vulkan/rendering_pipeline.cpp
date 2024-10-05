@@ -235,7 +235,7 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
   VK_CALL(vkCreateGraphicsPipelines(context_->GetDevice(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &pipeline_));
 
   descriptor_sets_.resize(descriptor_set_count);
-  for (auto i = 0; i < descriptor_set_count; i++) {
+  for (auto i = 0u; i < descriptor_set_count; i++) {
     const VkDescriptorSetAllocateInfo alloc_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .descriptorPool = context_->GetDescriptorPool(),
