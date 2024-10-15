@@ -38,7 +38,6 @@ void renderable::Shader::CleanupCommandBuffers() {
   for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
     rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
   }
   command_buffers_.clear();
@@ -96,7 +95,6 @@ void renderable::Shader::SetupImages(const std::vector<std::shared_ptr<vulkan::I
   uint32_t descriptor_index = 0;
   for (const auto &kImage : images) {
     command_buffers_[kImage] = {
-        .semaphore = rendering_context_->CreateSemaphore(),
         .fence = rendering_context_->CreateFence(true),
         .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_),
         .uniform_buffer = vulkan::Buffer::Create(rendering_context_, sizeof(UniformBufferObjectShader),
@@ -106,7 +104,8 @@ void renderable::Shader::SetupImages(const std::vector<std::shared_ptr<vulkan::I
   }
 }
 
-VkSemaphore renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+void renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+                                const VkSemaphore &signalSemaphore) {
   const auto image_context = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
   auto *fence = image_context.fence;
@@ -195,8 +194,7 @@ VkSemaphore renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &ima
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-  rendering_context_->SubmitCommandBuffer(cmd_buffer, semaphore, wait_stage, image_context.semaphore, fence);
-  return image_context.semaphore;
+  rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
 renderable::Shader::~Shader() {
   CleanupCommandBuffers();

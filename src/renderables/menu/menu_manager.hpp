@@ -44,7 +44,8 @@ class MenuManager final : public application::Renderable,
   std::set<std::string> EntryNames() override;
   void Pop() override;
   void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>> &images) override;
-  VkSemaphore Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) override;
+  void Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+              const VkSemaphore &signalSemaphore) override;
   ~MenuManager() override = default;
 };
 }  // namespace renderable

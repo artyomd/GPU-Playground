@@ -13,7 +13,6 @@
 namespace renderable {
 class GltfModel final : public application::Renderable {
   struct ImageContext {
-    VkSemaphore semaphore = VK_NULL_HANDLE;
     VkFence fence = VK_NULL_HANDLE;
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     uint32_t descriptor_index = 0;
@@ -47,7 +46,8 @@ class GltfModel final : public application::Renderable {
   GltfModel& operator=(const GltfModel&) = delete;
   GltfModel& operator=(GltfModel&&) = delete;
   void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>>& images) override;
-  VkSemaphore Render(const std::shared_ptr<vulkan::Image>& image, const VkSemaphore& semaphore) override;
+  void Render(const std::shared_ptr<vulkan::Image>& image, const VkSemaphore& waitSemaphore,
+              const VkSemaphore& signalSemaphore) override;
   ~GltfModel() override;
 };
 }  // namespace renderable

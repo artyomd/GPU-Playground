@@ -6,8 +6,7 @@
 
 std::shared_ptr<renderable::DefaultMenu> renderable::DefaultMenu::Create(
     const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent) {
-  auto *menu = new DefaultMenu(context, parent);
-  return std::shared_ptr<DefaultMenu>(menu);
+  return std::shared_ptr<DefaultMenu>(new DefaultMenu(context, parent));
 }
 
 renderable::DefaultMenu::DefaultMenu(const std::shared_ptr<vulkan::RenderingContext> &context,
@@ -23,7 +22,6 @@ void renderable::DefaultMenu::CleanupCommandBuffers() {
   for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
     rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
   }
   command_buffers_.clear();
@@ -53,14 +51,13 @@ void renderable::DefaultMenu::SetupImages(const std::vector<std::shared_ptr<vulk
   }
   CleanupCommandBuffers();  // recreating is easier than remapping
   for (const auto &kImage : images) {
-    auto *fence = rendering_context_->CreateFence(true);
-    auto *semaphore = rendering_context_->CreateSemaphore();
-    auto *command_buffer = rendering_context_->CreateCommandBuffer(command_pool_);
-    command_buffers_[kImage] = {.semaphore = semaphore, .fence = fence, .command_buffer = command_buffer};
+    command_buffers_[kImage] = {.fence = rendering_context_->CreateFence(true),
+                                .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_)};
   }
 }
 
-VkSemaphore renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+void renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+                                     const VkSemaphore &signalSemaphore) {
   // render menu
   const auto image_context = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
@@ -77,7 +74,7 @@ VkSemaphore renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image>
           },
 
   };
-  VkCommandBufferBeginInfo begin_info{
+  constexpr VkCommandBufferBeginInfo begin_info{
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
       .pNext = nullptr,
       .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
@@ -108,7 +105,7 @@ VkSemaphore renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image>
   ImGui::NewFrame();
   ImGui::Begin("Menu");
   {
-    auto locked_parent = parent_.lock();
+    const auto locked_parent = parent_.lock();
     for (const auto &kItem : locked_parent->EntryNames()) {
       if (ImGui::Button(kItem.c_str())) {
         locked_parent->Select(kItem);
@@ -128,8 +125,7 @@ VkSemaphore renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image>
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-  rendering_context_->SubmitCommandBuffer(cmd_buffer, semaphore, wait_stage, image_context.semaphore, fence);
-  return image_context.semaphore;
+  rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
 renderable::DefaultMenu::~DefaultMenu() {
   CleanupCommandBuffers();

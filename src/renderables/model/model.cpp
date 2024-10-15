@@ -6,7 +6,6 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
-#include <numbers>
 
 #include "vulkan/rendering_pipeline.hpp"
 #include "vulkan/utils.hpp"
@@ -27,7 +26,6 @@ void renderable::Model::CleanupCommandBuffers() {
   for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
     rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
   }
   command_buffers_.clear();
@@ -98,14 +96,13 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
     if (sample_count != VK_SAMPLE_COUNT_1_BIT) {
       attachments.emplace_back(image_view);
     }
-    auto framebuffer = vulkan::Framebuffer::Create(rendering_context_, render_pass_, attachments);
+    const auto framebuffer = vulkan::Framebuffer::Create(rendering_context_, render_pass_, attachments);
     framebuffers_[kImage] = framebuffer;
   }
   CleanupCommandBuffers();  // recreating is easier than remapping
   uint32_t descriptor_index = 0;
   for (const auto &kImage : images) {
     command_buffers_[kImage] = {
-        .semaphore = rendering_context_->CreateSemaphore(),
         .fence = rendering_context_->CreateFence(true),
         .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_),
         .uniform_buffer = vulkan::Buffer::Create(rendering_context_, sizeof(UniformBufferObjectMvp),
@@ -115,7 +112,8 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
   }
 }
 
-VkSemaphore renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+                               const VkSemaphore &signalSemaphore) {
   const auto image_context = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
   auto *fence = image_context.fence;
@@ -190,15 +188,15 @@ VkSemaphore renderable::Model::Render(const std::shared_ptr<vulkan::Image> &imag
       .minDepth = 0,
       .maxDepth = 1.0,
   };
-  VkRect2D scissor_rect{.offset =
-                            {
-                                .x = 0,
-                                .y = 0,
-                            },
-                        .extent = {
-                            .width = framebuffer->GetWidth(),
-                            .height = framebuffer->GetHeight(),
-                        }};
+  const VkRect2D scissor_rect{.offset =
+                                  {
+                                      .x = 0,
+                                      .y = 0,
+                                  },
+                              .extent = {
+                                  .width = framebuffer->GetWidth(),
+                                  .height = framebuffer->GetHeight(),
+                              }};
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
@@ -225,9 +223,8 @@ VkSemaphore renderable::Model::Render(const std::shared_ptr<vulkan::Image> &imag
   ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
-  VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-  rendering_context_->SubmitCommandBuffer(cmd_buffer, semaphore, wait_stage, image_context.semaphore, fence);
-  return image_context.semaphore;
+  const VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+  rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
 renderable::Model::~Model() {
   CleanupCommandBuffers();

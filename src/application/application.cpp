@@ -423,11 +423,14 @@ void application::Application::CreateSwapChain() {
   }
   if (semaphores_.size() != swap_chain_images_.size()) {
     while (semaphores_.size() > swap_chain_images_.size()) {
-      rendering_context_->DestroySemaphore(semaphores_.back());
+      for (auto *semaphore : semaphores_.back()) {
+        rendering_context_->DestroySemaphore(semaphore);
+      }
       semaphores_.pop_back();
     }
     while (semaphores_.size() < swap_chain_images_.size()) {
-      semaphores_.emplace_back(rendering_context_->CreateSemaphore());
+      std::array semaphores = {rendering_context_->CreateSemaphore(), rendering_context_->CreateSemaphore()};
+      semaphores_.emplace_back(semaphores);
     }
   }
   if (fences_.size() != swap_chain_images_.size()) {
@@ -442,8 +445,10 @@ void application::Application::CreateSwapChain() {
 }
 
 void application::Application::CleanupSwapChain() {
-  for (auto *semaphore : semaphores_) {
-    rendering_context_->DestroySemaphore(semaphore);
+  for (auto semaphores : semaphores_) {
+    for (auto *semaphore : semaphores) {
+      rendering_context_->DestroySemaphore(semaphore);
+    }
   }
   for (auto *fence : fences_) {
     rendering_context_->DestroyFence(fence);
@@ -467,18 +472,19 @@ void application::Application::Run() {
     uint32_t image_index = 0;
     rendering_context_->WaitForFence(fences_[current_frame_index_]);
     rendering_context_->ResetFence(fences_[current_frame_index_]);
-    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphores_[current_frame_index_],
+    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphores_[current_frame_index_][0],
                                         fences_[current_frame_index_], &image_index);
     if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR) {
       continue;
     }
     VK_CALL(result);
-    VkSemaphore semaphore = renderable_->Render(swap_chain_images_[image_index], semaphores_[current_frame_index_]);
+    renderable_->Render(swap_chain_images_[image_index], semaphores_[current_frame_index_][0],
+                        semaphores_[current_frame_index_][1]);
 
     VkPresentInfoKHR present_info = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &semaphore,
+        .pWaitSemaphores = &semaphores_[current_frame_index_][1],
         .swapchainCount = 1,
         .pSwapchains = &swap_chain_,
         .pImageIndices = &image_index,

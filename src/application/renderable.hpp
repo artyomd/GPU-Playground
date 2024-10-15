@@ -16,7 +16,8 @@ class Renderable {
   Renderable& operator=(Renderable&&) = delete;
 
   virtual void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>>& images) = 0;
-  virtual VkSemaphore Render(const std::shared_ptr<vulkan::Image>& image, const VkSemaphore& semaphore) = 0;
+  virtual void Render(const std::shared_ptr<vulkan::Image>& image, const VkSemaphore& waitSemaphore,
+                      const VkSemaphore& signalSemaphore) = 0;
   virtual ~Renderable() = default;
 };
 }  // namespace application

@@ -34,8 +34,8 @@ class Application final {
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
   uint32_t current_frame_index_ = -1;
-  std::vector<std::shared_ptr<vulkan::Image> > swap_chain_images_;
-  std::vector<VkSemaphore> semaphores_;
+  std::vector<std::shared_ptr<vulkan::Image>> swap_chain_images_;
+  std::vector<std::array<VkSemaphore, 2>> semaphores_;
   std::vector<VkFence> fences_;
 
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;

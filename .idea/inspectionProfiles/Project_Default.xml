@@ -4,7 +4,6 @@
     <inspection_tool class="ClangTidy" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="clangTidyChecks" value="-*,cert-*,clang-analyzer-*,concurrency-*,bugprone-*,-bugprone-argument-comment,-bugprone-easily-swappable-parameters,cppcoreguidelines-*,-cppcoreguidelines-non-private-member-variables-in-classes,google-readability-casting,google-build-namespaces,google-default-arguments,google-build-explicit-make-pair,google-global-names-in-headers,google-runtime-int,google-runtime-operator,google-explicit-constructor,google-build-using-namespace,hicpp-multiway-paths-covered,hicpp-exception-baseclass,hicpp-signed-bitwise,llvm-include-order,llvm-namespace-comment,misc-unconventional-assign-operator,misc-misplaced-const,misc-new-delete-overloads,misc-non-copyable-objects,misc-throw-by-value-catch-by-reference,misc-uniqueptr-reset-release,modernize-*,-modernize-use-trailing-return-type,-modernize-return-braced-init-list,performance-*,-performance-no-int-to-ptr,readability-*,-readability-identifier-length,-readability-uppercase-literal-suffix" />
     </inspection_tool>
-    <inspection_tool class="CppDFAConstantParameter" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CppEnforceCVQualifiersOrder" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppEnforceCVQualifiersPlacement" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppEnforceDoStatementBraces" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -14,8 +13,7 @@
     <inspection_tool class="CppEnforceTypeAliasCodeStyle" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppEnforceWhileStatementBraces" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppLocalVariableWithNonTrivialDtorIsNeverUsed" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="CppTooWideScopeInitStatement" enabled="false" level="HINT" enabled_by_default="false" />
-    <inspection_tool class="CppUseStructuredBinding" enabled="false" level="HINT" enabled_by_default="false" />
+    <inspection_tool class="CppRemoveRedundantBraces" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="EmptyDirectory" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="InconsistentLineSeparators" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="LongLine" enabled="true" level="WARNING" enabled_by_default="true" />

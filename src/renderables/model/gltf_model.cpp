@@ -15,17 +15,16 @@ renderable::GltfModel::GltfModel(const std::shared_ptr<vulkan::RenderingContext>
                                  const std::shared_ptr<Menu> &parent)
     : rendering_context_(context),
       parent_(parent),
-      command_pool_(rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)) {
+      command_pool_(rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)),
+      selected_scene_(model_->GetDefaultSceneIndex()) {
   model_ = geometry::GltfModel::Create(rendering_context_, RESOURCE_DIR + std::string("models/Duck.gltf"));
   scenes_names_ = model_->GetScenes();
-  selected_scene_ = model_->GetDefaultSceneIndex();
 }
 
 void renderable::GltfModel::CleanupCommandBuffers() {
   for (const auto &kCommandBuffer : command_buffers_) {
     rendering_context_->WaitForFence(kCommandBuffer.second.fence);
     rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroySemaphore(kCommandBuffer.second.semaphore);
     rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
   }
   command_buffers_.clear();
@@ -77,14 +76,14 @@ void renderable::GltfModel::SetupImages(const std::vector<std::shared_ptr<vulkan
   CleanupCommandBuffers();  // recreating is easier than remapping
   uint32_t descriptor_index = 0;
   for (const auto &kImage : images) {
-    command_buffers_[kImage] = {.semaphore = rendering_context_->CreateSemaphore(),
-                                .fence = rendering_context_->CreateFence(true),
+    command_buffers_[kImage] = {.fence = rendering_context_->CreateFence(true),
                                 .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_),
                                 .descriptor_index = descriptor_index++};
   }
 }
 
-VkSemaphore renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+                                   const VkSemaphore &signalSemaphore) {
   if (current_scene_ != selected_scene_) {
     rendering_context_->WaitForGraphicsQueueIdle();
     model_->LoadScene(selected_scene_);
@@ -193,8 +192,7 @@ VkSemaphore renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-  rendering_context_->SubmitCommandBuffer(cmd_buffer, semaphore, wait_stage, image_context.semaphore, fence);
-  return image_context.semaphore;
+  rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
 renderable::GltfModel::~GltfModel() {
   CleanupCommandBuffers();

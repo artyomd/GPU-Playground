@@ -1,12 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.3.290.0)
-
-FetchContent_Declare(SPIRV-Headers
-        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
-        GIT_TAG ${VULKAN_SDK_VERSION}
-        GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable(SPIRV-Headers)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.3.296.0)
 
 FetchContent_Declare(SPIRV-Tools
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
@@ -25,6 +17,8 @@ FetchContent_Declare(glslang
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
+set(BUILD_SHARED_LIBS OFF)
+set(BUILD_EXTERNAL OFF)
 set(ENABLE_SPVREMAPPER OFF)
 set(ENABLE_GLSLANG_BINARIES OFF)
 set(ENABLE_GLSLANG_JS OFF)

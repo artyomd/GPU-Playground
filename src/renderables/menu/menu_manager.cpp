@@ -9,6 +9,7 @@ std::shared_ptr<renderable::MenuManager> renderable::MenuManager::Create(
   auto *menu = new MenuManager(context, display_creator, nullptr, parent);
   return std::shared_ptr<MenuManager>(menu);
 }
+
 std::shared_ptr<renderable::MenuManager> renderable::MenuManager::Create(
     const std::shared_ptr<vulkan::RenderingContext> &context, const MenuItemCreator &display_creator,
     const std::function<void()> &exit_function) {
@@ -60,12 +61,13 @@ void renderable::MenuManager::PopSelf() {
   }
 }
 
-VkSemaphore renderable::MenuManager::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) {
+void renderable::MenuManager::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+                                     const VkSemaphore &signalSemaphore) {
   if (next_item_creator_ != nullptr) {
     current_item_ = next_item_creator_(rendering_context_, shared_from_this());
     current_item_->SetupImages(latest_images_);
     next_item_creator_ = nullptr;
   }
-  return current_item_->Render(image, semaphore);
+  current_item_->Render(image, waitSemaphore, signalSemaphore);
 }
 

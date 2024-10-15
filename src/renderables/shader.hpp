@@ -25,7 +25,6 @@ class Shader final : public application::Renderable {
   std::shared_ptr<vulkan::Shader> f_shader_ = nullptr;
 
   struct ImageContext {
-    VkSemaphore semaphore = VK_NULL_HANDLE;
     VkFence fence = VK_NULL_HANDLE;
     VkCommandBuffer command_buffer = VK_NULL_HANDLE;
     std::shared_ptr<vulkan::Buffer> uniform_buffer = nullptr;
@@ -61,7 +60,8 @@ class Shader final : public application::Renderable {
   Shader &operator=(Shader &&) = delete;
 
   void SetupImages(const std::vector<std::shared_ptr<vulkan::Image>> &images) override;
-  VkSemaphore Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &semaphore) override;
+  void Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
+              const VkSemaphore &signalSemaphore) override;
   ~Shader() override;
 };
 }  // namespace renderable
