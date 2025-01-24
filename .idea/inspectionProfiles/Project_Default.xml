@@ -14,6 +14,8 @@
     <inspection_tool class="CppEnforceWhileStatementBraces" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppLocalVariableWithNonTrivialDtorIsNeverUsed" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="CppRemoveRedundantBraces" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="CppTabsAreDisallowed" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="CppUnnecessaryWhitespace" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="EmptyDirectory" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="InconsistentLineSeparators" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="LongLine" enabled="true" level="WARNING" enabled_by_default="true" />

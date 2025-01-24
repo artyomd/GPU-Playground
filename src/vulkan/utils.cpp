@@ -3,7 +3,7 @@
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <stdexcept>
 
 void vulkan::CheckResult(const VkResult &result, const std::string &file, uint32_t line) {

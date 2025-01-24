@@ -1,5 +1,7 @@
 #include "default_menu.hpp"
 
+#include <ranges>
+
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
 #include "vulkan/utils.hpp"
@@ -19,10 +21,10 @@ renderable::DefaultMenu::DefaultMenu(const std::shared_ptr<vulkan::RenderingCont
 }
 
 void renderable::DefaultMenu::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer : command_buffers_) {
-    rendering_context_->WaitForFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
+  for (auto [fence, command_buffer] : command_buffers_ | std::views::values) {
+    rendering_context_->WaitForFence(fence);
+    rendering_context_->DestroyFence(fence);
+    rendering_context_->FreeCommandBuffer(command_pool_, command_buffer);
   }
   command_buffers_.clear();
 }
@@ -59,14 +61,13 @@ void renderable::DefaultMenu::SetupImages(const std::vector<std::shared_ptr<vulk
 void renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
                                      const VkSemaphore &signalSemaphore) {
   // render menu
-  const auto image_context = command_buffers_[image];
+  auto [fence, command_buffer] = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
-  auto *fence = image_context.fence;
   rendering_context_->WaitForFence(fence);
   rendering_context_->ResetFence(fence);
 
   // begin recording commands
-  auto *cmd_buffer = image_context.command_buffer;
+  auto *cmd_buffer = command_buffer;
   VkClearValue clear_value{
       .color =
           {
@@ -127,6 +128,7 @@ void renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
   rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
+
 renderable::DefaultMenu::~DefaultMenu() {
   CleanupCommandBuffers();
   rendering_context_->DestroyCommandPool(command_pool_);

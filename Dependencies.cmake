@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.3.296.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.304.0)
 
 FetchContent_Declare(glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -15,7 +15,7 @@ FetchContent_MakeAvailable(glfw)
 
 FetchContent_Declare(magic_enum
         GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
-        GIT_TAG v0.9.6
+        GIT_TAG v0.9.7
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -32,7 +32,7 @@ FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.14.1
+        GIT_TAG v1.15.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -54,8 +54,8 @@ FetchContent_Declare(SPIRV-Reflect
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
-set(SPIRV_REFLECT_EXAMPLES OFF)
 set(SPIRV_REFLECT_EXECUTABLE OFF)
+set(SPIRV_REFLECT_EXAMPLES OFF)
 set(SPIRV_REFLECT_STATIC_LIB ON)
 FetchContent_MakeAvailable(SPIRV-Reflect)
 
@@ -78,7 +78,7 @@ FetchContent_MakeAvailable(Vulkan-Headers)
 
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG v3.1.0
+        GIT_TAG v3.2.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -86,7 +86,7 @@ FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.91.3
+        GIT_TAG v1.91.7
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         CONFIGURE_COMMAND ""
@@ -129,13 +129,13 @@ target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
 FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.9.3
+        GIT_TAG v2.9.4
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
 set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF)
 set(TINYGLTF_INSTALL OFF)
-set(TINYGLTF_HEADER_ONLY ON)
+set(TINYGLTF_HEADER_ONLY OFF)
 FetchContent_MakeAvailable(tinygltf)
 
 FetchContent_Declare(tinyobj

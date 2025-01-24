@@ -9,7 +9,7 @@ class StackedSphere final : public Model {
   std::shared_ptr<vulkan::Shader> v_shader_ = nullptr;
   std::shared_ptr<vulkan::Shader> f_shader_ = nullptr;
 
-  StackedSphere(std::shared_ptr<vulkan::RenderingContext> context, std::shared_ptr<Menu> parent);
+  StackedSphere(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent);
   std::shared_ptr<vulkan::RenderingPipeline> CreatePipeline(
       const std::shared_ptr<vulkan::RenderingContext> &rendering_context,
       const std::shared_ptr<vulkan::RenderPass> &render_pass, const size_t &descriptor_set_count,
@@ -17,8 +17,8 @@ class StackedSphere final : public Model {
   size_t NumOfIndicesToDraw() override;
 
  public:
-  static std::shared_ptr<StackedSphere> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                               std::shared_ptr<Menu> parent);
+  static std::shared_ptr<StackedSphere> Create(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                               const std::shared_ptr<Menu> &parent);
   StackedSphere() = delete;
   StackedSphere(const StackedSphere &) = delete;
   StackedSphere(StackedSphere &&) = delete;

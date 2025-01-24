@@ -4,6 +4,8 @@
 #include <backends/imgui_impl_vulkan.h>
 #include <imgui.h>
 
+#include <ranges>
+
 #include "vulkan/utils.hpp"
 
 std::shared_ptr<renderable::GltfModel> renderable::GltfModel::Create(
@@ -16,16 +18,16 @@ renderable::GltfModel::GltfModel(const std::shared_ptr<vulkan::RenderingContext>
     : rendering_context_(context),
       parent_(parent),
       command_pool_(rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)),
+      model_(geometry::GltfModel::Create(rendering_context_, RESOURCE_DIR + std::string("models/Duck.gltf"))),
       selected_scene_(model_->GetDefaultSceneIndex()) {
-  model_ = geometry::GltfModel::Create(rendering_context_, RESOURCE_DIR + std::string("models/Duck.gltf"));
   scenes_names_ = model_->GetScenes();
 }
 
 void renderable::GltfModel::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer : command_buffers_) {
-    rendering_context_->WaitForFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
+  for (const auto &command_buffer : command_buffers_ | std::views::values) {
+    rendering_context_->WaitForFence(command_buffer.fence);
+    rendering_context_->DestroyFence(command_buffer.fence);
+    rendering_context_->FreeCommandBuffer(command_pool_, command_buffer.command_buffer);
   }
   command_buffers_.clear();
 }
@@ -89,14 +91,13 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
     model_->LoadScene(selected_scene_);
     current_scene_ = selected_scene_;
   }
-  const auto image_context = command_buffers_[image];
+  const auto [fence, command_buffer, descriptor_index] = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
-  auto *fence = image_context.fence;
   rendering_context_->WaitForFence(fence);
   rendering_context_->ResetFence(fence);
 
   // begin recording commands
-  auto *cmd_buffer = image_context.command_buffer;
+  auto *cmd_buffer = command_buffer;
   constexpr VkClearValue clear_color_value{
       .color =
           {
@@ -114,8 +115,7 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
       .pInheritanceInfo = nullptr,
   };
   vkBeginCommandBuffer(cmd_buffer, &begin_info);
-  const auto depth_image_view = framebuffer->GetDepthAttachment();
-  if (depth_image_view != nullptr) {
+  if (const auto depth_image_view = framebuffer->GetDepthAttachment(); depth_image_view != nullptr) {
     depth_image_view->GetImage()->TransferTo(cmd_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
   }
   const VkRenderPassBeginInfo render_pass_begin_info{
@@ -156,7 +156,7 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
-  model_->Render(cmd_buffer, image_context.descriptor_index);
+  model_->Render(cmd_buffer, descriptor_index);
 
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
@@ -177,8 +177,7 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
     ImGui::EndListBox();
   }
 
-  const auto locked_parent = parent_.lock();
-  if (locked_parent != nullptr) {
+  if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     if (ImGui::Button("<----")) {
       locked_parent->Pop();
     }
@@ -194,6 +193,7 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
   rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
+
 renderable::GltfModel::~GltfModel() {
   CleanupCommandBuffers();
   rendering_context_->DestroyCommandPool(command_pool_);

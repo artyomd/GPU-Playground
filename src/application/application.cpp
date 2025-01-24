@@ -18,7 +18,7 @@ namespace {
 struct QueueFamilyIndices {
   std::optional<uint32_t> graphics_family;
   std::optional<uint32_t> present_family;
-  QueueFamilyIndices(VkPhysicalDevice device, VkSurfaceKHR surface) {
+  QueueFamilyIndices(const VkPhysicalDevice &device, const VkSurfaceKHR &surface) {
     uint32_t queue_family_count = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
     std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
@@ -60,7 +60,7 @@ struct SwapChainSupportDetails {
     present_modes.resize(present_mode_count);
     VK_CALL(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, present_modes.data()));
   }
-  [[nodiscard]] VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const VkFormat desired_format) const {
+  [[nodiscard]] VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const VkFormat &desired_format) const {
     for (const auto &kAvailableFormat : formats) {
       if (kAvailableFormat.format == desired_format &&
           kAvailableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -120,6 +120,7 @@ application::Application::Application(
                        required_device_extensions_.end();
   rendering_context_ = std::make_shared<vulkan::RenderingContext>(
       vulkan_instance_, physical_device_, device_, graphics_queue_, graphics_family_index_, use_sync2_ext);
+  this->semaphore_pool_ = std::make_shared<vulkan::SemaphorePool>(rendering_context_);
 
   CreateSwapChain();
   IMGUI_CHECKVERSION();
@@ -171,8 +172,8 @@ void application::Application::CreateInstance() {
     if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_validation");
       for (auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
-           const auto &ext : available_extensions) {
-        if (strcmp(ext.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
+           const auto &[extensionName, specVersion] : available_extensions) {
+        if (strcmp(extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
           instance_extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
           debug_utils_enabled = true;
         }
@@ -184,9 +185,9 @@ void application::Application::CreateInstance() {
     }
   }
 
-  auto available_instance_extensions = vulkan::GetAvailableInstanceExtensions();
-  if (std::ranges::find_if(available_instance_extensions, [](const auto &val) {
-        return strcmp(val.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
+  if (auto available_instance_extensions = vulkan::GetAvailableInstanceExtensions();
+      std::ranges::find_if(available_instance_extensions, [](const auto &extension) {
+        return strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
       }) != available_instance_extensions.end()) {
     instance_extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
   }
@@ -220,9 +221,10 @@ void application::Application::CreateInstance() {
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-        .pfnUserCallback =
-            [](VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT flags,
-               const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data, void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
+        .pfnUserCallback = [](const VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+                              const VkDebugUtilsMessageTypeFlagsEXT flags,
+                              const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
+                              void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
           auto flag_to_string = [](const VkDebugUtilsMessageTypeFlagsEXT flag) {
             std::string flags;
             if ((flag & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) != 0) {
@@ -264,8 +266,8 @@ void application::Application::PickPhysicalDevice() {
   for (const auto &device : devices) {
     auto available_extensions = vulkan::GetDeviceExtensions(device);
     std::set<std::string> required_extensions(required_device_extensions_.begin(), required_device_extensions_.end());
-    for (const auto &extension : available_extensions) {
-      required_extensions.erase(extension.extensionName);
+    for (const auto &[extensionName, specVersion] : available_extensions) {
+      required_extensions.erase(extensionName);
     }
     bool extensions_supported = required_extensions.empty();
     bool has_sync_2_ext = std::ranges::find_if(available_extensions, [](auto it) {
@@ -357,7 +359,7 @@ void application::Application::CreateLogicalDevice() {
 
 void application::Application::CreateSwapChain() {
   SwapChainSupportDetails swap_chain_support(physical_device_, surface_);
-  const VkSurfaceFormatKHR surface_format = swap_chain_support.ChooseSwapSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM);
+  const auto [format, colorSpace] = swap_chain_support.ChooseSwapSurfaceFormat(VK_FORMAT_B8G8R8A8_UNORM);
 
   int window_width = 0;
   int window_height = 0;
@@ -370,7 +372,7 @@ void application::Application::CreateSwapChain() {
           swap_chain_support.capabilities.minImageExtent.height,
           std::min(swap_chain_support.capabilities.maxImageExtent.height, static_cast<uint32_t>(window_height))),
   };
-  const auto swap_chain_image_format = surface_format.format;
+  const auto swap_chain_image_format = format;
   uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
   if (swap_chain_support.capabilities.maxImageCount > 0 &&
       image_count > swap_chain_support.capabilities.maxImageCount) {
@@ -382,8 +384,8 @@ void application::Application::CreateSwapChain() {
       .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
       .surface = surface_,
       .minImageCount = image_count,
-      .imageFormat = surface_format.format,
-      .imageColorSpace = surface_format.colorSpace,
+      .imageFormat = format,
+      .imageColorSpace = colorSpace,
       .imageExtent = swap_chain_extent,
       .imageArrayLayers = 1,
       .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
@@ -423,14 +425,11 @@ void application::Application::CreateSwapChain() {
   }
   if (semaphores_.size() != swap_chain_images_.size()) {
     while (semaphores_.size() > swap_chain_images_.size()) {
-      for (auto *semaphore : semaphores_.back()) {
-        rendering_context_->DestroySemaphore(semaphore);
-      }
+      rendering_context_->DestroySemaphore(semaphores_.back());
       semaphores_.pop_back();
     }
     while (semaphores_.size() < swap_chain_images_.size()) {
-      std::array semaphores = {rendering_context_->CreateSemaphore(), rendering_context_->CreateSemaphore()};
-      semaphores_.emplace_back(semaphores);
+      semaphores_.emplace_back(rendering_context_->CreateSemaphore());
     }
   }
   if (fences_.size() != swap_chain_images_.size()) {
@@ -445,10 +444,8 @@ void application::Application::CreateSwapChain() {
 }
 
 void application::Application::CleanupSwapChain() {
-  for (auto semaphores : semaphores_) {
-    for (auto *semaphore : semaphores) {
-      rendering_context_->DestroySemaphore(semaphore);
-    }
+  for (auto *semaphore : semaphores_) {
+    rendering_context_->DestroySemaphore(semaphore);
   }
   for (auto *fence : fences_) {
     rendering_context_->DestroyFence(fence);
@@ -467,24 +464,20 @@ void application::Application::Run() {
       return;
     }
 
-    current_frame_index_ = (current_frame_index_ + 1) % swap_chain_images_.size();
-
     uint32_t image_index = 0;
-    rendering_context_->WaitForFence(fences_[current_frame_index_]);
-    rendering_context_->ResetFence(fences_[current_frame_index_]);
-    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphores_[current_frame_index_][0],
-                                        fences_[current_frame_index_], &image_index);
+    auto *semaphore = semaphore_pool_->GetSemaphore();
+    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphore, VK_NULL_HANDLE, &image_index);
     if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR) {
       continue;
     }
     VK_CALL(result);
-    renderable_->Render(swap_chain_images_[image_index], semaphores_[current_frame_index_][0],
-                        semaphores_[current_frame_index_][1]);
+    semaphore_pool_->RegisterSemaphore(image_index, semaphore);
+    renderable_->Render(swap_chain_images_[image_index], semaphore, semaphores_[image_index]);
 
     VkPresentInfoKHR present_info = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &semaphores_[current_frame_index_][1],
+        .pWaitSemaphores = &semaphores_[image_index],
         .swapchainCount = 1,
         .pSwapchains = &swap_chain_,
         .pImageIndices = &image_index,
@@ -507,6 +500,7 @@ application::Application::~Application() {
   ImGui::DestroyContext();
   CleanupSwapChain();
   vkDestroySurfaceKHR(vulkan_instance_, surface_, nullptr);
+  semaphore_pool_ = nullptr;
   rendering_context_ = nullptr;
   vkDestroyDevice(device_, nullptr);
   if (debug_messenger_ != VK_NULL_HANDLE) {

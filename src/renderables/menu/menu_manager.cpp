@@ -42,7 +42,7 @@ void renderable::MenuManager::Pop() { next_item_creator_ = default_renderable_cr
 
 std::set<std::string> renderable::MenuManager::EntryNames() {
   std::set<std::string> key_set;
-  std::ranges::transform(items_, std::inserter(key_set, key_set.end()), [](auto pair) { return pair.first; });
+  std::ranges::transform(items_, std::inserter(key_set, key_set.end()), [](const auto &pair) { return pair.first; });
   return key_set;
 }
 
@@ -53,8 +53,7 @@ void renderable::MenuManager::Select(const std::string &display_name) {
 }
 
 void renderable::MenuManager::PopSelf() {
-  const auto locked_parent = parent_.lock();
-  if (locked_parent != nullptr) {
+  if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     locked_parent->Pop();
   } else if (exit_function_ != nullptr) {
     exit_function_();
@@ -70,4 +69,3 @@ void renderable::MenuManager::Render(const std::shared_ptr<vulkan::Image> &image
   }
   current_item_->Render(image, waitSemaphore, signalSemaphore);
 }
-

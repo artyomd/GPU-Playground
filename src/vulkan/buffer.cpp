@@ -1,7 +1,5 @@
 #include "buffer.hpp"
 
-#include <cstring>
-
 #include "utils.hpp"
 
 std::shared_ptr<vulkan::Buffer> vulkan::Buffer::Create(const std::shared_ptr<RenderingContext> &context,

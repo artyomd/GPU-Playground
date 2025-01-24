@@ -113,7 +113,7 @@ renderable::Texture2d::Texture2d(const std::shared_ptr<vulkan::RenderingContext>
     staging_buffer->Unmap();
     stbi_image_free(pixels);
     auto *command_buffer = context->CreateCommandBuffer(command_pool);
-    VkCommandBufferBeginInfo command_buffer_begin_info{
+    constexpr VkCommandBufferBeginInfo command_buffer_begin_info{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .pNext = nullptr,
         .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
@@ -157,5 +157,7 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::Texture2d::CreatePipeline
   }
   return pipeline;
 }
+
 size_t renderable::Texture2d::NumOfIndicesToDraw() { return index_count_; }
+
 renderable::Texture2d::~Texture2d() { WaitForCommandBuffersToFinish(); }

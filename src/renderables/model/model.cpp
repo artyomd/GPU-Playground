@@ -6,6 +6,7 @@
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <ranges>
 
 #include "vulkan/rendering_pipeline.hpp"
 #include "vulkan/utils.hpp"
@@ -23,10 +24,10 @@ void renderable::Model::SetLookAt(const glm::vec3 &eye, const glm::vec3 &center)
 }
 
 void renderable::Model::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer : command_buffers_) {
-    rendering_context_->WaitForFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
+  for (const auto &command_buffer : command_buffers_ | std::views::values) {
+    rendering_context_->WaitForFence(command_buffer.fence);
+    rendering_context_->DestroyFence(command_buffer.fence);
+    rendering_context_->FreeCommandBuffer(command_pool_, command_buffer.command_buffer);
   }
   command_buffers_.clear();
 }
@@ -114,9 +115,8 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
 
 void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
                                const VkSemaphore &signalSemaphore) {
-  const auto image_context = command_buffers_[image];
+  auto [fence, command_buffer, uniform_buffer, descriptor_index] = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
-  auto *fence = image_context.fence;
   rendering_context_->WaitForFence(fence);
   rendering_context_->ResetFence(fence);
 
@@ -130,13 +130,13 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
     uniform_buffer_object_mvp_.model = model;
   }
   {
-    memcpy(image_context.uniform_buffer->Map(), &uniform_buffer_object_mvp_, sizeof(uniform_buffer_object_mvp_));
-    image_context.uniform_buffer->Unmap();
+    memcpy(uniform_buffer->Map(), &uniform_buffer_object_mvp_, sizeof(uniform_buffer_object_mvp_));
+    uniform_buffer->Unmap();
   }
-  pipeline_->SetUniformBuffer(0, image_context.descriptor_index, image_context.uniform_buffer);
+  pipeline_->SetUniformBuffer(0, descriptor_index, uniform_buffer);
 
   // begin recording commands
-  auto *cmd_buffer = image_context.command_buffer;
+  auto *cmd_buffer = command_buffer;
   VkClearValue clear_color_value{
       .color =
           {
@@ -158,8 +158,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
       .pInheritanceInfo = nullptr,
   };
   vkBeginCommandBuffer(cmd_buffer, &begin_info);
-  auto depth_image_view = framebuffer->GetDepthAttachment();
-  if (depth_image_view != nullptr) {
+  if (const auto depth_image_view = framebuffer->GetDepthAttachment(); depth_image_view != nullptr) {
     depth_image_view->GetImage()->TransferTo(cmd_buffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
   }
   const VkRenderPassBeginInfo render_pass_begin_info{
@@ -180,7 +179,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
       .pClearValues = clear_values.data(),
   };
   vkCmdBeginRenderPass(cmd_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-  VkViewport viewport{
+  const VkViewport viewport{
       .x = 0,
       .y = static_cast<float>(framebuffer->GetHeight()),
       .width = static_cast<float>(framebuffer->GetWidth()),
@@ -200,7 +199,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
-  pipeline_->Draw(cmd_buffer, NumOfIndicesToDraw(), 0, image_context.descriptor_index);
+  pipeline_->Draw(cmd_buffer, NumOfIndicesToDraw(), 0, descriptor_index);
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -209,8 +208,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
   ImGui::SliderFloat("translationY", &translation_.y, -projection_height_, projection_height_);
   ImGui::SliderFloat2("scale", &scale_.x, 0, 20);
   ImGui::SliderFloat3("rotate", &rotate_.x, 0, 360);
-  const auto locked_parent = parent_.lock();
-  if (locked_parent != nullptr) {
+  if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     if (ImGui::Button("<----")) {
       locked_parent->Pop();
     }
@@ -223,7 +221,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
   ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
-  const VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+  constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
   rendering_context_->SubmitCommandBuffer(cmd_buffer, waitSemaphore, wait_stage, signalSemaphore, fence);
 }
 renderable::Model::~Model() {
@@ -238,7 +236,7 @@ glm::mat4 renderable::Model::ComputeViewMatrix() {
 }
 
 void renderable::Model::WaitForCommandBuffersToFinish() const {
-  for (const auto &kCommandBuffer : command_buffers_) {
-    rendering_context_->WaitForFence(kCommandBuffer.second.fence);
+  for (const auto &command_buffer : command_buffers_ | std::views::values) {
+    rendering_context_->WaitForFence(command_buffer.fence);
   }
 }

@@ -4,7 +4,7 @@
 #include "vulkan/rendering_context.hpp"
 
 namespace renderable {
-class ImguiWrapper {
+class ImguiWrapper final {
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;
   std::shared_ptr<vulkan::RenderPass> render_pass_ = nullptr;
   uint32_t image_count_ = 0;

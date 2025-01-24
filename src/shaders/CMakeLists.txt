@@ -27,4 +27,5 @@ endif ()
 add_spirv_library(LIBRARY_NAME shaders
         DEBUG ${SHADERS_DEBUG}
         WERROR ${SHADERS_DEBUG}
-        INPUT_GLSL_FILE ${GLSL_FILES})
+        INPUT_GLSL_FILE ${GLSL_FILES}
+        TARGET_SPV "spv1.6")

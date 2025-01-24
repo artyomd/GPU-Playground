@@ -1,4 +1,12 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.3.296.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.304.0)
+
+FetchContent_Declare(SPIRV-Headers
+        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+        GIT_TAG ${VULKAN_SDK_VERSION}
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(SPIRV-Headers)
 
 FetchContent_Declare(SPIRV-Tools
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
@@ -9,6 +17,7 @@ FetchContent_Declare(SPIRV-Tools
 set(SKIP_SPIRV_TOOLS_INSTALL ON)
 set(SPIRV_SKIP_EXECUTABLES ON)
 set(SPIRV_SKIP_TESTS ON)
+set(SPIRV_TOOLS_BUILD_STATIC ON)
 FetchContent_MakeAvailable(SPIRV-Tools)
 
 FetchContent_Declare(glslang
@@ -27,7 +36,7 @@ FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2024.3
+        GIT_TAG v2024.4
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

@@ -44,4 +44,3 @@ class DefaultMenu final : public application::Renderable {
   ~DefaultMenu() override;
 };
 }  // namespace renderable
-

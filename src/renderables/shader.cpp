@@ -4,6 +4,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include <ranges>
+
 #include "vulkan/rendering_pipeline.hpp"
 #include "vulkan/utils.hpp"
 
@@ -35,10 +37,10 @@ renderable::Shader::Shader(const std::shared_ptr<vulkan::RenderingContext> &cont
 }
 
 void renderable::Shader::CleanupCommandBuffers() {
-  for (const auto &kCommandBuffer : command_buffers_) {
-    rendering_context_->WaitForFence(kCommandBuffer.second.fence);
-    rendering_context_->DestroyFence(kCommandBuffer.second.fence);
-    rendering_context_->FreeCommandBuffer(command_pool_, kCommandBuffer.second.command_buffer);
+  for (const auto &command_buffer : command_buffers_ | std::views::values) {
+    rendering_context_->WaitForFence(command_buffer.fence);
+    rendering_context_->DestroyFence(command_buffer.fence);
+    rendering_context_->FreeCommandBuffer(command_pool_, command_buffer.command_buffer);
   }
   command_buffers_.clear();
 }
@@ -106,22 +108,23 @@ void renderable::Shader::SetupImages(const std::vector<std::shared_ptr<vulkan::I
 
 void renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
                                 const VkSemaphore &signalSemaphore) {
-  const auto image_context = command_buffers_[image];
+  auto [fence, command_buffer, uniform_buffer, descriptor_index] = command_buffers_[image];
   const auto framebuffer = framebuffers_[image];
-  auto *fence = image_context.fence;
   rendering_context_->WaitForFence(fence);
   rendering_context_->ResetFence(fence);
 
   // prepare pipeline
-  { uniform_buffer_object_mvp_.time += 0.003333333333f; }
   {
-    memcpy(image_context.uniform_buffer->Map(), &uniform_buffer_object_mvp_, sizeof(uniform_buffer_object_mvp_));
-    image_context.uniform_buffer->Unmap();
+    uniform_buffer_object_mvp_.time += 0.003333333333f;
   }
-  pipeline_->SetUniformBuffer(0, image_context.descriptor_index, image_context.uniform_buffer);
+  {
+    memcpy(uniform_buffer->Map(), &uniform_buffer_object_mvp_, sizeof(uniform_buffer_object_mvp_));
+    uniform_buffer->Unmap();
+  }
+  pipeline_->SetUniformBuffer(0, descriptor_index, uniform_buffer);
 
   // begin recording commands
-  auto *cmd_buffer = image_context.command_buffer;
+  auto *cmd_buffer = command_buffer;
   VkClearValue clear_value{
       .color =
           {
@@ -174,13 +177,12 @@ void renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &image, con
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
-  pipeline_->Draw(cmd_buffer, quad_->GetIndexCount(), 0, image_context.descriptor_index);
+  pipeline_->Draw(cmd_buffer, quad_->GetIndexCount(), 0, descriptor_index);
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
   ImGui::Begin("Shader");
-  const auto locked_parent = parent_.lock();
-  if (locked_parent != nullptr) {
+  if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     if (ImGui::Button("<----")) {
       locked_parent->Pop();
     }
@@ -200,4 +202,3 @@ renderable::Shader::~Shader() {
   CleanupCommandBuffers();
   rendering_context_->DestroyCommandPool(command_pool_);
 }
-

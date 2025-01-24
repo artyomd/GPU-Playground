@@ -9,7 +9,7 @@ class SpiralSphere final : public Model {
   std::shared_ptr<vulkan::Shader> v_shader_ = nullptr;
   std::shared_ptr<vulkan::Shader> f_shader_ = nullptr;
 
-  SpiralSphere(std::shared_ptr<vulkan::RenderingContext> context, std::shared_ptr<Menu> parent);
+  SpiralSphere(const std::shared_ptr<vulkan::RenderingContext>& context, const std::shared_ptr<Menu> &parent);
   std::shared_ptr<vulkan::RenderingPipeline> CreatePipeline(
       const std::shared_ptr<vulkan::RenderingContext> &rendering_context,
       const std::shared_ptr<vulkan::RenderPass> &render_pass, const size_t &descriptor_set_count,
@@ -17,8 +17,8 @@ class SpiralSphere final : public Model {
   size_t NumOfIndicesToDraw() override;
 
  public:
-  static std::shared_ptr<SpiralSphere> Create(std::shared_ptr<vulkan::RenderingContext> context,
-                                              std::shared_ptr<Menu> parent);
+  static std::shared_ptr<SpiralSphere> Create(const std::shared_ptr<vulkan::RenderingContext> &context,
+                                              const std::shared_ptr<Menu> &parent);
   SpiralSphere() = delete;
   SpiralSphere(const SpiralSphere &) = delete;
   SpiralSphere(SpiralSphere &&) = delete;
