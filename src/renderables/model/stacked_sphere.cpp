@@ -7,7 +7,7 @@ std::shared_ptr<renderable::StackedSphere> renderable::StackedSphere::Create(
 
 renderable::StackedSphere::StackedSphere(const std::shared_ptr<vulkan::RenderingContext> &context,
                                          const std::shared_ptr<Menu> &parent)
-    : Model(context, parent, true, true) {
+    : Model(context, parent) {
   sphere_ = std::make_shared<geometry::StackedSphere>(context, 1.0F, 32, 64);
 
   const std::vector<uint32_t> kVertexShader = {

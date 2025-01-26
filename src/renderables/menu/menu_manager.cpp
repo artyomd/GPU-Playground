@@ -1,5 +1,6 @@
 #include "menu_manager.hpp"
 
+#include <algorithm>
 #include <iterator>
 #include <utility>
 

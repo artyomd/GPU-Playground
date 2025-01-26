@@ -35,8 +35,8 @@ class Application final {
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
   std::vector<std::shared_ptr<vulkan::Image>> swap_chain_images_;
+  std::queue<VkFence> fences_;
   std::vector<VkSemaphore> semaphores_;
-  std::vector<VkFence> fences_;
 
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;
   std::shared_ptr<vulkan::SemaphorePool> semaphore_pool_ = nullptr;

@@ -19,10 +19,10 @@ class Model : public application::Renderable {
     alignas(16) glm::mat4 proj = glm::mat4(1.0F);
   };
   glm::vec3 translation_ = glm::vec3(0.0F, 0.0F, 0.0F);
-  glm::vec3 scale_ = glm::vec3(1.0F, 1.0F, 1.0F);
+  float scale_factor_ = 1.0;
   glm::vec3 rotate_ = glm::vec3(0.0F, 0.0F, 0.0F);
 
-  glm::vec3 eye_ = glm::vec3(2.0, 2.0, 0.0);
+  glm::vec3 eye_ = glm::vec3(0.0, 2.0, 2.0);
   glm::vec3 center_ = glm::vec3(0.0, 0.0, 0.0);
 
   float projection_width_ = 4.0;
@@ -49,16 +49,12 @@ class Model : public application::Renderable {
 
   VkCommandPool command_pool_ = VK_NULL_HANDLE;
 
-  bool add_depth_attachment_ = false;
-  bool use_perspective_projection_ = false;
-
   void CleanupCommandBuffers();
 
  protected:
   void WaitForCommandBuffersToFinish() const;
   virtual glm::mat4 ComputeViewMatrix();
-  Model(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent,
-        bool add_depth_attachment = false, bool use_perspective_projection = false);
+  Model(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent);
   virtual std::shared_ptr<vulkan::RenderingPipeline> CreatePipeline(
       const std::shared_ptr<vulkan::RenderingContext> &rendering_context,
       const std::shared_ptr<vulkan::RenderPass> &render_pass, const size_t &descriptor_set_count,
@@ -79,4 +75,3 @@ class Model : public application::Renderable {
   ~Model() override;
 };
 }  // namespace renderable
-

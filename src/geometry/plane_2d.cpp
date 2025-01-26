@@ -1,9 +1,10 @@
 #include "plane_2d.hpp"
 
-#include <cassert>
-
 #include "point.hpp"
 #include "vulkan/utils.hpp"
+
+#include <cassert>
+#include <cstring>
 
 geometry::Plane2d::Plane2d(const std::shared_ptr<vulkan::RenderingContext> &context, const uint32_t &width,
                            const uint32_t &height)

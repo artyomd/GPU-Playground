@@ -1,5 +1,7 @@
 #include "triangle.hpp"
 
+#include <numbers>
+
 std::shared_ptr<renderable::Triangle> renderable::Triangle::Create(
     const std::shared_ptr<vulkan::RenderingContext>& context, const std::shared_ptr<Menu>& parent) {
   return std::shared_ptr<Triangle>(new Triangle(context, parent));
@@ -8,9 +10,9 @@ std::shared_ptr<renderable::Triangle> renderable::Triangle::Create(
 renderable::Triangle::Triangle(const std::shared_ptr<vulkan::RenderingContext>& context,
                                const std::shared_ptr<Menu>& parent)
     : Model(context, parent) {
-  geometry::PointWithColor point_0 = {-0.5F, -0.5F, 0.0F, 255, 0, 0, 255};
-  geometry::PointWithColor point_1 = {0.5F, -0.5F, 0.0F, 0, 255, 0, 255};
-  geometry::PointWithColor point_2 = {0.0F, 0.5F, 0.0F, 0, 0, 255, 255};
+  geometry::PointWithColor point_0 = {0, 2 / std::numbers::sqrt3_v<float>, 0.0f, 255, 0, 0, 255};
+  geometry::PointWithColor point_1 = {-1, -1 / std::numbers::sqrt3_v<float>, 0.0f, 0, 255, 0, 255};
+  geometry::PointWithColor point_2 = {1, -1 / std::numbers::sqrt3_v<float>, 0.0f, 0, 0, 255, 255};
 
   triangle_ = std::make_shared<geometry::Triangle>(context, point_0, point_1, point_2);
 
@@ -36,8 +38,8 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::Triangle::CreatePipeline(
                                         {
                                             .draw_mode = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
                                             .cull_mode = VK_CULL_MODE_NONE,
-                                            .front_face = VK_FRONT_FACE_CLOCKWISE,
-                                            .enable_depth_test = VK_FALSE,
+                                            .front_face = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+                                            .enable_depth_test = VK_TRUE,
                                             .depth_function = VK_COMPARE_OP_LESS,
                                             .sample_count = sample_count,
                                         },

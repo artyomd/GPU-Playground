@@ -21,13 +21,13 @@ renderable::ImguiWrapper::ImguiWrapper(const std::shared_ptr<vulkan::RenderingCo
       .Device = rendering_context_->GetDevice(),
       .QueueFamily = 0,
       .Queue = rendering_context_->GetGraphicsQueue(),
-      .PipelineCache = VK_NULL_HANDLE,
       .DescriptorPool = rendering_context_->GetDescriptorPool(),
       .RenderPass = render_pass_->GetRenderPass(),
-      .Subpass = 0,
       .MinImageCount = image_count_,
       .ImageCount = image_count_,
       .MSAASamples = sample_count,
+      .PipelineCache = VK_NULL_HANDLE,
+      .Subpass = 0,
       .Allocator = nullptr,
       .CheckVkResultFn = [](const VkResult result) { VK_CALL(result); },
   };
@@ -38,4 +38,3 @@ renderable::ImguiWrapper::ImguiWrapper(const std::shared_ptr<vulkan::RenderingCo
 uint32_t renderable::ImguiWrapper::GetImageCount() const { return image_count_; }
 
 renderable::ImguiWrapper::~ImguiWrapper() { ImGui_ImplVulkan_Shutdown(); }
-

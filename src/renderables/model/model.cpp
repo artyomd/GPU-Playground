@@ -11,13 +11,10 @@
 #include "vulkan/rendering_pipeline.hpp"
 #include "vulkan/utils.hpp"
 
-renderable::Model::Model(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent,
-                         const bool add_depth_attachment, const bool use_perspective_projection)
+renderable::Model::Model(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent)
     : rendering_context_(context),
       parent_(parent),
-      command_pool_(rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)),
-      add_depth_attachment_(add_depth_attachment),
-      use_perspective_projection_(use_perspective_projection) {}
+      command_pool_(rendering_context_->CreateCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)) {}
 void renderable::Model::SetLookAt(const glm::vec3 &eye, const glm::vec3 &center) {
   eye_ = eye;
   center_ = center;
@@ -38,12 +35,7 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
     const auto height = static_cast<float>(images[0]->GetHeight());
     projection_width_ = 4.0f;
     projection_height_ = height * projection_width_ / width;
-    if (!use_perspective_projection_) {
-      uniform_buffer_object_mvp_.proj =
-          glm::ortho(-projection_width_, projection_width_, -projection_height_, projection_height_);
-    } else {
-      uniform_buffer_object_mvp_.proj = glm::perspective(glm::radians(45.0f), (width / height), 0.1f, 10.0f);
-    }
+    uniform_buffer_object_mvp_.proj = glm::perspective(glm::radians(90.0f), (width / height), 0.1f, 10.0f);
     uniform_buffer_object_mvp_.view = ComputeViewMatrix();
   }
 
@@ -57,10 +49,7 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
   }
   auto sample_count =
       std::min(vulkan::GetMaxUsableSampleCount(rendering_context_->GetPhysicalDevice()), VK_SAMPLE_COUNT_8_BIT);
-  auto depth_format = VK_FORMAT_UNDEFINED;
-  if (add_depth_attachment_) {
-    depth_format = vulkan::GetDepthFormat(rendering_context_->GetPhysicalDevice());
-  }
+  auto depth_format = vulkan::GetDepthFormat(rendering_context_->GetPhysicalDevice());
 
   if (render_pass_ == nullptr || render_pass_->GetColorAttachmentFormat() != image_format) {
     render_pass_ = std::make_shared<vulkan::RenderPass>(rendering_context_, image_format, depth_format, sample_count);
@@ -87,13 +76,10 @@ void renderable::Model::SetupImages(const std::vector<std::shared_ptr<vulkan::Im
       auto color_image_view = vulkan::ImageView::Create(rendering_context_, color_buffer);
       attachments.emplace_back(color_image_view);
     }
-    if (depth_format != VK_FORMAT_UNDEFINED) {
-      auto depth_buffer =
-          vulkan::Image::Create(rendering_context_, kImage->GetWidth(), kImage->GetHeight(), depth_format,
-                                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, false, sample_count);
-      auto depth_buffer_view = vulkan::ImageView::Create(rendering_context_, depth_buffer);
-      attachments.emplace_back(depth_buffer_view);
-    }
+    auto depth_buffer = vulkan::Image::Create(rendering_context_, kImage->GetWidth(), kImage->GetHeight(), depth_format,
+                                              VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, false, sample_count);
+    auto depth_buffer_view = vulkan::ImageView::Create(rendering_context_, depth_buffer);
+    attachments.emplace_back(depth_buffer_view);
     if (sample_count != VK_SAMPLE_COUNT_1_BIT) {
       attachments.emplace_back(image_view);
     }
@@ -126,7 +112,7 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
     model = rotate(model, glm::radians(rotate_.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = rotate(model, glm::radians(rotate_.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = rotate(model, glm::radians(rotate_.z), glm::vec3(0.0f, 0.0f, 1.0f));
-    model = scale(model, scale_);
+    model = scale(model, glm::vec3(scale_factor_));
     uniform_buffer_object_mvp_.model = model;
   }
   {
@@ -137,20 +123,12 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
 
   // begin recording commands
   auto *cmd_buffer = command_buffer;
-  VkClearValue clear_color_value{
-      .color =
-          {
-              .float32 = {0.0f, 0.0f, 0.0f, 1.0f},
-          },
-  };
-  std::vector<VkClearValue> clear_values;
-  clear_values.emplace_back(clear_color_value);
-  if (add_depth_attachment_) {
-    VkClearValue depth_clear_value{
-        .depthStencil = {1.0f, 0},
-    };
-    clear_values.emplace_back(depth_clear_value);
-  }
+  constexpr std::array<VkClearValue, 2> clear_values{{{
+                                                          .color = {.float32 = {0.0f, 0.0f, 0.0f, 1.0f}},
+                                                      },
+                                                      {
+                                                          .depthStencil = {1.0f, 0},
+                                                      }}};
   constexpr VkCommandBufferBeginInfo begin_info{
       .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
       .pNext = nullptr,
@@ -206,7 +184,8 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
   ImGui::Begin("Model");
   ImGui::SliderFloat("translationX", &translation_.x, -projection_width_, projection_width_);
   ImGui::SliderFloat("translationY", &translation_.y, -projection_height_, projection_height_);
-  ImGui::SliderFloat2("scale", &scale_.x, 0, 20);
+  ImGui::SliderFloat("translationZ", &translation_.z, -10, 10);
+  ImGui::SliderFloat("scale", &scale_factor_, 0.1, 10.0);
   ImGui::SliderFloat3("rotate", &rotate_.x, 0, 360);
   if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     if (ImGui::Button("<----")) {
@@ -228,12 +207,7 @@ renderable::Model::~Model() {
   CleanupCommandBuffers();
   rendering_context_->DestroyCommandPool(command_pool_);
 }
-glm::mat4 renderable::Model::ComputeViewMatrix() {
-  if (!use_perspective_projection_) {
-    return glm::mat4(1.0f);
-  }
-  return lookAt(eye_, center_, glm::vec3(0.0, 1.0, 0.0));
-}
+glm::mat4 renderable::Model::ComputeViewMatrix() { return lookAt(eye_, center_, glm::vec3(0.0, 1.0, 0.0)); }
 
 void renderable::Model::WaitForCommandBuffersToFinish() const {
   for (const auto &command_buffer : command_buffers_ | std::views::values) {

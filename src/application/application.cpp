@@ -166,11 +166,26 @@ void application::Application::CreateInstance() {
 
   bool debug_utils_enabled = false;
 
-  const auto available_layers = vulkan::GetAvailableInstanceLayers();
-  for (const auto &layer : available_layers) {
+  std::array enabledValidationFeatures{
+      VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
+      VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT,
+  };
+  VkValidationFeaturesEXT validation_features_ext{
+      .sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
+      .pNext = nullptr,
+      .enabledValidationFeatureCount = enabledValidationFeatures.size(),
+      .pEnabledValidationFeatures = enabledValidationFeatures.data(),
+      .disabledValidationFeatureCount = 0,
+      .pDisabledValidationFeatures = nullptr,
+  };
+
+  void *instancePNext = nullptr;
+
+  for (const auto available_layers = vulkan::GetAvailableInstanceLayers(); const auto &layer : available_layers) {
 #if !defined(NDEBUG)
     if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_validation");
+      instancePNext = &validation_features_ext;
       for (auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
            const auto &[extensionName, specVersion] : available_extensions) {
         if (strcmp(extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
@@ -197,7 +212,7 @@ void application::Application::CreateInstance() {
 
   const VkInstanceCreateInfo instance_create_info{
       .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-      .pNext = nullptr,
+      .pNext = instancePNext,
       .flags = (std::ranges::find(instance_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) !=
                 instance_extensions.end())
                    ? VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
@@ -220,7 +235,8 @@ void application::Application::CreateInstance() {
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
+                       VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT,
         .pfnUserCallback = [](const VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
                               const VkDebugUtilsMessageTypeFlagsEXT flags,
                               const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
@@ -434,11 +450,11 @@ void application::Application::CreateSwapChain() {
   }
   if (fences_.size() != swap_chain_images_.size()) {
     while (fences_.size() > swap_chain_images_.size()) {
-      rendering_context_->DestroyFence(fences_.back());
-      fences_.pop_back();
+      rendering_context_->DestroyFence(fences_.front());
+      fences_.pop();
     }
     while (fences_.size() < swap_chain_images_.size()) {
-      fences_.emplace_back(rendering_context_->CreateFence(true));
+      fences_.push(rendering_context_->CreateFence(true));
     }
   }
 }
@@ -447,11 +463,11 @@ void application::Application::CleanupSwapChain() {
   for (auto *semaphore : semaphores_) {
     rendering_context_->DestroySemaphore(semaphore);
   }
-  for (auto *fence : fences_) {
-    rendering_context_->DestroyFence(fence);
-  }
   semaphores_.clear();
-  fences_.clear();
+  while (!fences_.empty()) {
+    rendering_context_->DestroyFence(fences_.front());
+    fences_.pop();
+  }
   swap_chain_images_.clear();
   vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   swap_chain_ = VK_NULL_HANDLE;
@@ -466,12 +482,18 @@ void application::Application::Run() {
 
     uint32_t image_index = 0;
     auto *semaphore = semaphore_pool_->GetSemaphore();
-    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphore, VK_NULL_HANDLE, &image_index);
+    auto *fence = fences_.front();
+    fences_.pop();
+    rendering_context_->WaitForFence(fence);
+    rendering_context_->ResetFence(fence);
+    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphore, fence, &image_index);
     if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR) {
       continue;
     }
     VK_CALL(result);
     semaphore_pool_->RegisterSemaphore(image_index, semaphore);
+    fences_.push(fence);
+
     renderable_->Render(swap_chain_images_[image_index], semaphore, semaphores_[image_index]);
 
     VkPresentInfoKHR present_info = {

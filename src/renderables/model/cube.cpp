@@ -11,7 +11,7 @@ std::shared_ptr<renderable::Cube> renderable::Cube::Create(const std::shared_ptr
 }
 
 renderable::Cube::Cube(const std::shared_ptr<vulkan::RenderingContext> &context, const std::shared_ptr<Menu> &parent)
-    : Model(context, parent, true, true), index_type_(VK_INDEX_TYPE_UINT16) {
+    : Model(context, parent), index_type_(VK_INDEX_TYPE_UINT16) {
   std::vector positions = {
       geometry::PointWithColor(-0.5, -0.5, 0.5, 255, 0, 0, 255),
       geometry::PointWithColor(0.5, -0.5, 0.5, 0, 255, 0, 255),

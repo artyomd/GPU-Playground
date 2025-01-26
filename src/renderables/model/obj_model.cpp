@@ -37,7 +37,7 @@ std::shared_ptr<renderable::ObjModel> renderable::ObjModel::Create(
 
 renderable::ObjModel::ObjModel(const std::shared_ptr<vulkan::RenderingContext> &context,
                                const std::shared_ptr<Menu> &parent)
-    : Model(context, parent, true, true), index_type_(VK_INDEX_TYPE_UINT32) {
+    : Model(context, parent), index_type_(VK_INDEX_TYPE_UINT32) {
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;
   std::vector<tinyobj::material_t> materials;

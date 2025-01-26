@@ -295,8 +295,8 @@ void vulkan::RenderingPipeline::SetUniformBuffer(uint32_t binding_point, const u
   auto check_shader = [&binding_point, &uniform_buffer](const std::shared_ptr<Shader> &shader) -> bool {
     for (const auto binding : shader->GetBindings()) {
       if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
-        auto expected_size = shader->DescriptorSizeInBytes(binding_point);
-        if (expected_size != uniform_buffer->GetSizeInBytes()) {
+        if (auto expected_size = shader->DescriptorSizeInBytes(binding_point);
+            expected_size != uniform_buffer->GetSizeInBytes()) {
           spdlog::warn("uniform buffer size mismatch expected:{} found{}", expected_size,
                        uniform_buffer->GetSizeInBytes());
         }
