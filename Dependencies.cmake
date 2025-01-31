@@ -66,6 +66,7 @@ FetchContent_Declare(volk
         GIT_PROGRESS TRUE
 )
 set(VOLK_PULL_IN_VULKAN OFF)
+set(VOLK_HEADERS_ONLY ON)
 FetchContent_MakeAvailable(volk)
 
 FetchContent_Declare(Vulkan-Headers
