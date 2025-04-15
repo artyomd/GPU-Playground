@@ -53,10 +53,14 @@ add_executable(playground
         renderables/model/texture_2d.hpp
         renderables/model/triangle.cpp
         renderables/model/triangle.hpp
+        renderables/particles/particles.cpp
+        renderables/particles/particles.cpp
         renderables/shader.cpp
         renderables/shader.hpp
         vulkan/buffer.cpp
         vulkan/buffer.hpp
+        vulkan/compute_pipeline.cpp
+        vulkan/compute_pipeline.hpp
         vulkan/framebuffer.cpp
         vulkan/framebuffer.hpp
         vulkan/image.cpp
@@ -80,6 +84,7 @@ add_executable(playground
         vulkan/vertex_buffer_layout.cpp
         vulkan/vertex_buffer_layout.hpp
 )
+
 set_source_files_properties(
         impl/stb_impl.cpp
         impl/tiny_gltf.cpp

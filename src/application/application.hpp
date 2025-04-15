@@ -26,8 +26,8 @@ class Application final {
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   VkDevice device_ = VK_NULL_HANDLE;
 
-  VkQueue graphics_queue_ = VK_NULL_HANDLE;
-  uint32_t graphics_family_index_ = 0;
+  VkQueue graphics_and_compute_queue_ = VK_NULL_HANDLE;
+  uint32_t graphics_and_compute_queue_family_index_ = 0;
 
   VkQueue present_queue_ = VK_NULL_HANDLE;
   uint32_t present_family_index_ = 0;
@@ -35,7 +35,6 @@ class Application final {
   VkSwapchainKHR swap_chain_ = VK_NULL_HANDLE;
 
   std::vector<std::shared_ptr<vulkan::Image>> swap_chain_images_;
-  std::queue<VkFence> fences_;
   std::vector<VkSemaphore> semaphores_;
 
   std::shared_ptr<vulkan::RenderingContext> rendering_context_ = nullptr;

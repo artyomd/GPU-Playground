@@ -26,7 +26,14 @@ class RenderingPipeline final {
                                                    const std::shared_ptr<Shader> &vertex_shader,
                                                    const std::shared_ptr<Shader> &fragment_shader,
                                                    const VertexBufferLayout &vbl, const RenderingPipelineConfig &config,
-                                                   size_t descriptor_set_count);
+                                                   const size_t &descriptor_set_count);
+  static std::shared_ptr<RenderingPipeline> Create(const std::shared_ptr<RenderingContext> &context,
+                                                   const std::shared_ptr<RenderPass> &render_pass,
+                                                   const std::shared_ptr<Shader> &vertex_shader,
+                                                   const std::shared_ptr<Shader> &fragment_shader,
+                                                   const std::map<uint32_t, VertexBufferLayout> &vbl_map,
+                                                   const RenderingPipelineConfig &config,
+                                                   const size_t &descriptor_set_count);
 
   RenderingPipeline() = delete;
   RenderingPipeline(const RenderingPipeline &) = delete;
@@ -35,7 +42,7 @@ class RenderingPipeline final {
   RenderingPipeline &operator=(const RenderingPipeline &) = delete;
   RenderingPipeline &operator=(RenderingPipeline &&) = delete;
 
-  void SetVertexBuffer(const std::shared_ptr<Buffer> &vertex_buffer);
+  void SetVertexBuffer(const uint32_t &index, const std::shared_ptr<Buffer> &vertex_buffer);
   void SetIndexBuffer(const std::shared_ptr<Buffer> &buffer, VkIndexType element_type);
   void SetImageView(uint32_t binding_point, uint32_t descriptor_set_index, const std::shared_ptr<ImageView> &image_view,
                     const std::shared_ptr<Sampler> &sampler);
@@ -44,14 +51,18 @@ class RenderingPipeline final {
 
   [[nodiscard]] size_t GetDescriptorSetCount() const;
 
-  void Draw(const VkCommandBuffer &command_buffer, size_t index_count, size_t offset, size_t descriptor_index) const;
+  void DrawIndexed(const VkCommandBuffer &command_buffer, const uint32_t &index_count,
+                   const size_t &descriptor_index) const;
+
+  void Draw(const VkCommandBuffer &command_buffer, const uint32_t &vertex_count, const size_t &descriptor_index) const;
 
   ~RenderingPipeline();
 
  private:
   RenderingPipeline(const std::shared_ptr<RenderingContext> &context, const std::shared_ptr<RenderPass> &render_pass,
                     const std::shared_ptr<Shader> &vertex_shader, const std::shared_ptr<Shader> &fragment_shader,
-                    const VertexBufferLayout &vbl, const RenderingPipelineConfig &config, size_t descriptor_set_count);
+                    const std::map<uint32_t, VertexBufferLayout> &vbl_map, const RenderingPipelineConfig &config,
+                    size_t descriptor_set_count);
 
   std::shared_ptr<RenderingContext> context_;
   std::shared_ptr<RenderPass> render_pass_;
@@ -59,7 +70,7 @@ class RenderingPipeline final {
   VkPipeline pipeline_ = VK_NULL_HANDLE;
   VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
 
-  std::shared_ptr<Buffer> vertex_buffer_ = nullptr;
+  std::map<uint32_t, std::shared_ptr<Buffer>> vertex_buffers_;
 
   std::shared_ptr<Buffer> index_buffer_ = nullptr;
   VkIndexType index_type_ = VK_INDEX_TYPE_UINT16;

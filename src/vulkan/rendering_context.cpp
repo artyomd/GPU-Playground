@@ -1,18 +1,17 @@
 #include "rendering_context.hpp"
 
-#include <stdexcept>
 #include <tracy/Tracy.hpp>
 #include <vector>
 
 #include "utils.hpp"
 
 vulkan::RenderingContext::RenderingContext(const VkInstance &instance, const VkPhysicalDevice &physical_device,
-                                           const VkDevice &device, const VkQueue &graphics_queue,
-                                           uint32_t queue_family_index, bool use_sync_2_ext)
+                                           const VkDevice &device, const VkQueue &queue, uint32_t queue_family_index,
+                                           bool use_sync_2_ext)
     : instance_(instance),
       physical_device_(physical_device),
       device_(device),
-      graphics_queue_(graphics_queue),
+      queue(queue),
       queue_family_index_(queue_family_index),
       use_synch2_ext_(use_sync_2_ext) {
   VkPhysicalDeviceProperties2 properties_2{
@@ -26,6 +25,7 @@ vulkan::RenderingContext::RenderingContext(const VkInstance &instance, const VkP
   const std::vector<VkDescriptorPoolSize> pool_sizes = {
       {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = 50},
       {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = 50},
+      {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 50},
       {.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, .descriptorCount = 50}};
 
   const VkDescriptorPoolCreateInfo descriptor_pool_create_info = {
@@ -95,7 +95,7 @@ vulkan::RenderingContext::RenderingContext(const VkInstance &instance, const VkP
 
 VkDevice vulkan::RenderingContext::GetDevice() const { return device_; }
 
-void vulkan::RenderingContext::WaitForGraphicsQueueIdle() const { VK_CALL(vkQueueWaitIdle(graphics_queue_)); }
+void vulkan::RenderingContext::WaitForQueueIdle() const { VK_CALL(vkQueueWaitIdle(queue)); }
 
 VkCommandPool vulkan::RenderingContext::CreateCommandPool(const VkCommandPoolCreateFlags pool_flags) const {
   VkCommandPool command_pool = VK_NULL_HANDLE;
@@ -150,9 +150,9 @@ void vulkan::RenderingContext::SubmitCommandBuffer(const VkCommandBuffer &comman
                                      .signalSemaphoreInfoCount = signal_semaphore == VK_NULL_HANDLE ? 0u : 1u,
                                      .pSignalSemaphoreInfos = &signal_semaphore_submit_info};
   if (use_synch2_ext_) {
-    VK_CALL(vkQueueSubmit2KHR(graphics_queue_, 1, &submit_info, fence));
+    VK_CALL(vkQueueSubmit2KHR(queue, 1, &submit_info, fence));
   } else {
-    VK_CALL(vkQueueSubmit2(graphics_queue_, 1, &submit_info, fence));
+    VK_CALL(vkQueueSubmit2(queue, 1, &submit_info, fence));
   }
 }
 
@@ -210,7 +210,7 @@ VkInstance vulkan::RenderingContext::GetInstance() const { return instance_; }
 
 VkPhysicalDevice vulkan::RenderingContext::GetPhysicalDevice() const { return physical_device_; }
 
-VkQueue vulkan::RenderingContext::GetGraphicsQueue() const { return graphics_queue_; }
+VkQueue vulkan::RenderingContext::GetQueue() const { return queue; }
 
 bool vulkan::RenderingContext::IsUseSynch2Ext() const { return use_synch2_ext_; }
 

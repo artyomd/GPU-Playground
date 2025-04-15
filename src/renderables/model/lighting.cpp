@@ -173,7 +173,7 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::Lighting::CreatePipeline(
                                                         .sample_count = sample_count,
                                                     },
                                                     descriptor_set_count);
-  pipeline->SetVertexBuffer(vertex_buffer_);
+  pipeline->SetVertexBuffer(0, vertex_buffer_);
   pipeline->SetIndexBuffer(index_buffer_, index_type_);
   for (size_t descriptor_index = 0; descriptor_index < descriptor_set_count; descriptor_index++) {
     pipeline->SetUniformBuffer(1, descriptor_index, lighting_buffer_);

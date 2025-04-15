@@ -196,7 +196,7 @@ void geometry::GltfModel::LoadScene(const size_t scene_index) {
     throw std::runtime_error("scene with given index does not exists");
   }
 
-  context_->WaitForGraphicsQueueIdle();
+  context_->WaitForQueueIdle();
   current_pipelines_.clear();
   auto default_scene = model_.scenes[scene_index];
   for (const auto &kNode : default_scene.nodes) {
@@ -606,7 +606,7 @@ void geometry::RenderingUnit::RenderPassChanged(const std::shared_ptr<vulkan::Re
                                                 },
                                                 descriptor_set_count);
 
-  pipeline_->SetVertexBuffer(vertex_buffer_);
+  pipeline_->SetVertexBuffer(0, vertex_buffer_);
   pipeline_->SetIndexBuffer(index_buffer_, index_type_);
 
   for (size_t descriptor_index = 0; descriptor_index < descriptor_set_count; descriptor_index++) {
@@ -639,7 +639,7 @@ geometry::RenderingUnit::RenderingUnit(
 }
 
 void geometry::RenderingUnit::Draw(const VkCommandBuffer &command_buffer, const uint16_t descriptor_set_index) const {
-  pipeline_->Draw(command_buffer, index_count_, 0, descriptor_set_index);
+  pipeline_->DrawIndexed(command_buffer, index_count_, descriptor_set_index);
 }
 
 void geometry::RenderingUnit::UpdateMvp() const {

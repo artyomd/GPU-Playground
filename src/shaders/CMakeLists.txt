@@ -9,6 +9,9 @@ set(GLSL_FILES
         hsb_fragment.glsl
         lighting_fragment.glsl
         lighting_vertex.glsl
+        particles.comp.glsl
+        point.frag.glsl
+        point.vert.glsl
         shaping_function_fragment_shader.glsl
         squares_fragment_shader.glsl
         texture2d_fragment.glsl

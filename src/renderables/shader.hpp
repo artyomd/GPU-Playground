@@ -65,4 +65,3 @@ class Shader final : public application::Renderable {
   ~Shader() override;
 };
 }  // namespace renderable
-

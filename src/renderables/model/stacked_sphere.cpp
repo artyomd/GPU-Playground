@@ -38,7 +38,7 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::StackedSphere::CreatePipe
                                             .sample_count = sample_count,
                                         },
                                         descriptor_set_count);
-  pipeline->SetVertexBuffer(sphere_->GetVertexBuffer());
+  pipeline->SetVertexBuffer(0, sphere_->GetVertexBuffer());
   pipeline->SetIndexBuffer(sphere_->GetIndexBuffer(), sphere_->GetIndexBufferDataType());
   return pipeline;
 }

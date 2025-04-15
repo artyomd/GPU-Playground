@@ -15,7 +15,7 @@ enum class DataType : std::uint8_t {
 size_t GetDataTypeSizeInBytes(const DataType& type);
 
 struct VertexAttribute {
-  unsigned int binding_index;
+  std::uint32_t binding_index;
   DataType type;
   size_t count;
 };

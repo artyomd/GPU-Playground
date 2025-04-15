@@ -1,8 +1,6 @@
 #include "shader.hpp"
 
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
 
 #include <ranges>
 
@@ -27,11 +25,11 @@ renderable::Shader::Shader(const std::shared_ptr<vulkan::RenderingContext> &cont
 
   quad_ = std::make_shared<geometry::Quad>(rendering_context_, point_0, point_1, point_2, point_3);
 
-  const std::vector<uint32_t> kVertexShader = {
+  const std::vector<uint32_t> vertex_shader = {
 #include "default_empty_vertex_shader.spv"
 
   };
-  v_shader_ = vulkan::Shader::Create(context, kVertexShader, "main");
+  v_shader_ = vulkan::Shader::Create(context, vertex_shader, "main");
 
   f_shader_ = vulkan::Shader::Create(context, fragment_shader, "main");
 }
@@ -82,21 +80,21 @@ void renderable::Shader::SetupImages(const std::vector<std::shared_ptr<vulkan::I
                                               .sample_count = VK_SAMPLE_COUNT_1_BIT,
                                           },
                                           images.size());
-    pipeline_->SetVertexBuffer(quad_->GetVertexBuffer());
+    pipeline_->SetVertexBuffer(0, quad_->GetVertexBuffer());
     pipeline_->SetIndexBuffer(quad_->GetIndexBuffer(), quad_->GetIndexBufferDataType());
   }
 
-  for (const auto &kImage : images) {
+  for (const auto &image : images) {
     std::vector<std::shared_ptr<vulkan::ImageView>> attachments;
-    auto image_view = vulkan::ImageView::Create(rendering_context_, kImage);
+    auto image_view = vulkan::ImageView::Create(rendering_context_, image);
     attachments.emplace_back(image_view);
     const auto framebuffer = vulkan::Framebuffer::Create(rendering_context_, render_pass_, attachments);
-    framebuffers_[kImage] = framebuffer;
+    framebuffers_[image] = framebuffer;
   }
   CleanupCommandBuffers();  // recreating is easier than remapping
   uint32_t descriptor_index = 0;
-  for (const auto &kImage : images) {
-    command_buffers_[kImage] = {
+  for (const auto &image : images) {
+    command_buffers_[image] = {
         .fence = rendering_context_->CreateFence(true),
         .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_),
         .uniform_buffer = vulkan::Buffer::Create(rendering_context_, sizeof(UniformBufferObjectShader),
@@ -177,22 +175,19 @@ void renderable::Shader::Render(const std::shared_ptr<vulkan::Image> &image, con
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
-  pipeline_->Draw(cmd_buffer, quad_->GetIndexCount(), 0, descriptor_index);
-  ImGui_ImplVulkan_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  pipeline_->DrawIndexed(cmd_buffer, quad_->GetIndexCount(), descriptor_index);
+  ImguiWrapper::BeginFrame();
+  ImguiWrapper::ShowFPSOverlay();
+
   ImGui::Begin("Shader");
   if (const auto locked_parent = parent_.lock(); locked_parent != nullptr) {
     if (ImGui::Button("<----")) {
       locked_parent->Pop();
     }
   }
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-              ImGui::GetIO().Framerate);
   ImGui::End();
-  ImGui::EndFrame();
-  ImGui::Render();
-  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
+
+  ImguiWrapper::EndFrameAndDraw(cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;

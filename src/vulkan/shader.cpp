@@ -1,9 +1,9 @@
 #include "shader.hpp"
 
+#include <glm/ext/scalar_uint_sized.hpp>
 #include <map>
 #include <utility>
 
-#include "glm/ext/scalar_uint_sized.hpp"
 #include "utils.hpp"
 
 std::shared_ptr<vulkan::Shader> vulkan::Shader::Create(const std::shared_ptr<RenderingContext> &context,
@@ -34,6 +34,9 @@ vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context, const s
     case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:
       this->type_ = VK_SHADER_STAGE_FRAGMENT_BIT;
       break;
+    case SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT:
+      this->type_ = VK_SHADER_STAGE_COMPUTE_BIT;
+      break;
     default:
       throw std::runtime_error("unhandled shader stage");
   }
@@ -57,13 +60,13 @@ vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context, const s
     const auto *set = sets[0];
     bindings_.resize(set->binding_count);
     for (uint32_t i_binding = 0; i_binding < set->binding_count; ++i_binding) {
-      const SpvReflectDescriptorBinding &kReflectDescriptorBinding = *(set->bindings[i_binding]);
+      const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(set->bindings[i_binding]);
       VkDescriptorSetLayoutBinding &layout_binding = bindings_[i_binding];
-      layout_binding.binding = kReflectDescriptorBinding.binding;
-      layout_binding.descriptorType = static_cast<VkDescriptorType>(kReflectDescriptorBinding.descriptor_type);
+      layout_binding.binding = reflect_descriptor_binding.binding;
+      layout_binding.descriptorType = static_cast<VkDescriptorType>(reflect_descriptor_binding.descriptor_type);
       layout_binding.descriptorCount = 1;
-      for (uint32_t i_dim = 0; i_dim < kReflectDescriptorBinding.array.dims_count; ++i_dim) {
-        layout_binding.descriptorCount *= kReflectDescriptorBinding.array.dims[i_dim];
+      for (uint32_t i_dim = 0; i_dim < reflect_descriptor_binding.array.dims_count; ++i_dim) {
+        layout_binding.descriptorCount *= reflect_descriptor_binding.array.dims[i_dim];
       }
       layout_binding.stageFlags = static_cast<VkShaderStageFlagBits>(reflect_shader_module_.shader_stage);
     }
@@ -75,9 +78,9 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
     spec_map_entries_.clear();
     uint32_t data_offset = 0;
     spec_data_.clear();
-    for (const auto &kEntry : specs_) {
+    for (const auto &[id, value] : specs_) {
       VkSpecializationMapEntry specialization_map_entry{
-          .constantID = kEntry.first,
+          .constantID = id,
           .offset = data_offset,
       };
       std::visit(
@@ -87,7 +90,7 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
             data_offset += sizeof(value);
             specialization_map_entry.size = sizeof(value);
           },
-          kEntry.second);
+          value);
       spec_map_entries_.emplace_back(specialization_map_entry);
     }
     shader_spec_info_ = {
@@ -112,16 +115,16 @@ std::vector<VkDescriptorSetLayoutBinding> vulkan::Shader::GetBindings() const { 
 uint32_t vulkan::Shader::DescriptorSizeInBytes(const uint32_t binding_point) const {
   uint32_t count = 1;
   std::vector<SpvReflectDescriptorSet *> sets(count);
-  const auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
-  if (result != SPV_REFLECT_RESULT_SUCCESS) {
+  if (const auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
+      result != SPV_REFLECT_RESULT_SUCCESS) {
     throw std::runtime_error("spir-v reflection failed");
   }
   for (uint32_t i_binding = 0; i_binding < sets[0]->binding_count; ++i_binding) {
-    const SpvReflectDescriptorBinding &kReflectDescriptorBinding = *(sets[0]->bindings[i_binding]);
-    if (kReflectDescriptorBinding.binding != binding_point) {
+    const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(sets[0]->bindings[i_binding]);
+    if (reflect_descriptor_binding.binding != binding_point) {
       continue;
     }
-    return kReflectDescriptorBinding.block.size;
+    return reflect_descriptor_binding.block.size;
   }
   throw std::runtime_error("invalid binding point");
 }

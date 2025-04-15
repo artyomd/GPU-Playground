@@ -1,9 +1,8 @@
 #include "default_menu.hpp"
 
+#include <imgui.h>
 #include <ranges>
 
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_vulkan.h"
 #include "vulkan/utils.hpp"
 
 std::shared_ptr<renderable::DefaultMenu> renderable::DefaultMenu::Create(
@@ -101,9 +100,8 @@ void renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image
   };
   vkCmdBeginRenderPass(cmd_buffer, &render_pass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
 
-  ImGui_ImplVulkan_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  ImguiWrapper::BeginFrame();
+  ImguiWrapper::ShowFPSOverlay();
   ImGui::Begin("Menu");
   {
     const auto locked_parent = parent_.lock();
@@ -116,13 +114,8 @@ void renderable::DefaultMenu::Render(const std::shared_ptr<vulkan::Image> &image
       locked_parent->PopSelf();
     }
   }
-
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-              ImGui::GetIO().Framerate);
   ImGui::End();
-  ImGui::EndFrame();
-  ImGui::Render();
-  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
+  ImguiWrapper::EndFrameAndDraw(cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;

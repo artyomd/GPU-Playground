@@ -85,17 +85,24 @@ VkFormat GetVkFormat(const DataType type, const uint32_t count) {
 std::shared_ptr<vulkan::RenderingPipeline> vulkan::RenderingPipeline::Create(
     const std::shared_ptr<RenderingContext> &context, const std::shared_ptr<RenderPass> &render_pass,
     const std::shared_ptr<Shader> &vertex_shader, const std::shared_ptr<Shader> &fragment_shader,
-    const VertexBufferLayout &vbl, const RenderingPipelineConfig &config, const size_t descriptor_set_count) {
-  return std::shared_ptr<RenderingPipeline>(
-      new RenderingPipeline(context, render_pass, vertex_shader, fragment_shader, vbl, config, descriptor_set_count));
+    const VertexBufferLayout &vbl, const RenderingPipelineConfig &config, const size_t &descriptor_set_count) {
+  return Create(context, render_pass, vertex_shader, fragment_shader, {{0, vbl}}, config, descriptor_set_count);
+}
+std::shared_ptr<vulkan::RenderingPipeline> vulkan::RenderingPipeline::Create(
+    const std::shared_ptr<RenderingContext> &context, const std::shared_ptr<RenderPass> &render_pass,
+    const std::shared_ptr<Shader> &vertex_shader, const std::shared_ptr<Shader> &fragment_shader,
+    const std::map<uint32_t, VertexBufferLayout> &vbl_map, const RenderingPipelineConfig &config,
+    const size_t &descriptor_set_count) {
+  return std::shared_ptr<RenderingPipeline>(new RenderingPipeline(context, render_pass, vertex_shader, fragment_shader,
+                                                                  vbl_map, config, descriptor_set_count));
 }
 
 vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingContext> &context,
                                              const std::shared_ptr<RenderPass> &render_pass,
                                              const std::shared_ptr<Shader> &vertex_shader,
                                              const std::shared_ptr<Shader> &fragment_shader,
-                                             const VertexBufferLayout &vbl, const RenderingPipelineConfig &config,
-                                             size_t descriptor_set_count)
+                                             const std::map<uint32_t, VertexBufferLayout> &vbl_map,
+                                             const RenderingPipelineConfig &config, size_t descriptor_set_count)
     : context_(context), render_pass_(render_pass), vertex_shader_(vertex_shader), fragment_shader_(fragment_shader) {
   std::array shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
   auto vertex_bindings = vertex_shader_->GetBindings();
@@ -144,10 +151,21 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
       .alphaToCoverageEnable = VK_FALSE,
   };
 
-  const VkPipelineColorBlendAttachmentState color_blend_attachment = {
-      .blendEnable = VK_FALSE,
+  // constexpr VkPipelineColorBlendAttachmentState color_blend_attachment = {
+  //     .blendEnable = VK_FALSE,
+  //     .colorWriteMask =
+  //         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+  // };
+  constexpr VkPipelineColorBlendAttachmentState color_blend_attachment = {
+      .blendEnable = VK_TRUE,
       .colorWriteMask =
           VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+      .colorBlendOp = VK_BLEND_OP_ADD,
+      .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+      .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+      .alphaBlendOp = VK_BLEND_OP_ADD,
+      .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+      .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
   };
 
   const VkPipelineColorBlendStateCreateInfo color_blending = {
@@ -184,31 +202,33 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
       .pDynamicStates = dynamic_states.data(),
   };
 
-  const auto &kElements = vbl.GetElements();
-  const auto stride = static_cast<uint32_t>(vbl.GetElementSize());
-  size_t offset = 0;
-  std::vector<VkVertexInputAttributeDescription> attribute_descriptions{};
-  for (auto element : kElements) {
-    VkVertexInputAttributeDescription description{
-        .location = element.binding_index,
-        .binding = 0,
-        .format = GetVkFormat(element.type, static_cast<uint32_t>(element.count)),
-        .offset = static_cast<uint32_t>(offset),
-    };
-    attribute_descriptions.push_back(description);
-    offset += element.count * GetDataTypeSizeInBytes(element.type);
+  std::vector<VkVertexInputBindingDescription> vertex_input_binding_descriptions;
+  std::vector<VkVertexInputAttributeDescription> attribute_descriptions;
+  for (const auto &[vertex_buffer_binding_point, vbl] : vbl_map) {
+    const auto &elements = vbl.GetElements();
+    const auto stride = static_cast<uint32_t>(vbl.GetElementSize());
+    size_t offset = 0;
+    for (auto [binding_index, type, count] : elements) {
+      VkVertexInputAttributeDescription description{
+          .location = binding_index,
+          .binding = vertex_buffer_binding_point,
+          .format = GetVkFormat(type, static_cast<uint32_t>(count)),
+          .offset = static_cast<uint32_t>(offset),
+      };
+      attribute_descriptions.push_back(description);
+      offset += count * GetDataTypeSizeInBytes(type);
+    }
+    vertex_input_binding_descriptions.push_back({
+        .binding = vertex_buffer_binding_point,
+        .stride = stride,
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+    });
   }
-
-  const VkVertexInputBindingDescription vertex_input_binding_description{
-      .binding = 0,
-      .stride = stride,
-      .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
-  };
 
   const VkPipelineVertexInputStateCreateInfo vertex_input_info = {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-      .vertexBindingDescriptionCount = 1,
-      .pVertexBindingDescriptions = &vertex_input_binding_description,
+      .vertexBindingDescriptionCount = static_cast<uint32_t>(vertex_input_binding_descriptions.size()),
+      .pVertexBindingDescriptions = vertex_input_binding_descriptions.data(),
       .vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size()),
       .pVertexAttributeDescriptions = attribute_descriptions.data(),
   };
@@ -246,8 +266,12 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
   }
 }
 
-void vulkan::RenderingPipeline::SetVertexBuffer(const std::shared_ptr<Buffer> &vertex_buffer) {
-  vertex_buffer_ = vertex_buffer;
+void vulkan::RenderingPipeline::SetVertexBuffer(const uint32_t &index, const std::shared_ptr<Buffer> &vertex_buffer) {
+  if (vertex_buffer == nullptr) {
+    vertex_buffers_.erase(index);
+    return;
+  }
+  vertex_buffers_[index] = vertex_buffer;
 }
 
 void vulkan::RenderingPipeline::SetIndexBuffer(const std::shared_ptr<Buffer> &buffer, VkIndexType element_type) {
@@ -333,24 +357,38 @@ void vulkan::RenderingPipeline::SetUniformBuffer(uint32_t binding_point, const u
   vkUpdateDescriptorSets(context_->GetDevice(), 1, &descriptor_write, 0, nullptr);
 }
 
-void vulkan::RenderingPipeline::Draw(const VkCommandBuffer &command_buffer, const size_t index_count,
-                                     const size_t offset, const size_t descriptor_index) const {
+void vulkan::RenderingPipeline::DrawIndexed(const VkCommandBuffer &command_buffer, const uint32_t &index_count,
+                                            const size_t &descriptor_index) const {
   vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
-  const std::vector<VkDeviceSize> offsets = {0};
-  auto *buffer = vertex_buffer_->GetBuffer();
-  vkCmdBindVertexBuffers(command_buffer, 0, 1, &buffer, offsets.data());
-  vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), offset, index_type_);
+  const std::vector<VkDeviceSize> vertex_buffer_offset = {0};
+  for (const auto &[index, buffer] : vertex_buffers_) {
+    auto *vertex_buffer = buffer->GetBuffer();
+    vkCmdBindVertexBuffers(command_buffer, index, 1, &vertex_buffer, vertex_buffer_offset.data());
+  }
+  vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), 0, index_type_);
   vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 0, 1,
                           &descriptor_sets_[descriptor_index].descriptor_set, 0, nullptr);
-  vkCmdDrawIndexed(command_buffer, static_cast<uint32_t>(index_count), 1, 0, 0, 0);
+  vkCmdDrawIndexed(command_buffer, index_count, 1, 0, 0, 0);
+}
+
+void vulkan::RenderingPipeline::Draw(const VkCommandBuffer &command_buffer, const uint32_t &vertex_count,
+                                     const size_t &descriptor_index) const {
+  vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_);
+  const std::vector<VkDeviceSize> vertex_buffer_offset = {0};
+  for (const auto &[index, buffer] : vertex_buffers_) {
+    auto *vertex_buffer = buffer->GetBuffer();
+    vkCmdBindVertexBuffers(command_buffer, index, 1, &vertex_buffer, vertex_buffer_offset.data());
+  }
+  vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 0, 1,
+                          &descriptor_sets_[descriptor_index].descriptor_set, 0, nullptr);
+  vkCmdDraw(command_buffer, vertex_count, 1, 0, 0);
 }
 
 size_t vulkan::RenderingPipeline::GetDescriptorSetCount() const { return descriptor_sets_.size(); }
 
 vulkan::RenderingPipeline::~RenderingPipeline() {
-  context_->WaitForGraphicsQueueIdle();
-  for (const auto &kDescriptorSet : descriptor_sets_) {
-    vkFreeDescriptorSets(context_->GetDevice(), context_->GetDescriptorPool(), 1, &kDescriptorSet.descriptor_set);
+  for (const auto &descriptor_set : descriptor_sets_) {
+    vkFreeDescriptorSets(context_->GetDevice(), context_->GetDescriptorPool(), 1, &descriptor_set.descriptor_set);
   }
   vkDestroyDescriptorSetLayout(context_->GetDevice(), layout_, nullptr);
   vkDestroyPipelineLayout(context_->GetDevice(), pipeline_layout_, nullptr);

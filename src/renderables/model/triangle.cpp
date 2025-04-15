@@ -44,7 +44,7 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::Triangle::CreatePipeline(
                                             .sample_count = sample_count,
                                         },
                                         descriptor_set_count);
-  pipeline->SetVertexBuffer(triangle_->GetVertexBuffer());
+  pipeline->SetVertexBuffer(0, triangle_->GetVertexBuffer());
   pipeline->SetIndexBuffer(triangle_->GetIndexBuffer(), triangle_->GetIndexBufferDataType());
   return pipeline;
 }

@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.4.304.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.309.0)
 
 FetchContent_Declare(glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(magic_enum)
 
 FetchContent_Declare(fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 11.0.2
+        GIT_TAG 11.1.4
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -32,7 +32,7 @@ FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.15.0
+        GIT_TAG v1.15.2
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -79,7 +79,7 @@ FetchContent_MakeAvailable(Vulkan-Headers)
 
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG v3.2.0
+        GIT_TAG v3.2.1
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -87,7 +87,7 @@ FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.91.7
+        GIT_TAG v1.91.9b
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
         CONFIGURE_COMMAND ""
@@ -105,7 +105,6 @@ add_library(imgui STATIC
 )
 target_compile_definitions(imgui PUBLIC
         -DIMGUI_IMPL_VULKAN_NO_PROTOTYPES
-        -DIMGUI_DISABLE_DEMO_WINDOWS
         -DGLFW_INCLUDE_NONE)
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
         PUBLIC ${imgui_SOURCE_DIR}/backends)
@@ -113,7 +112,7 @@ target_link_libraries(imgui PRIVATE glfw Vulkan-Headers)
 
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3
+        GIT_TAG v3.12.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -130,7 +129,7 @@ target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
 FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.9.4
+        GIT_TAG v2.9.5
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

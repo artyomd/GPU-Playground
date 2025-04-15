@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.4.304.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.309.0)
 
 FetchContent_Declare(SPIRV-Headers
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
@@ -36,7 +36,7 @@ FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2024.4
+        GIT_TAG v2025.1
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -52,11 +52,12 @@ FetchContent_MakeAvailable(shaderc)
 #LIBRARY_NAME - string, name of output library target
 #DEBUG -  boolean, enable/disable, generate debuggable spir-v shaders
 #WERROR - boolean, enable/disable, treat all warnings as errors.
+#TARGET_ENV - string, target client environment
 #TARGET_SPV - string, target spv version
 #INCLUDE_PATH - string, include path for shaders
 #INPUT_GLSL_FILE - list, absolute path to source files
 FUNCTION(add_spirv_library)
-    cmake_parse_arguments(PARAM "" "LIBRARY_NAME;DEBUG;WERROR;TARGET_SPV;INCLUDE_PATH" "INPUT_GLSL_FILE" ${ARGN})
+    cmake_parse_arguments(PARAM "" "LIBRARY_NAME;DEBUG;WERROR;TARGET_ENV;TARGET_SPV;INCLUDE_PATH" "INPUT_GLSL_FILE" ${ARGN})
 
     set(EXTRA_FLAGS)
     if (${PARAM_DEBUG})
@@ -71,6 +72,10 @@ FUNCTION(add_spirv_library)
 
     if (NOT ${TARGET_SPV} STREQUAL "")
         set(EXTRA_FLAGS "${EXTRA_FLAGS};--target-spv=${TARGET_SPV}")
+    endif ()
+
+    if (NOT ${TARGET_ENV} STREQUAL "")
+        set(EXTRA_FLAGS "${EXTRA_FLAGS};--target-env=${TARGET_ENV}")
     endif ()
 
     if (NOT ${INCLUDE_PATH} STREQUAL "")

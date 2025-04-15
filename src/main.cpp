@@ -1,5 +1,7 @@
+#include <imgui.h>
 #include <spdlog/spdlog.h>
 
+#include <renderables/particles/particles.hpp>
 #include <tracy/Tracy.hpp>
 
 #include "application/application.hpp"
@@ -107,6 +109,8 @@ int main() {
             return shader_menu;
           },
           "Shaders");
+      menu->RegisterMenuItem([](auto context, auto parent) { return renderable::Particles::Create(context, parent); },
+                             "Particles");
       return menu;
     });
     test_application.Run();

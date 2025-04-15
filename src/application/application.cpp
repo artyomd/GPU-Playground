@@ -2,7 +2,6 @@
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include <imgui_impl_vulkan.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
@@ -16,7 +15,7 @@
 
 namespace {
 struct QueueFamilyIndices {
-  std::optional<uint32_t> graphics_family;
+  std::optional<uint32_t> graphics_and_compute_family;
   std::optional<uint32_t> present_family;
   QueueFamilyIndices(const VkPhysicalDevice &device, const VkSurfaceKHR &surface) {
     uint32_t queue_family_count = 0;
@@ -25,9 +24,10 @@ struct QueueFamilyIndices {
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
     for (auto i = 0u; i < queue_families.size(); i++) {
       const auto queue_family = queue_families[i];
-      if (!graphics_family.has_value()) {
-        if (queue_family.queueCount > 0 && ((queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0U)) {
-          graphics_family = i;
+      if (!graphics_and_compute_family.has_value()) {
+        if (queue_family.queueCount > 0 &&
+            (queue_family.queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) != 0) {
+          graphics_and_compute_family = i;
         }
       }
       if (!present_family.has_value()) {
@@ -42,7 +42,9 @@ struct QueueFamilyIndices {
       }
     }
   }
-  [[nodiscard]] bool IsComplete() const { return graphics_family.has_value() && present_family.has_value(); }
+  [[nodiscard]] bool IsComplete() const {
+    return graphics_and_compute_family.has_value() && present_family.has_value();
+  }
 };
 
 struct SwapChainSupportDetails {
@@ -119,7 +121,8 @@ application::Application::Application(
   bool use_sync2_ext = std::ranges::find(required_device_extensions_, VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME) !=
                        required_device_extensions_.end();
   rendering_context_ = std::make_shared<vulkan::RenderingContext>(
-      vulkan_instance_, physical_device_, device_, graphics_queue_, graphics_family_index_, use_sync2_ext);
+      vulkan_instance_, physical_device_, device_, graphics_and_compute_queue_,
+      graphics_and_compute_queue_family_index_, use_sync2_ext);
   this->semaphore_pool_ = std::make_shared<vulkan::SemaphorePool>(rendering_context_);
 
   CreateSwapChain();
@@ -133,7 +136,7 @@ application::Application::Application(
 void application::Application::OnWindowSizeChanged(const int width, const int height) {
   this->window_width_ = width;
   this->window_height_ = height;
-  rendering_context_->WaitForGraphicsQueueIdle();
+  rendering_context_->WaitForQueueIdle();
   if (width == 0 || height == 0) {
     glfwWaitEvents();
     return;
@@ -166,26 +169,26 @@ void application::Application::CreateInstance() {
 
   bool debug_utils_enabled = false;
 
-  std::array enabledValidationFeatures{
+  std::array enabled_validation_features{
       VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
       VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT,
   };
   VkValidationFeaturesEXT validation_features_ext{
       .sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
       .pNext = nullptr,
-      .enabledValidationFeatureCount = enabledValidationFeatures.size(),
-      .pEnabledValidationFeatures = enabledValidationFeatures.data(),
+      .enabledValidationFeatureCount = enabled_validation_features.size(),
+      .pEnabledValidationFeatures = enabled_validation_features.data(),
       .disabledValidationFeatureCount = 0,
       .pDisabledValidationFeatures = nullptr,
   };
 
-  void *instancePNext = nullptr;
+  void *instance_p_next = nullptr;
 
   for (const auto available_layers = vulkan::GetAvailableInstanceLayers(); const auto &layer : available_layers) {
 #if !defined(NDEBUG)
     if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
       layers.emplace_back("VK_LAYER_KHRONOS_validation");
-      instancePNext = &validation_features_ext;
+      instance_p_next = &validation_features_ext;
       for (auto available_extensions = vulkan::GetAvailableInstanceExtensions("VK_LAYER_KHRONOS_validation");
            const auto &[extensionName, specVersion] : available_extensions) {
         if (strcmp(extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0) {
@@ -212,7 +215,7 @@ void application::Application::CreateInstance() {
 
   const VkInstanceCreateInfo instance_create_info{
       .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-      .pNext = instancePNext,
+      .pNext = instance_p_next,
       .flags = (std::ranges::find(instance_extensions, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) !=
                 instance_extensions.end())
                    ? VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
@@ -242,18 +245,18 @@ void application::Application::CreateInstance() {
                               const VkDebugUtilsMessengerCallbackDataEXT *p_callback_data,
                               void *) -> VKAPI_ATTR VkBool32 VKAPI_CALL {
           auto flag_to_string = [](const VkDebugUtilsMessageTypeFlagsEXT flag) {
-            std::string flags;
+            std::string flags_str;
             if ((flag & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) != 0) {
-              flags += "|GENERAL";
+              flags_str += "|GENERAL";
             }
             if ((flag & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) != 0) {
-              flags += "|VALIDATION";
+              flags_str += "|VALIDATION";
             }
             if ((flag & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) != 0) {
-              flags += "|PERFORMANCE";
+              flags_str += "|PERFORMANCE";
             }
-            flags += "|";
-            return flags;
+            flags_str += "|";
+            return flags_str;
           };
           if ((message_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0) {
             spdlog::info("validation layer {}: {}", flag_to_string(flags), p_callback_data->pMessage);
@@ -322,7 +325,7 @@ void application::Application::PickPhysicalDevice() {
 void application::Application::CreateLogicalDevice() {
   QueueFamilyIndices indices(physical_device_, surface_);
   std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
-  std::set unique_queue_families = {indices.graphics_family.value(), indices.present_family.value()};
+  std::set unique_queue_families = {indices.graphics_and_compute_family.value(), indices.present_family.value()};
   float queue_priority = 1.0F;
   for (uint32_t queue_family : unique_queue_families) {
     VkDeviceQueueCreateInfo queue_create_info{
@@ -369,8 +372,8 @@ void application::Application::CreateLogicalDevice() {
   volkLoadDevice(device_);
   vkGetDeviceQueue(device_, indices.present_family.value(), 0, &present_queue_);
   present_family_index_ = indices.present_family.value();
-  vkGetDeviceQueue(device_, indices.graphics_family.value(), 0, &graphics_queue_);
-  graphics_family_index_ = indices.graphics_family.value();
+  vkGetDeviceQueue(device_, indices.graphics_and_compute_family.value(), 0, &graphics_and_compute_queue_);
+  graphics_and_compute_queue_family_index_ = indices.graphics_and_compute_family.value();
 }
 
 void application::Application::CreateSwapChain() {
@@ -413,8 +416,8 @@ void application::Application::CreateSwapChain() {
   };
 
   const QueueFamilyIndices indices(physical_device_, surface_);
-  const std::array queue_family_indices = {indices.graphics_family.value(), indices.present_family.value()};
-  if (indices.graphics_family != indices.present_family) {
+  const std::array queue_family_indices = {indices.graphics_and_compute_family.value(), indices.present_family.value()};
+  if (indices.graphics_and_compute_family != indices.present_family) {
     create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     create_info.queueFamilyIndexCount = 2;
     create_info.pQueueFamilyIndices = queue_family_indices.data();
@@ -448,15 +451,6 @@ void application::Application::CreateSwapChain() {
       semaphores_.emplace_back(rendering_context_->CreateSemaphore());
     }
   }
-  if (fences_.size() != swap_chain_images_.size()) {
-    while (fences_.size() > swap_chain_images_.size()) {
-      rendering_context_->DestroyFence(fences_.front());
-      fences_.pop();
-    }
-    while (fences_.size() < swap_chain_images_.size()) {
-      fences_.push(rendering_context_->CreateFence(true));
-    }
-  }
 }
 
 void application::Application::CleanupSwapChain() {
@@ -464,10 +458,6 @@ void application::Application::CleanupSwapChain() {
     rendering_context_->DestroySemaphore(semaphore);
   }
   semaphores_.clear();
-  while (!fences_.empty()) {
-    rendering_context_->DestroyFence(fences_.front());
-    fences_.pop();
-  }
   swap_chain_images_.clear();
   vkDestroySwapchainKHR(device_, swap_chain_, nullptr);
   swap_chain_ = VK_NULL_HANDLE;
@@ -482,17 +472,12 @@ void application::Application::Run() {
 
     uint32_t image_index = 0;
     auto *semaphore = semaphore_pool_->GetSemaphore();
-    auto *fence = fences_.front();
-    fences_.pop();
-    rendering_context_->WaitForFence(fence);
-    rendering_context_->ResetFence(fence);
-    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphore, fence, &image_index);
+    auto result = vkAcquireNextImageKHR(device_, swap_chain_, UINT64_MAX, semaphore, VK_NULL_HANDLE, &image_index);
     if (result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_OUT_OF_DATE_KHR) {
       continue;
     }
     VK_CALL(result);
     semaphore_pool_->RegisterSemaphore(image_index, semaphore);
-    fences_.push(fence);
 
     renderable_->Render(swap_chain_images_[image_index], semaphore, semaphores_[image_index]);
 
@@ -516,7 +501,7 @@ void application::Application::Run() {
 void application::Application::RequestExit() const { glfwSetWindowShouldClose(window_, GLFW_TRUE); }
 
 application::Application::~Application() {
-  rendering_context_->WaitForGraphicsQueueIdle();
+  rendering_context_->WaitForQueueIdle();
   renderable_ = nullptr;
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();

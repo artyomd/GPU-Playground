@@ -162,6 +162,21 @@
       <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Constants/@EntryIndexedValue" value="&lt;NamingElement Priority=&quot;6&quot;&gt;&lt;Descriptor Static=&quot;Indeterminate&quot; Constexpr=&quot;Indeterminate&quot; Const=&quot;True&quot; Volatile=&quot;Indeterminate&quot; Accessibility=&quot;NOT_APPLICABLE&quot;&gt;&lt;type Name=&quot;global variable&quot; /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect=&quot;True&quot; WarnAboutPrefixesAndSuffixes=&quot;False&quot; Prefix=&quot;k&quot; Suffix=&quot;&quot; Style=&quot;AaBb&quot; /&gt;&lt;/NamingElement&gt;" type="string" />
       <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Functions/@EntryIndexedValue" value="&lt;NamingElement Priority=&quot;7&quot;&gt;&lt;Descriptor Static=&quot;Indeterminate&quot; Constexpr=&quot;Indeterminate&quot; Const=&quot;Indeterminate&quot; Volatile=&quot;Indeterminate&quot; Accessibility=&quot;NOT_APPLICABLE&quot;&gt;&lt;type Name=&quot;global function&quot; /&gt;&lt;type Name=&quot;member function&quot; /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect=&quot;True&quot; WarnAboutPrefixesAndSuffixes=&quot;False&quot; Prefix=&quot;&quot; Suffix=&quot;&quot; Style=&quot;AaBb&quot;&gt;&lt;ExtraRule Prefix=&quot;&quot; Suffix=&quot;&quot; Style=&quot;aa_bb&quot; /&gt;&lt;/Policy&gt;&lt;/NamingElement&gt;" type="string" />
       <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Non_002DType_0020Template_0020Parameters/@EntryIndexedValue" value="&lt;NamingElement Priority=&quot;11&quot;&gt;&lt;Descriptor Static=&quot;Indeterminate&quot; Constexpr=&quot;Indeterminate&quot; Const=&quot;Indeterminate&quot; Volatile=&quot;Indeterminate&quot; Accessibility=&quot;NOT_APPLICABLE&quot;&gt;&lt;type Name=&quot;non-type template parameter&quot; /&gt;&lt;/Descriptor&gt;&lt;Policy Inspect=&quot;True&quot; WarnAboutPrefixesAndSuffixes=&quot;False&quot; Prefix=&quot;&quot; Suffix=&quot;&quot; Style=&quot;AaBb&quot; /&gt;&lt;/NamingElement&gt;" type="string" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Parameters/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Enumerators/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Namespaces/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Macros/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Types/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Functions/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Fields/@EntryIndexedValue" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Fields/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Variables/@EntryIndexedValue" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Variables/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Non_002DType_0020Template_0020Parameters/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Common_0020Variables/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Struct_0020Data_0020Members/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Class_0020Data_0020Members/@EntryIndexRemoved" />
+      <option name="/Default/CodeStyle/Naming/CppNaming/Rules/=Constants/@EntryIndexRemoved" />
     </RiderCodeStyleSettings>
     <clangFormatSettings>
       <option name="ENABLED" value="true" />

@@ -1,7 +1,5 @@
 #include "gltf_model.hpp"
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
 #include <imgui.h>
 
 #include <ranges>
@@ -87,7 +85,7 @@ void renderable::GltfModel::SetupImages(const std::vector<std::shared_ptr<vulkan
 void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, const VkSemaphore &waitSemaphore,
                                    const VkSemaphore &signalSemaphore) {
   if (current_scene_ != selected_scene_) {
-    rendering_context_->WaitForGraphicsQueueIdle();
+    rendering_context_->WaitForQueueIdle();
     model_->LoadScene(selected_scene_);
     current_scene_ = selected_scene_;
   }
@@ -158,9 +156,9 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
 
   model_->Render(cmd_buffer, descriptor_index);
 
-  ImGui_ImplVulkan_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  ImguiWrapper::BeginFrame();
+  ImguiWrapper::ShowFPSOverlay();
+
   ImGui::Begin("Gltf model");
   ImGui::Text("Scenes:");
   if (ImGui::BeginListBox("##Scenes", ImVec2(-FLT_MIN, std::min(static_cast<float>(scenes_names_.size()), 7.0f) *
@@ -182,12 +180,9 @@ void renderable::GltfModel::Render(const std::shared_ptr<vulkan::Image> &image, 
       locked_parent->Pop();
     }
   }
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-              ImGui::GetIO().Framerate);
   ImGui::End();
-  ImGui::EndFrame();
-  ImGui::Render();
-  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
+
+  ImguiWrapper::EndFrameAndDraw(cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;

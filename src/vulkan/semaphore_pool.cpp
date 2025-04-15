@@ -18,7 +18,7 @@ void vulkan::SemaphorePool::RegisterSemaphore(const uint32_t index, const VkSema
   semaphoresInQueue_[index] = semaphore;
 }
 vulkan::SemaphorePool::~SemaphorePool() {
-  rendering_context_->WaitForGraphicsQueueIdle();
+  rendering_context_->WaitForQueueIdle();
   while (!availableSemaphores_.empty()) {
     rendering_context_->DestroySemaphore(availableSemaphores_.front());
     availableSemaphores_.pop();

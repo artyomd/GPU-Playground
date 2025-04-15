@@ -1,7 +1,5 @@
 #include "model.hpp"
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
 #include <imgui.h>
 
 #include <glm/ext/matrix_clip_space.hpp>
@@ -177,10 +175,10 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
   vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
   vkCmdSetScissor(cmd_buffer, 0, 1, &scissor_rect);
 
-  pipeline_->Draw(cmd_buffer, NumOfIndicesToDraw(), 0, descriptor_index);
-  ImGui_ImplVulkan_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
+  pipeline_->DrawIndexed(cmd_buffer, NumOfIndicesToDraw(), descriptor_index);
+  ImguiWrapper::BeginFrame();
+  ImguiWrapper::ShowFPSOverlay();
+
   ImGui::Begin("Model");
   ImGui::SliderFloat("translationX", &translation_.x, -projection_width_, projection_width_);
   ImGui::SliderFloat("translationY", &translation_.y, -projection_height_, projection_height_);
@@ -192,12 +190,8 @@ void renderable::Model::Render(const std::shared_ptr<vulkan::Image> &image, cons
       locked_parent->Pop();
     }
   }
-  ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-              ImGui::GetIO().Framerate);
   ImGui::End();
-  ImGui::EndFrame();
-  ImGui::Render();
-  ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd_buffer);
+  ImguiWrapper::EndFrameAndDraw(cmd_buffer);
   vkCmdEndRenderPass(cmd_buffer);
   vkEndCommandBuffer(cmd_buffer);
   constexpr VkPipelineStageFlags2 wait_stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;

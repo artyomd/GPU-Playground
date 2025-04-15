@@ -12,7 +12,7 @@ class RenderingContext final {
   RenderingContext(const RenderingContext&) = delete;
   RenderingContext(RenderingContext&&) = delete;
   explicit RenderingContext(const VkInstance& instance, const VkPhysicalDevice& physical_device, const VkDevice& device,
-                            const VkQueue& graphics_queue, uint32_t queue_family_index, bool use_sync_2_ext);
+                            const VkQueue& queue, uint32_t queue_family_index, bool use_sync_2_ext);
 
   RenderingContext& operator=(const RenderingContext&) = delete;
   RenderingContext& operator=(RenderingContext&&) = delete;
@@ -21,7 +21,7 @@ class RenderingContext final {
 
   [[nodiscard]] VkPhysicalDevice GetPhysicalDevice() const;
 
-  [[nodiscard]] VkQueue GetGraphicsQueue() const;
+  [[nodiscard]] VkQueue GetQueue() const;
 
   [[nodiscard]] VkDevice GetDevice() const;
 
@@ -54,7 +54,7 @@ class RenderingContext final {
 
   void DestroySemaphore(const VkSemaphore& semaphore) const;
 
-  void WaitForGraphicsQueueIdle() const;
+  void WaitForQueueIdle() const;
 
   [[nodiscard]] bool IsUseSynch2Ext() const;
 
@@ -67,7 +67,7 @@ class RenderingContext final {
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   uint32_t physical_device_vk_spec_version_ = VK_API_VERSION_1_0;
   VkDevice device_ = VK_NULL_HANDLE;
-  VkQueue graphics_queue_ = VK_NULL_HANDLE;
+  VkQueue queue = VK_NULL_HANDLE;
   uint32_t queue_family_index_ = 0;
   VkDescriptorPool descriptor_pool_ = VK_NULL_HANDLE;
   VmaAllocator allocator_ = VK_NULL_HANDLE;

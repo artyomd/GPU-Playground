@@ -107,7 +107,7 @@ std::shared_ptr<vulkan::RenderingPipeline> renderable::Cube::CreatePipeline(
                                                         .sample_count = sample_count,
                                                     },
                                                     descriptor_set_count);
-  pipeline->SetVertexBuffer(vertex_buffer_);
+  pipeline->SetVertexBuffer(0, vertex_buffer_);
   pipeline->SetIndexBuffer(index_buffer_, index_type_);
   return pipeline;
 }
