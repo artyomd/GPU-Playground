@@ -20,6 +20,7 @@ class ComputePipeline final {
   ComputePipeline &operator=(ComputePipeline &&) = delete;
 
   void SetBuffer(uint32_t binding_point, uint32_t descriptor_set_index, const std::shared_ptr<Buffer> &buffer);
+  void SetImage(uint32_t binding_point, uint32_t descriptor_set_index, const std::shared_ptr<ImageView> &image);
 
   [[nodiscard]] size_t GetDescriptorSetCount() const;
 
@@ -43,6 +44,7 @@ class ComputePipeline final {
     VkDescriptorSet descriptor_set = VK_NULL_HANDLE;
     std::map<uint32_t, std::shared_ptr<Buffer>> uniform_buffers;
     std::map<uint32_t, std::shared_ptr<Buffer>> storage_buffers;
+    std::map<uint32_t, std::shared_ptr<ImageView>> storage_images;
   };
   std::vector<DescriptorSetInfo> descriptor_sets_;
   VkDescriptorSetLayout layout_ = VK_NULL_HANDLE;

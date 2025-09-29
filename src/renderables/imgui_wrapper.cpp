@@ -20,18 +20,20 @@ renderable::ImguiWrapper::ImguiWrapper(const std::shared_ptr<vulkan::RenderingCo
       },
       &vulkan_instance);
   ImGui_ImplVulkan_InitInfo init_info = {
+      .ApiVersion = instance_version,
       .Instance = rendering_context_->GetInstance(),
       .PhysicalDevice = rendering_context_->GetPhysicalDevice(),
       .Device = rendering_context_->GetDevice(),
       .QueueFamily = 0,
       .Queue = rendering_context_->GetQueue(),
       .DescriptorPool = rendering_context_->GetDescriptorPool(),
-      .RenderPass = render_pass_->GetRenderPass(),
+      .DescriptorPoolSize = 0,
       .MinImageCount = image_count_,
       .ImageCount = image_count_,
-      .MSAASamples = sample_count,
       .PipelineCache = VK_NULL_HANDLE,
+      .RenderPass = render_pass_->GetRenderPass(),
       .Subpass = 0,
+      .MSAASamples = sample_count,
       .Allocator = nullptr,
       .CheckVkResultFn = [](const VkResult result) { VK_CALL(result); },
   };

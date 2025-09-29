@@ -67,7 +67,7 @@ class RenderingContext final {
   VkPhysicalDevice physical_device_ = VK_NULL_HANDLE;
   uint32_t physical_device_vk_spec_version_ = VK_API_VERSION_1_0;
   VkDevice device_ = VK_NULL_HANDLE;
-  VkQueue queue = VK_NULL_HANDLE;
+  VkQueue queue_ = VK_NULL_HANDLE;
   uint32_t queue_family_index_ = 0;
   VkDescriptorPool descriptor_pool_ = VK_NULL_HANDLE;
   VmaAllocator allocator_ = VK_NULL_HANDLE;

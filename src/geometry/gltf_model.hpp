@@ -1,8 +1,8 @@
 #pragma once
 
+#include <glm/ext.hpp>
 #include <tiny_gltf.h>
 
-#include <glm/ext.hpp>
 #include <string>
 
 #include "vulkan/image.hpp"

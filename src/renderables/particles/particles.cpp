@@ -154,7 +154,17 @@ void renderable::Particles::SetupImages(const std::vector<std::shared_ptr<vulkan
         .enable_depth_test = VK_FALSE,
         .depth_function = VK_COMPARE_OP_LESS,
         .sample_count = VK_SAMPLE_COUNT_1_BIT,
-    };
+        .color_blend_attachment_state = {
+            .blendEnable = VK_TRUE,
+            .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+            .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+            .colorBlendOp = VK_BLEND_OP_ADD,
+            .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+            .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+            .alphaBlendOp = VK_BLEND_OP_ADD,
+            .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+                              VK_COLOR_COMPONENT_A_BIT,
+        }};
     render_pipline_ = vulkan::RenderingPipeline::Create(rendering_context_, render_pass_, v_shader_, f_shader_, vbl_,
                                                         config, images.size());
     render_pipline_->SetVertexBuffer(1, color_buffer_);
@@ -171,6 +181,7 @@ void renderable::Particles::SetupImages(const std::vector<std::shared_ptr<vulkan
     command_buffers_[image] = {
         .fence = rendering_context_->CreateFence(true),
         .command_buffer = rendering_context_->CreateCommandBuffer(command_pool_),
+        .descriptor_index = descriptor_index,
         .uniform_buffer = vulkan::Buffer::Create(rendering_context_, sizeof(UniformBufferObject),
                                                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, true),
         .vertex_ssbo =
@@ -178,7 +189,7 @@ void renderable::Particles::SetupImages(const std::vector<std::shared_ptr<vulkan
                                    VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, false),
         .velocity_ssbo = vulkan::Buffer::Create(rendering_context_, initial_velocity_buffer_->GetSizeInBytes(),
                                                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, false),
-        .descriptor_index = descriptor_index};
+    };
     descriptor_index++;
   }
 }

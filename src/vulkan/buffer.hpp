@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstddef>
-
 #include "rendering_context.hpp"
 
 namespace vulkan {

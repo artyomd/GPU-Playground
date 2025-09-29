@@ -1,10 +1,6 @@
 #include "geometry/gltf_model.hpp"
 
 #include <spdlog/spdlog.h>
-#include <tiny_gltf.h>
-
-#include <glm/ext.hpp>
-#include <utility>
 
 #include "geometry/gltf_model_defaults.hpp"
 #include "vulkan/rendering_pipeline.hpp"
@@ -137,13 +133,13 @@ geometry::GltfModel::GltfModel(const std::shared_ptr<vulkan::RenderingContext> &
     throw std::runtime_error("Failed to parse glTF\n");
   }
 
-  for (const auto &kCamera : model_.cameras) {
+  for (const auto &camera : model_.cameras) {
     auto camera_matrix = glm::mat4(1.0);
-    if (kCamera.type == "perspective") {
-      const auto data = kCamera.perspective;
+    if (camera.type == "perspective") {
+      const auto data = camera.perspective;
       camera_matrix = glm::perspective(data.yfov, data.aspectRatio, data.znear, data.zfar);
     } else {
-      const auto data = kCamera.orthographic;
+      const auto data = camera.orthographic;
       camera_matrix[0][0] = static_cast<float>(1.0F / data.xmag);
       camera_matrix[1][1] = static_cast<float>(1.0F / data.ymag);
       camera_matrix[2][2] = static_cast<float>(2.0F / (data.znear - data.zfar));
@@ -233,8 +229,8 @@ void geometry::GltfModel::LoadNode(const tinygltf::Node &node, const glm::mat4 &
   if (node.camera != -1) {
     SetCamera(node.camera, glm::inverse(matrix));
   }
-  for (const auto &kChild : node.children) {
-    LoadNode(model_.nodes[static_cast<size_t>(kChild)], matrix);
+  for (const auto &child : node.children) {
+    LoadNode(model_.nodes[static_cast<size_t>(child)], matrix);
   }
 }
 

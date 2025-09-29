@@ -6,6 +6,7 @@ set(GLSL_FILES
         default_mvp_color_vertex_shader.glsl
         gltf_fragment.glsl
         gltf_vertex.glsl
+        greyscale.glsl
         hsb_fragment.glsl
         lighting_fragment.glsl
         lighting_vertex.glsl
@@ -30,5 +31,6 @@ endif ()
 add_spirv_library(LIBRARY_NAME shaders
         DEBUG ${SHADERS_DEBUG}
         WERROR ${SHADERS_DEBUG}
-        INPUT_GLSL_FILE ${GLSL_FILES}
-        TARGET_SPV "spv1.6")
+        INPUT_FILES ${GLSL_FILES}
+        TARGET_SPV "spv1.6"
+)

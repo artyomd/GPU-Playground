@@ -7,8 +7,8 @@
 
 namespace vulkan {
 class SemaphorePool {
-  std::queue<VkSemaphore> availableSemaphores_;
-  std::map<uint32_t, VkSemaphore> semaphoresInQueue_;
+  std::queue<VkSemaphore> available_semaphores_;
+  std::map<uint32_t, VkSemaphore> semaphores_in_queue_;
   std::shared_ptr<RenderingContext> rendering_context_ = nullptr;
 
  public:

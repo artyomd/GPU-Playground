@@ -17,6 +17,11 @@ struct RenderingPipelineConfig {
   VkBool32 enable_depth_test = VK_FALSE;
   VkCompareOp depth_function = VK_COMPARE_OP_LESS;
   VkSampleCountFlagBits sample_count = VK_SAMPLE_COUNT_1_BIT;
+  VkPipelineColorBlendAttachmentState color_blend_attachment_state = {
+      .blendEnable = VK_FALSE,
+      .colorWriteMask =
+          VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+  };
 };
 
 class RenderingPipeline final {

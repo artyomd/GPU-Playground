@@ -99,7 +99,7 @@ VkSampleCountFlagBits vulkan::GetMaxUsableSampleCount(const VkPhysicalDevice &ph
 
 namespace {
 VkFormat FindSupportedFormat(const VkPhysicalDevice &physical_device, const std::vector<VkFormat> &candidates,
-                             const VkImageTiling tiling, const VkFormatFeatureFlags features) {
+                             const VkImageTiling &tiling, const VkFormatFeatureFlags &features) {
   for (const VkFormat format : candidates) {
     VkFormatProperties props;
     vkGetPhysicalDeviceFormatProperties(physical_device, format, &props);

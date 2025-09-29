@@ -58,17 +58,9 @@ vulkan::Shader::Shader(const std::shared_ptr<RenderingContext> &context, const s
   }
   if (count == 1) {
     const auto *set = sets[0];
-    bindings_.resize(set->binding_count);
     for (uint32_t i_binding = 0; i_binding < set->binding_count; ++i_binding) {
       const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(set->bindings[i_binding]);
-      VkDescriptorSetLayoutBinding &layout_binding = bindings_[i_binding];
-      layout_binding.binding = reflect_descriptor_binding.binding;
-      layout_binding.descriptorType = static_cast<VkDescriptorType>(reflect_descriptor_binding.descriptor_type);
-      layout_binding.descriptorCount = 1;
-      for (uint32_t i_dim = 0; i_dim < reflect_descriptor_binding.array.dims_count; ++i_dim) {
-        layout_binding.descriptorCount *= reflect_descriptor_binding.array.dims[i_dim];
-      }
-      layout_binding.stageFlags = static_cast<VkShaderStageFlagBits>(reflect_shader_module_.shader_stage);
+      bindings_[reflect_descriptor_binding.binding] = reflect_descriptor_binding;
     }
   }
 }
@@ -110,24 +102,7 @@ VkPipelineShaderStageCreateInfo vulkan::Shader::GetShaderStageInfo() const {
   };
 }
 
-std::vector<VkDescriptorSetLayoutBinding> vulkan::Shader::GetBindings() const { return bindings_; }
-
-uint32_t vulkan::Shader::DescriptorSizeInBytes(const uint32_t binding_point) const {
-  uint32_t count = 1;
-  std::vector<SpvReflectDescriptorSet *> sets(count);
-  if (const auto result = spvReflectEnumerateDescriptorSets(&reflect_shader_module_, &count, sets.data());
-      result != SPV_REFLECT_RESULT_SUCCESS) {
-    throw std::runtime_error("spir-v reflection failed");
-  }
-  for (uint32_t i_binding = 0; i_binding < sets[0]->binding_count; ++i_binding) {
-    const SpvReflectDescriptorBinding &reflect_descriptor_binding = *(sets[0]->bindings[i_binding]);
-    if (reflect_descriptor_binding.binding != binding_point) {
-      continue;
-    }
-    return reflect_descriptor_binding.block.size;
-  }
-  throw std::runtime_error("invalid binding point");
-}
+std::map<uint32_t, SpvReflectDescriptorBinding> vulkan::Shader::GetBindings() const { return bindings_; }
 
 vulkan::Shader::~Shader() {
   spvReflectDestroyShaderModule(&reflect_shader_module_);

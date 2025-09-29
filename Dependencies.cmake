@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.4.309.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.321.0)
 
 FetchContent_Declare(glfw
         GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -23,16 +23,16 @@ FetchContent_MakeAvailable(magic_enum)
 
 FetchContent_Declare(fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG 11.1.4
+        GIT_TAG 12.0.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
-set(FMT_INSTALL OFF)
+set(FMT_OS OFF)
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG v1.15.2
+        GIT_TAG v1.15.3
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -55,8 +55,8 @@ FetchContent_Declare(SPIRV-Reflect
         GIT_PROGRESS TRUE
 )
 set(SPIRV_REFLECT_EXECUTABLE OFF)
-set(SPIRV_REFLECT_EXAMPLES OFF)
 set(SPIRV_REFLECT_STATIC_LIB ON)
+set(SPIRV_REFLECT_INSTALL OFF)
 FetchContent_MakeAvailable(SPIRV-Reflect)
 
 FetchContent_Declare(volk
@@ -79,7 +79,7 @@ FetchContent_MakeAvailable(Vulkan-Headers)
 
 FetchContent_Declare(VulkanMemoryAllocator
         GIT_REPOSITORY https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
-        GIT_TAG v3.2.1
+        GIT_TAG v3.3.0
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -87,11 +87,9 @@ FetchContent_MakeAvailable(VulkanMemoryAllocator)
 
 FetchContent_Declare(imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.91.9b
+        GIT_TAG v1.92.3
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
 )
 FetchContent_MakeAvailable(imgui)
 ### for some reason imgui does not provide a cmake project
@@ -110,6 +108,16 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR}
         PUBLIC ${imgui_SOURCE_DIR}/backends)
 target_link_libraries(imgui PRIVATE glfw Vulkan-Headers)
 
+FetchContent_Declare(imgui-fb
+        GIT_REPOSITORY https://github.com/AirGuanZ/imgui-filebrowser.git
+        GIT_TAG 47a1884524d6a3df5d99f70ecc82e1ed0ccd26cf
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(imgui-fb)
+add_library(imgui-fb INTERFACE)
+target_include_directories(imgui-fb INTERFACE ${imgui-fb_SOURCE_DIR})
+
 FetchContent_Declare(json
         GIT_REPOSITORY https://github.com/nlohmann/json.git
         GIT_TAG v3.12.0
@@ -120,7 +128,7 @@ FetchContent_MakeAvailable(json)
 
 FetchContent_Declare(stb
         GIT_REPOSITORY https://github.com/nothings/stb.git
-        GIT_TAG 31707d14fdb75da66b3eed52a2236a70af0d0960
+        GIT_TAG fede005abaf93d9d7f3a679d1999b2db341b360f
         GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(stb)
@@ -129,13 +137,13 @@ target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 
 FetchContent_Declare(tinygltf
         GIT_REPOSITORY https://github.com/syoyo/tinygltf.git
-        GIT_TAG v2.9.5
+        GIT_TAG v2.9.6
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
 set(TINYGLTF_BUILD_LOADER_EXAMPLE OFF)
 set(TINYGLTF_INSTALL OFF)
-set(TINYGLTF_HEADER_ONLY OFF)
+set(TINYGLTF_INSTALL_VENDOR OFF)
 FetchContent_MakeAvailable(tinygltf)
 
 FetchContent_Declare(tinyobj
@@ -148,7 +156,7 @@ FetchContent_MakeAvailable(tinyobj)
 
 FetchContent_Declare(tracy
         GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-        GIT_TAG v0.11.1
+        GIT_TAG v0.12.2
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )

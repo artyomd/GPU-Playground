@@ -23,9 +23,7 @@ class Shader final {
 
   [[nodiscard]] VkPipelineShaderStageCreateInfo GetShaderStageInfo() const;
 
-  [[nodiscard]] std::vector<VkDescriptorSetLayoutBinding> GetBindings() const;
-
-  [[nodiscard]] uint32_t DescriptorSizeInBytes(uint32_t binding_point) const;
+  [[nodiscard]] std::map<uint32_t, SpvReflectDescriptorBinding> GetBindings() const;
 
   template <typename T>
   void SetConstant(const uint32_t constant_id, const T constant_value) {
@@ -50,7 +48,7 @@ class Shader final {
   std::string entry_point_name_;
   VkShaderStageFlagBits type_;
 
-  std::vector<VkDescriptorSetLayoutBinding> bindings_;
+  std::map<uint32_t, SpvReflectDescriptorBinding> bindings_;
 
   bool constants_changed_ = false;
   std::map<uint32_t, std::variant<int, unsigned int, float, double>> specs_;

@@ -172,14 +172,9 @@ void vulkan::Image::TransferTo(const VkCommandBuffer &command_buffer, const VkIm
   if (pixel_format_ == VK_FORMAT_D16_UNORM || pixel_format_ == VK_FORMAT_D32_SFLOAT) {
     aspect_flags = VK_IMAGE_ASPECT_DEPTH_BIT;
   }
-  const std::map<VkImageLayout, std::pair<VkAccessFlags2, VkPipelineStageFlagBits2>> kLayoutMapping = {
+  const std::map<VkImageLayout, std::pair<VkAccessFlags2, VkPipelineStageFlagBits2>> layout_mapping = {
       std::make_pair(VK_IMAGE_LAYOUT_UNDEFINED, std::make_pair(0, VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT)),
-      std::make_pair(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                     std::make_pair(VK_ACCESS_2_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_2_COPY_BIT)),
-      std::make_pair(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                     std::make_pair(VK_ACCESS_2_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_2_COPY_BIT)),
-      std::make_pair(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                     std::make_pair(VK_ACCESS_2_SHADER_READ_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)),
+      std::make_pair(VK_IMAGE_LAYOUT_GENERAL, std::make_pair(0, VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT)),
       std::make_pair(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                      std::make_pair(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT,
                                     VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT)),
@@ -187,14 +182,20 @@ void vulkan::Image::TransferTo(const VkCommandBuffer &command_buffer, const VkIm
           VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
           std::make_pair(VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
                          VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT)),
+      std::make_pair(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                     std::make_pair(VK_ACCESS_2_SHADER_READ_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT)),
+      std::make_pair(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                     std::make_pair(VK_ACCESS_2_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_2_COPY_BIT)),
+      std::make_pair(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                     std::make_pair(VK_ACCESS_2_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_2_COPY_BIT)),
 
   };
   const VkImageMemoryBarrier2 barrier = {
       .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-      .srcStageMask = kLayoutMapping.at(current_layout_).second,
-      .srcAccessMask = kLayoutMapping.at(current_layout_).first,
-      .dstStageMask = kLayoutMapping.at(new_layout).second,
-      .dstAccessMask = kLayoutMapping.at(new_layout).first,
+      .srcStageMask = layout_mapping.at(current_layout_).second,
+      .srcAccessMask = layout_mapping.at(current_layout_).first,
+      .dstStageMask = layout_mapping.at(new_layout).second,
+      .dstAccessMask = layout_mapping.at(new_layout).first,
       .oldLayout = current_layout_,
       .newLayout = new_layout,
       .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,

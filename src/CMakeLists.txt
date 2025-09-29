@@ -55,6 +55,10 @@ add_executable(playground
         renderables/model/triangle.hpp
         renderables/particles/particles.cpp
         renderables/particles/particles.cpp
+        renderables/postprocess/post_process.cpp
+        renderables/postprocess/post_process.hpp
+        renderables/postprocess/greyscale.cpp
+        renderables/postprocess/greyscale.hpp
         renderables/shader.cpp
         renderables/shader.hpp
         vulkan/buffer.cpp
@@ -102,6 +106,7 @@ target_link_libraries(playground
         glfw
         glm
         imgui
+        imgui-fb
         magic_enum
         nlohmann_json
         shaders
@@ -118,8 +123,8 @@ target_link_libraries(playground
 target_compile_options(playground PRIVATE -Wall -Wextra)
 
 ##ASAN
-#target_compile_options(playground PRIVATE -fsanitize=address)
-#target_link_options(playground PRIVATE -fsanitize=address)
+target_compile_options(playground PRIVATE -fsanitize=address)
+target_link_options(playground PRIVATE -fsanitize=address)
 ##LSAN
 #target_compile_options(playground PRIVATE -fsanitize=leak)
 #target_link_options(playground PRIVATE -fsanitize=leak)

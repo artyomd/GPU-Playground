@@ -3,27 +3,27 @@
 #include <ranges>
 
 VkSemaphore vulkan::SemaphorePool::GetSemaphore() {
-  if (availableSemaphores_.empty()) {
+  if (available_semaphores_.empty()) {
     return rendering_context_->CreateSemaphore();
   }
-  auto* semaphore = availableSemaphores_.front();
-  availableSemaphores_.pop();
+  auto* semaphore = available_semaphores_.front();
+  available_semaphores_.pop();
   return semaphore;
 }
 
 void vulkan::SemaphorePool::RegisterSemaphore(const uint32_t index, const VkSemaphore& semaphore) {
-  if (semaphoresInQueue_.contains(index)) {
-    availableSemaphores_.push(semaphoresInQueue_[index]);
+  if (semaphores_in_queue_.contains(index)) {
+    available_semaphores_.push(semaphores_in_queue_[index]);
   }
-  semaphoresInQueue_[index] = semaphore;
+  semaphores_in_queue_[index] = semaphore;
 }
 vulkan::SemaphorePool::~SemaphorePool() {
   rendering_context_->WaitForQueueIdle();
-  while (!availableSemaphores_.empty()) {
-    rendering_context_->DestroySemaphore(availableSemaphores_.front());
-    availableSemaphores_.pop();
+  while (!available_semaphores_.empty()) {
+    rendering_context_->DestroySemaphore(available_semaphores_.front());
+    available_semaphores_.pop();
   }
-  for (auto* semaphore : semaphoresInQueue_ | std::views::values) {
+  for (auto* semaphore : semaphores_in_queue_ | std::views::values) {
     rendering_context_->DestroySemaphore(semaphore);
   }
 }

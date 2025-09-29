@@ -7,7 +7,7 @@ class Texture2d final : public Model {
   std::shared_ptr<vulkan::Shader> v_shader_ = nullptr;
   std::shared_ptr<vulkan::Shader> f_shader_ = nullptr;
   std::shared_ptr<vulkan::Buffer> vertex_buffer_ = nullptr;
-  vulkan::VertexBufferLayout vertex_buffer_layout_{};
+  vulkan::VertexBufferLayout vertex_buffer_layout_;
 
   std::shared_ptr<vulkan::Buffer> index_buffer_ = nullptr;
   VkIndexType index_buffer_data_type_ = VK_INDEX_TYPE_UINT16;
@@ -34,4 +34,3 @@ class Texture2d final : public Model {
   ~Texture2d() override;
 };
 }  // namespace renderable
-

@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <ranges>
 #include <utility>
 
 #include "utils.hpp"
@@ -107,10 +108,26 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
   std::array shader_stages = {vertex_shader_->GetShaderStageInfo(), fragment_shader_->GetShaderStageInfo()};
   auto vertex_bindings = vertex_shader_->GetBindings();
   auto fragment_bindings = fragment_shader_->GetBindings();
-  auto pipeline_bindings = vertex_bindings;
+  std::vector<VkDescriptorSetLayoutBinding> pipeline_bindings;
   pipeline_bindings.reserve(pipeline_bindings.size() + fragment_bindings.size());
-  pipeline_bindings.insert(pipeline_bindings.end(), fragment_bindings.begin(), fragment_bindings.end());
-
+  const auto get_descriptor_layout = [](const SpvReflectDescriptorBinding &binding, VkShaderStageFlags shader_stage) {
+    VkDescriptorSetLayoutBinding descriptor_set_layout_binding = {
+        .binding = binding.binding,
+        .descriptorType = static_cast<VkDescriptorType>(binding.descriptor_type),
+        .descriptorCount = 1,
+        .stageFlags = shader_stage,
+    };
+    for (uint32_t i_dim = 0; i_dim < binding.array.dims_count; ++i_dim) {
+      descriptor_set_layout_binding.descriptorCount *= binding.array.dims[i_dim];
+    }
+    return descriptor_set_layout_binding;
+  };
+  for (const auto &value : std::views::values(vertex_bindings)) {
+    pipeline_bindings.emplace_back(get_descriptor_layout(value, shader_stages[0].stage));
+  }
+  for (const auto &value : std::views::values(fragment_bindings)) {
+    pipeline_bindings.emplace_back(get_descriptor_layout(value, shader_stages[1].stage));
+  }
   const VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info{
       .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
       .bindingCount = static_cast<uint32_t>(pipeline_bindings.size()),
@@ -151,29 +168,12 @@ vulkan::RenderingPipeline::RenderingPipeline(const std::shared_ptr<RenderingCont
       .alphaToCoverageEnable = VK_FALSE,
   };
 
-  // constexpr VkPipelineColorBlendAttachmentState color_blend_attachment = {
-  //     .blendEnable = VK_FALSE,
-  //     .colorWriteMask =
-  //         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
-  // };
-  constexpr VkPipelineColorBlendAttachmentState color_blend_attachment = {
-      .blendEnable = VK_TRUE,
-      .colorWriteMask =
-          VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
-      .colorBlendOp = VK_BLEND_OP_ADD,
-      .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
-      .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-      .alphaBlendOp = VK_BLEND_OP_ADD,
-      .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
-      .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
-  };
-
   const VkPipelineColorBlendStateCreateInfo color_blending = {
       .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
       .logicOpEnable = VK_FALSE,
       .logicOp = VK_LOGIC_OP_COPY,
       .attachmentCount = 1,
-      .pAttachments = &color_blend_attachment,
+      .pAttachments = &config.color_blend_attachment_state,
       .blendConstants = {0.0f, 0.0f, 0.0f, 0.0f},
   };
 
@@ -281,13 +281,8 @@ void vulkan::RenderingPipeline::SetIndexBuffer(const std::shared_ptr<Buffer> &bu
 void vulkan::RenderingPipeline::SetImageView(uint32_t binding_point, const uint32_t descriptor_set_index,
                                              const std::shared_ptr<ImageView> &image_view,
                                              const std::shared_ptr<Sampler> &sampler) {
-  auto check_shader = [&binding_point](const std::shared_ptr<Shader> &shader) -> bool {
-    auto shader_bindings = shader->GetBindings();
-    return std::ranges::any_of(shader_bindings, [&binding_point](auto binding) {
-      return binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    });
-  };
-  if (!check_shader(fragment_shader_) && !check_shader(vertex_shader_)) {
+  if (!fragment_shader_->GetBindings().contains(binding_point) &&
+      !vertex_shader_->GetBindings().contains(binding_point)) {
     spdlog::warn("warning: entry point {} does not exists in shaders", binding_point);
     return;
   }
@@ -316,22 +311,17 @@ void vulkan::RenderingPipeline::SetImageView(uint32_t binding_point, const uint3
 }
 void vulkan::RenderingPipeline::SetUniformBuffer(uint32_t binding_point, const uint32_t descriptor_set_index,
                                                  const std::shared_ptr<Buffer> &uniform_buffer) {
-  auto check_shader = [&binding_point, &uniform_buffer](const std::shared_ptr<Shader> &shader) -> bool {
-    for (const auto binding : shader->GetBindings()) {
-      if (binding.binding == binding_point && binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
-        if (auto expected_size = shader->DescriptorSizeInBytes(binding_point);
-            expected_size != uniform_buffer->GetSizeInBytes()) {
-          spdlog::warn("uniform buffer size mismatch expected:{} found{}", expected_size,
-                       uniform_buffer->GetSizeInBytes());
-        }
-        return true;
-      }
-    }
-    return false;
-  };
-  if (!check_shader(fragment_shader_) && !check_shader(vertex_shader_)) {
+  auto fragment_binding = fragment_shader_->GetBindings();
+  auto vertex_binding = vertex_shader_->GetBindings();
+  if (!fragment_binding.contains(binding_point) && !vertex_binding.contains(binding_point)) {
     spdlog::warn("warning: entry point {} does not exists in shaders", binding_point);
     return;
+  }
+  const auto binding =
+      fragment_binding.contains(binding_point) ? fragment_binding[binding_point] : vertex_binding[binding_point];
+
+  if (auto expected_size = binding.block.size; expected_size != uniform_buffer->GetSizeInBytes()) {
+    spdlog::warn("uniform buffer size mismatch expected:{} found{}", expected_size, uniform_buffer->GetSizeInBytes());
   }
   if (descriptor_sets_.size() <= descriptor_set_index) {
     throw std::runtime_error("invalid descriptor set index");

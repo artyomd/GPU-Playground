@@ -1,7 +1,6 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
-#include <renderables/particles/particles.hpp>
 #include <tracy/Tracy.hpp>
 
 #include "application/application.hpp"
@@ -15,16 +14,18 @@
 #include "renderables/model/stacked_sphere.hpp"
 #include "renderables/model/texture_2d.hpp"
 #include "renderables/model/triangle.hpp"
+#include "renderables/particles/particles.hpp"
+#include "renderables/postprocess/post_process.hpp"
 #include "renderables/shader.hpp"
 
 #ifdef TRACY_ENABLE
-void *operator new(std::size_t count) {
+void* operator new(std::size_t count) {
   auto ptr = malloc(count);
   TracyAlloc(ptr, count);
   return ptr;
 }
 
-void operator delete(void *ptr) noexcept {
+void operator delete(void* ptr) noexcept {
   TracyFree(ptr);
   free(ptr);
 }
@@ -33,45 +34,62 @@ void operator delete(void *ptr) noexcept {
 int main() {
   try {
     spdlog::set_level(spdlog::level::debug);
-    application::Application test_application([&](auto context) {
+    application::Application test_application([&](const auto& context) {
       auto menu = renderable::MenuManager::Create(
-          context, [](auto context, auto parent) { return renderable::DefaultMenu::Create(context, parent); },
+          context,
+          [](const auto& context, const auto& parent) { return renderable::DefaultMenu::Create(context, parent); },
           [&]() { test_application.RequestExit(); });
 
       menu->RegisterMenuItem(
-          [](auto context, auto parent) {
+          [](const auto& context, const auto& parent) {
             auto models_menu = renderable::MenuManager::Create(
-                context, [](auto context, auto parent) { return renderable::DefaultMenu::Create(context, parent); },
+                context,
+                [](const auto& context, const auto& parent) {
+                  return renderable::DefaultMenu::Create(context, parent);
+                },
                 parent);
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::Triangle::Create(context, parent); }, "Triangle");
+                [](const auto& context, const auto& parent) { return renderable::Triangle::Create(context, parent); },
+                "Triangle");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::Cube::Create(context, parent); }, "Cube");
+                [](const auto& context, const auto& parent) { return renderable::Cube::Create(context, parent); },
+                "Cube");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::Texture2d::Create(context, parent); }, "Texture2d");
+                [](const auto& context, const auto& parent) { return renderable::Texture2d::Create(context, parent); },
+                "Texture2d");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::SpiralSphere::Create(context, parent); },
+                [](const auto& context, const auto& parent) {
+                  return renderable::SpiralSphere::Create(context, parent);
+                },
                 "Spiral Sphere");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::StackedSphere::Create(context, parent); },
+                [](const auto& context, const auto& parent) {
+                  return renderable::StackedSphere::Create(context, parent);
+                },
                 "Stacked Sphere");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::ObjModel::Create(context, parent); }, "Obj");
+                [](const auto& context, const auto& parent) { return renderable::ObjModel::Create(context, parent); },
+                "Obj");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::Lighting::Create(context, parent); }, "Lighting");
+                [](const auto& context, const auto& parent) { return renderable::Lighting::Create(context, parent); },
+                "Lighting");
             models_menu->RegisterMenuItem(
-                [](auto context, auto parent) { return renderable::GltfModel::Create(context, parent); }, "GLTF");
+                [](const auto& context, const auto& parent) { return renderable::GltfModel::Create(context, parent); },
+                "GLTF");
             return models_menu;
           },
           "Models");
 
       menu->RegisterMenuItem(
-          [](auto context, auto parent) {
+          [](const auto& context, const auto& parent) {
             auto shader_menu = renderable::MenuManager::Create(
-                context, [](auto context, auto parent) { return renderable::DefaultMenu::Create(context, parent); },
+                context,
+                [](const auto& context, const auto& parent) {
+                  return renderable::DefaultMenu::Create(context, parent);
+                },
                 parent);
             shader_menu->RegisterMenuItem(
-                [](auto context, auto parent) {
+                [](const auto& context, const auto& parent) {
                   return renderable::Shader::Create(context, parent,
                                                     {
 #include "shaping_function_fragment_shader.spv"
@@ -80,7 +98,7 @@ int main() {
                 },
                 "Shader Shaping Function");
             shader_menu->RegisterMenuItem(
-                [](auto context, auto parent) {
+                [](const auto& context, const auto& parent) {
                   return renderable::Shader::Create(context, parent,
                                                     {
 #include "color_fragment_shader.spv"
@@ -89,7 +107,7 @@ int main() {
                 },
                 "Shader Colors");
             shader_menu->RegisterMenuItem(
-                [](auto context, auto parent) {
+                [](const auto& context, const auto& parent) {
                   return renderable::Shader::Create(context, parent,
                                                     {
 #include "squares_fragment_shader.spv"
@@ -98,7 +116,7 @@ int main() {
                 },
                 "Shader Squares");
             shader_menu->RegisterMenuItem(
-                [](auto context, auto parent) {
+                [](const auto& context, const auto& parent) {
                   return renderable::Shader::Create(context, parent,
                                                     {
 #include "hsb_fragment.spv"
@@ -109,12 +127,16 @@ int main() {
             return shader_menu;
           },
           "Shaders");
-      menu->RegisterMenuItem([](auto context, auto parent) { return renderable::Particles::Create(context, parent); },
-                             "Particles");
+      menu->RegisterMenuItem(
+          [](const auto& context, const auto& parent) { return renderable::Particles::Create(context, parent); },
+          "Particles");
+      menu->RegisterMenuItem(
+          [](const auto& context, const auto& parent) { return renderable::PostProcess::Create(context, parent); },
+          "Post process");
       return menu;
     });
     test_application.Run();
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     spdlog::error(e.what());
     return EXIT_FAILURE;
   }

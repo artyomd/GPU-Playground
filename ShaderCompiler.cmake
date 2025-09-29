@@ -1,4 +1,4 @@
-set(VULKAN_SDK_VERSION vulkan-sdk-1.4.309.0)
+set(VULKAN_SDK_VERSION vulkan-sdk-1.4.321.0)
 
 FetchContent_Declare(SPIRV-Headers
         GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
@@ -36,7 +36,7 @@ FetchContent_MakeAvailable(glslang)
 
 FetchContent_Declare(shaderc
         GIT_REPOSITORY https://github.com/google/shaderc.git
-        GIT_TAG v2025.1
+        GIT_TAG v2025.4
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -55,9 +55,9 @@ FetchContent_MakeAvailable(shaderc)
 #TARGET_ENV - string, target client environment
 #TARGET_SPV - string, target spv version
 #INCLUDE_PATH - string, include path for shaders
-#INPUT_GLSL_FILE - list, absolute path to source files
+#INPUT_FILES - list, absolute path to source files
 FUNCTION(add_spirv_library)
-    cmake_parse_arguments(PARAM "" "LIBRARY_NAME;DEBUG;WERROR;TARGET_ENV;TARGET_SPV;INCLUDE_PATH" "INPUT_GLSL_FILE" ${ARGN})
+    cmake_parse_arguments(PARAM "" "LIBRARY_NAME;DEBUG;WERROR;TARGET_ENV;TARGET_SPV;INCLUDE_PATH" "INPUT_FILES" ${ARGN})
 
     set(EXTRA_FLAGS)
     if (${PARAM_DEBUG})
@@ -87,13 +87,12 @@ FUNCTION(add_spirv_library)
     add_custom_target(CREATE_SPIRV_BUILD_DIR
             COMMAND ${CMAKE_COMMAND} -E make_directory ${SPIR_V_DIRECTORY})
 
-    FOREACH (FILE ${PARAM_INPUT_GLSL_FILE})
+    FOREACH (FILE ${PARAM_INPUT_FILES})
         cmake_path(GET FILE STEM LAST_ONLY FILE_NAME)
         set(OUTPUT_FILE "${SPIR_V_DIRECTORY}/${FILE_NAME}.spv")
-
         add_custom_command(OUTPUT ${OUTPUT_FILE}
                 COMMAND glslc_exe ${EXTRA_FLAGS} -mfmt=num -o ${OUTPUT_FILE} ${FILE}
-                COMMENT "Building GLSL object ${OUTPUT_FILE}"
+                COMMENT "Building shader object ${OUTPUT_FILE}"
                 DEPENDS glslc_exe CREATE_SPIRV_BUILD_DIR ${FILE}
         )
 
